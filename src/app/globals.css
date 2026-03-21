@@ -1,26 +1,142 @@
 @import "tailwindcss";
 
+@source "./**/*.{js,ts,jsx,tsx,mdx}";
+
+/* Instrument Fonts */
+@import "@fontsource/instrument-sans/400.css";
+@import "@fontsource/instrument-sans/500.css";
+@import "@fontsource/instrument-sans/600.css";
+@import "@fontsource/instrument-sans/700.css";
+@import "@fontsource/instrument-serif/400.css";
+@import "@fontsource/instrument-serif/400-italic.css";
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Surface colors */
+  --savant-pearl: #FBFBFC;
+  --savant-matte-black: #0A0A0A;
+  /* Matte Black */
+  --savant-onyx: #030303;
+
+  /* Accent colors */
+  --savant-gold: #D4AF37;
+  --savant-blue: #007AFF;
+  --savant-emerald: #10B981;
+  /* Emerald Green */
+  --savant-danger: #EF4444;
+  /* Danger Red */
+
+  /* Animation / Easing */
+  --savant-ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --savant-spring: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Theming defaults */
+  --background: var(--savant-pearl);
+  --foreground: #1D1D1F;
+  --surface-elevated: rgba(255, 255, 255, 0.85);
+  --border-subtle: rgba(0, 0, 0, 0.05);
+  --inner-border: rgba(255, 255, 255, 0.2);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: var(--savant-onyx);
+    --foreground: #F5F5F7;
+    --surface-elevated: rgba(22, 22, 23, 0.8);
+    --border-subtle: rgba(255, 255, 255, 0.08);
+    --inner-border: rgba(255, 255, 255, 0.03);
+  }
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-surface: var(--surface-elevated);
+  --color-border: var(--border-subtle);
+  --color-gold: var(--savant-gold);
+  --color-accent: var(--savant-blue);
+  --color-emerald: var(--savant-emerald);
+  --color-danger: var(--savant-danger);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: var(--font-assistant), "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-serif: var(--font-assistant), "Instrument Serif", ui-serif, Georgia, serif;
+
+  --ease-savant: var(--savant-ease);
+  --ease-spring: var(--savant-spring);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Utilities for luxury/Apple aesthetic */
+
+.glass-panel {
+  background: var(--surface-elevated);
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  border: 1px solid var(--border-subtle);
+  box-shadow: inset 0 0 0 1px var(--inner-border);
+}
+
+.scrim-blur {
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.safe-bottom-padding {
+  padding-bottom: calc(6rem + env(safe-area-inset-bottom));
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.stacked-shadow {
+  box-shadow:
+    0 100px 80px rgba(0, 0, 0, 0.07),
+    0 41.7776px 33.4221px rgba(0, 0, 0, 0.0503198),
+    0 22.3363px 17.869px rgba(0, 0, 0, 0.0417275),
+    0 12.5216px 10.0172px rgba(0, 0, 0, 0.035),
+    0 6.6501px 5.32008px rgba(0, 0, 0, 0.0282725),
+    0 2.76726px 2.21381px rgba(0, 0, 0, 0.0196802);
+}
+
+@media (prefers-color-scheme: dark) {
+  .stacked-shadow {
+    box-shadow:
+      0 100px 80px rgba(0, 0, 0, 0.2),
+      0 40px 33px rgba(0, 0, 0, 0.15),
+      0 20px 17px rgba(0, 0, 0, 0.1),
+      0 10px 10px rgba(0, 0, 0, 0.08);
+  }
+}
+
+@layer utilities {
+  .mask-horizontal-fade {
+    mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+  }
+
+  .mask-linear-fade-left {
+    mask-image: linear-gradient(to right, transparent 0%, black 15%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 15%);
+  }
+
+  .mask-linear-fade-right {
+    mask-image: linear-gradient(to left, transparent 0%, black 15%);
+    -webkit-mask-image: linear-gradient(to left, transparent 0%, black 15%);
+  }
 }
