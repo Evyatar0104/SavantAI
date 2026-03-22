@@ -1,34 +1,43 @@
 "use client";
 
-import Link from "next/link";
-import { useParams, notFound } from "next/navigation";
+import { useParams, useRouter, notFound } from "next/navigation";
+import { useEffect } from "react";
 import { TRACKS, LESSONS } from "@/data/lessons";
-import { ArrowLeft, Clock, Zap, Target } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { isLockedAI } from "@/data/ai-lessons";
 import { useSavantStore } from "@/store/useSavantStore";
 import { AILearningPath } from "./AILearningPath";
+import Link from "next/link";
+import { ArrowLeft, Clock, Target } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+// Legacy trackId → courseId mapping for redirects
+const TRACK_TO_COURSE: Record<string, string> = {
+    "ai": "how-llms-work",
+};
 
 export default function TrackSyllabusPage() {
     const params = useParams();
+    const router = useRouter();
     const trackId = params.trackId as string;
     const track = TRACKS.find((t) => t.id === trackId);
 
-    if (!track) {
+    // If there's a known course mapping, redirect
+    const courseId = TRACK_TO_COURSE[trackId];
+
+    useEffect(() => {
+        if (courseId) {
+            router.replace(`/courses/${courseId}`);
+        }
+    }, [courseId, router]);
+
+    if (!track || trackId !== "ai") {
         return notFound();
     }
 
+    // Show existing UI while redirect happens
     const trackLessons = LESSONS.filter(l => l.trackId === trackId);
-    const unlockedAITracks = useSavantStore(state => state.unlockedAITracks);
-    const completedLessons = useSavantStore(state => state.completedLessons);
+    const unlockedAITracks = useSavantStore((state: any) => state.unlockedAITracks);
+    const completedLessons = useSavantStore((state: any) => state.completedLessons);
 
-    // Attempting a simple chunking logic for Modules (5 lessons per module)
-    const modules = [];
-    for (let i = 0; i < trackLessons.length; i += 5) {
-        modules.push(trackLessons.slice(i, i + 5));
-    }
-
-    // Determine the next uncompleted lesson (simplistic first lesson for now)
     const nextLesson = trackLessons[0];
 
     return (
@@ -46,7 +55,7 @@ export default function TrackSyllabusPage() {
                     <h1 className="text-4xl md:text-6xl font-serif italic font-bold leading-tight">{track.name}</h1>
                     <div className="flex flex-wrap gap-4 pt-4">
                         <div className="glass-panel px-4 py-2 rounded-full flex items-center text-sm font-semibold text-zinc-200">
-                            <Clock className="w-4 h-4 ml-2 text-blue-400" /> {trackLessons.length * 3} דקות סה"כ
+                            <Clock className="w-4 h-4 ml-2 text-blue-400" /> {trackLessons.length * 3} דקות סה&quot;כ
                         </div>
                         <div className="glass-panel px-4 py-2 rounded-full flex items-center text-sm font-semibold text-zinc-200">
                             <Target className="w-4 h-4 ml-2 text-green-400" /> {trackLessons.length} מודולים
@@ -66,43 +75,11 @@ export default function TrackSyllabusPage() {
             </div>
 
             <div className="space-y-12 pb-32">
-                {trackId === "ai" ? (
-                    <AILearningPath 
-                        trackLessons={trackLessons}
-                        unlockedAITracks={unlockedAITracks}
-                        completedLessons={completedLessons}
-                    />
-                ) : (
-                    modules.map((mod, moduleIndex) => (
-                        <div key={moduleIndex} className="relative">
-                            <div className="mb-6 flex items-center">
-                                <div className="w-10 h-10 rounded-full bg-zinc-900 border border-white/10 flex items-center justify-center font-bold text-lg ml-4 text-blue-400">
-                                    {moduleIndex + 1}
-                                </div>
-                                <h2 className="text-2xl font-bold">מודול {moduleIndex + 1}</h2>
-                            </div>
-
-                            <div className="space-y-4 pr-5 border-r-2 border-white/5 mr-5">
-                                {mod.map((lesson, lessonIndex) => (
-                                    <Link key={lesson.id} href={`/lesson/${lesson.id}`} className="block group">
-                                        <div className="p-6 rounded-3xl bg-zinc-900/50 border border-white/5 hover:bg-zinc-800 hover:border-white/20 transition-all flex items-start gap-4 shadow-lg group-hover:-translate-y-1">
-                                            <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center font-bold text-xs text-zinc-500 mt-1 shrink-0">
-                                                {(moduleIndex * 5) + lessonIndex + 1}
-                                            </div>
-                                            <div>
-                                                <h3 className="text-xl font-bold mb-2 group-hover:text-blue-400 transition-colors">{lesson.title}</h3>
-                                                <p className="text-zinc-500 text-sm mb-4 leading-relaxed">{lesson.description}</p>
-                                                <div className="flex items-center text-xs font-bold text-zinc-600 uppercase tracking-widest">
-                                                    <Zap className="w-3 h-3 ml-1" /> כולל בוחן
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </Link>
-                                ))}
-                            </div>
-                        </div>
-                    ))
-                )}
+                <AILearningPath
+                    trackLessons={trackLessons}
+                    unlockedAITracks={unlockedAITracks}
+                    completedLessons={completedLessons}
+                />
             </div>
         </div>
     );

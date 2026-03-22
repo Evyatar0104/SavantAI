@@ -346,8 +346,9 @@ export function QuizEngine({ questions, onComplete, accentColor = "#00C48C", ico
                                 onClick={handleNext}
                                 className={cn(
                                     "w-full py-4 md:py-5 rounded-xl md:rounded-2xl font-bold text-base md:text-lg shadow-2xl transition-all flex items-center justify-center gap-3",
-                                    quizMode === "gauntlet" ? "bg-red-600 text-white" : "bg-white text-black"
+                                    correctAnswers[currentQuestionIndex] ? "text-black" : "bg-red-600 text-white"
                                 )}
+                                style={correctAnswers[currentQuestionIndex] ? { backgroundColor: accentColor } : {}}
                             >
                                 <span>
                                     {currentQuestionIndex < shuffledQuestions.length - 1 ? "לשאלה הבאה" : "סיים שיעור"}

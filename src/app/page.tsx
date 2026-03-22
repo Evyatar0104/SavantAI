@@ -3,21 +3,50 @@
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import { useSavantStore } from "@/store/useSavantStore";
-import { LESSONS, TRACKS } from "@/data/lessons";
+import { LESSONS, TRACKS, CATEGORIES, COURSES } from "@/data/lessons";
 import { m, AnimatePresence } from "framer-motion";
-import { ArrowRight, Sparkles, Flame, Clock, BookOpen, ChevronRight, TrendingUp, Coins, BarChart3, PieChart, Percent, Banknote } from "lucide-react";
+import { ArrowRight, Sparkles, Flame, Clock, BookOpen, ChevronRight, Brain, Cpu, Bot } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function Home() {
-  const streak = useSavantStore(state => state.streak);
-  const xp = useSavantStore(state => state.xp);
-  const completedLessons = useSavantStore(state => state.completedLessons);
+  const streak = useSavantStore((state: any) => state.streak);
+  const xp = useSavantStore((state: any) => state.xp);
+  const completedLessons = useSavantStore((state: any) => state.completedLessons);
   const featuredLesson = LESSONS[0];
   const otherLessons = LESSONS.slice(1);
   const featuredTrack = TRACKS.find(t => t.id === featuredLesson.trackId);
+  const featuredCategory = CATEGORIES.find(c => c.id === featuredLesson.categoryId);
 
   const [scrollState, setScrollState] = useState({ isAtStart: true, isAtEnd: false });
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const isDraggingRef = useRef(false);
+  const startX = useRef(0);
+  const scrollLeftStart = useRef(0);
+  const [hasMoved, setHasMoved] = useState(false);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!scrollRef.current) return;
+    isDraggingRef.current = true;
+    setIsDragging(true);
+    setHasMoved(false);
+    startX.current = e.pageX;
+    scrollLeftStart.current = scrollRef.current.scrollLeft;
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDraggingRef.current || !scrollRef.current) return;
+    const walk = (e.pageX - startX.current);
+    if (Math.abs(walk) > 5) {
+      if (!hasMoved) setHasMoved(true);
+      scrollRef.current.scrollLeft = scrollLeftStart.current - walk;
+    }
+  };
+
+  const handleMouseUpOrLeave = () => {
+    isDraggingRef.current = false;
+    setIsDragging(false);
+  };
 
   const handleScroll = () => {
     if (!scrollRef.current) return;
@@ -40,12 +69,6 @@ export default function Home() {
 
   return (
     <div className="flex-1 w-full bg-transparent text-foreground flex flex-col min-h-screen">
-      {/* Decorative Background Elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-blue-500/5 blur-[120px]" />
-        <div className="absolute bottom-[20%] right-[-10%] w-[40%] h-[40%] rounded-full bg-purple-500/5 blur-[120px]" />
-      </div>
-
       {/* Simplified Header - Merged aesthetically with the app flow */}
       <header className="z-30 w-full px-6 py-8 md:px-10 md:py-12">
         <div className="w-full flex justify-between items-end">
@@ -89,7 +112,7 @@ export default function Home() {
                 "bg-zinc-950"
               )}>
                 {/* Dynamic Animated Background Gradient */}
-                <div className={cn("absolute inset-0 opacity-40 mix-blend-screen transition-opacity duration-1000 group-hover:opacity-60", `bg-gradient-to-br ${featuredTrack?.color}`)} />
+                <div className={cn("absolute inset-0 opacity-40 mix-blend-screen transition-opacity duration-1000 group-hover:opacity-60", `bg-gradient-to-br ${featuredCategory?.color || featuredTrack?.color}`)} />
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent z-0" />
 
                 {/* Generative Animated Orbs (Frontend Developer Skill Implementation) */}
@@ -116,12 +139,12 @@ export default function Home() {
 
                 {/* Floating Track Icon with 3D Parallax & Background Elements */}
                 <div className="absolute top-1/2 -translate-y-1/2 left-8 md:left-16 lg:left-24 pointer-events-none transition-all duration-1000 group-hover:scale-105">
-                  {/* Background Economics Icons */}
+                  {/* Background AI Icons */}
                   <div className="absolute inset-0 z-0 opacity-10 group-hover:opacity-20 transition-opacity duration-1000">
-                    <m.div animate={{ y: [0, -20, 0], x: [0, 10, 0], rotate: [0, 10, 0] }} transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }} className="absolute -top-10 -left-10"><TrendingUp size={64} /></m.div>
-                    <m.div animate={{ y: [0, 15, 0], x: [0, -15, 0], rotate: [0, -15, 0] }} transition={{ duration: 15, repeat: Infinity, ease: "easeInOut", delay: 1 }} className="absolute -bottom-10 -right-10"><Coins size={48} /></m.div>
-                    <m.div animate={{ y: [0, -10, 0], x: [0, 20, 0] }} transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 }} className="absolute top-20 -right-20"><BarChart3 size={40} /></m.div>
-                    <m.div animate={{ y: [0, 25, 0], rotate: [0, 20, 0] }} transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 0.5 }} className="absolute -top-20 right-10"><Percent size={32} /></m.div>
+                    <m.div animate={{ y: [0, -20, 0], x: [0, 10, 0], rotate: [0, 10, 0] }} transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }} className="absolute -top-10 -left-10"><Brain size={64} /></m.div>
+                    <m.div animate={{ y: [0, 15, 0], x: [0, -15, 0], rotate: [0, -15, 0] }} transition={{ duration: 15, repeat: Infinity, ease: "easeInOut", delay: 1 }} className="absolute -bottom-10 -right-10"><Cpu size={48} /></m.div>
+                    <m.div animate={{ y: [0, -10, 0], x: [0, 20, 0] }} transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 }} className="absolute top-20 -right-20"><Bot size={40} /></m.div>
+                    <m.div animate={{ y: [0, 25, 0], rotate: [0, 20, 0] }} transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 0.5 }} className="absolute -top-20 right-10"><Sparkles size={32} /></m.div>
                   </div>
 
                   {/* Main Icon */}
@@ -133,7 +156,7 @@ export default function Home() {
                     transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
                     className="relative z-10 text-[120px] md:text-[200px] lg:text-[280px] leading-none opacity-40 group-hover:opacity-70 transition-all duration-700 select-none drop-shadow-[0_0_30px_rgba(255,255,255,0.2)] translate-z-50"
                   >
-                    {featuredTrack?.icon}
+                    {featuredCategory?.icon || featuredTrack?.icon}
                   </m.div>
                 </div>
 
@@ -203,7 +226,7 @@ export default function Home() {
           </m.div>
         </section>
 
-        {/* Tracks Carousel Section */}
+        {/* Courses Carousel Section — grouped by category */}
         <section className="space-y-6">
           <div className="flex justify-between items-end px-2">
             <div>
@@ -217,63 +240,85 @@ export default function Home() {
 
           <div
             ref={scrollRef}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUpOrLeave}
+            onMouseLeave={handleMouseUpOrLeave}
             className={cn(
-              "flex space-x-6 overflow-x-auto no-scrollbar pt-4 pb-8 px-8 transition-all duration-500",
+              "flex space-x-6 overflow-x-auto no-scrollbar pt-4 pb-8 px-8",
+              isDragging ? "cursor-grabbing select-none" : "cursor-grab",
               !scrollState.isAtStart && !scrollState.isAtEnd ? "mask-horizontal-fade" :
                 scrollState.isAtStart ? "mask-linear-fade-left" : "mask-linear-fade-right"
             )}
           >
-            {TRACKS.map((track, i) => (
-              <m.div
-                key={track.id}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.1 + i * 0.05 }}
-                className="flex-shrink-0"
-              >
-                <Link href={`/tracks/${track.id}`} className="block group">
-                  <div className={cn(
-                    "relative overflow-hidden w-48 h-56 md:w-72 md:h-80 rounded-[32px] p-6 md:p-8 flex flex-col justify-between transition-all duration-500 group-hover:-translate-y-2 shadow-lg group-hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.5)] hover:border-black/10 dark:hover:border-white/10",
-                    "bg-white/60 dark:bg-zinc-900/40 backdrop-blur-xl border border-black/5 dark:border-white/5"
-                  )}>
-                    {/* Glowing Orb */}
-                    <div className={cn(
-                      "absolute -top-10 -right-10 w-32 h-32 md:w-48 md:h-48 rounded-full blur-[40px] md:blur-[60px] opacity-20 dark:opacity-20 group-hover:opacity-40 transition-opacity duration-500 pointer-events-none bg-gradient-to-br",
-                      track.color
-                    )} />
+            {CATEGORIES
+              .slice()
+              .sort((a, b) => a.order - b.order)
+              .flatMap((category) =>
+                COURSES
+                  .filter(c => c.categoryId === category.id)
+                  .sort((a, b) => a.order - b.order)
+                  .map((course) => ({ course, category }))
+              )
+              .map(({ course, category }, i) => {
+                const courseLessons = LESSONS.filter(l => l.courseId === course.id);
+                const completedInCourse = courseLessons.filter(l => completedLessons.includes(l.id));
+                const progress = courseLessons.length > 0
+                  ? (completedInCourse.length / courseLessons.length) * 100
+                  : 0;
 
-                    <div className={cn(
-                      "relative z-10 w-12 h-12 md:w-16 md:h-16 rounded-2xl flex items-center justify-center text-2xl md:text-3xl shadow-inner border border-white/20 bg-gradient-to-br",
-                      track.color
-                    )}>
-                      {track.icon}
-                    </div>
-                    <div className="relative z-10">
-                      <h4 className="text-zinc-900 dark:text-white/90 font-bold text-base md:text-xl leading-snug line-clamp-2 mb-3">
-                        {track.name}
-                      </h4>
-                      <div className="w-full h-1 md:h-1.5 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
-                        {(() => {
-                          const trackLessons = LESSONS.filter(l => l.trackId === track.id);
-                          const completedInTrack = trackLessons.filter(l => completedLessons.includes(l.id));
-                          const progress = trackLessons.length > 0
-                            ? (completedInTrack.length / trackLessons.length) * 100
-                            : 0;
+                return (
+                  <m.div
+                    key={course.id}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 + i * 0.05 }}
+                    className="flex-shrink-0"
+                  >
+                    <Link 
+                      href={`/courses/${course.id}`} 
+                      className="block group"
+                      onDragStart={(e) => e.preventDefault()}
+                      onClick={(e) => {
+                        if (hasMoved) {
+                          e.preventDefault();
+                        }
+                      }}
+                    >
+                      <div className={cn(
+                        "relative overflow-hidden w-48 h-56 md:w-72 md:h-80 rounded-[32px] p-6 md:p-8 flex flex-col justify-between transition-all duration-500 group-hover:-translate-y-2 shadow-lg group-hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.5)] hover:border-black/10 dark:hover:border-white/10",
+                        "bg-white/60 dark:bg-zinc-900/40 backdrop-blur-xl border border-black/5 dark:border-white/5"
+                      )}>
+                        {/* Glowing Orb */}
+                        <div className={cn(
+                          "absolute -top-10 -right-10 w-32 h-32 md:w-48 md:h-48 rounded-full blur-[40px] md:blur-[60px] opacity-20 dark:opacity-20 group-hover:opacity-40 transition-opacity duration-500 pointer-events-none bg-gradient-to-br",
+                          category.color
+                        )} />
 
-                          return (
+                        <div className={cn(
+                          "relative z-10 w-12 h-12 md:w-16 md:h-16 rounded-2xl flex items-center justify-center text-2xl md:text-3xl shadow-inner border border-white/20 bg-gradient-to-br",
+                          category.color
+                        )}>
+                          {course.icon}
+                        </div>
+                        <div className="relative z-10">
+                          <p className="text-[10px] md:text-xs font-bold text-zinc-500 dark:text-zinc-400 mb-1 tracking-wide">{category.nameHe}</p>
+                          <h4 className="text-zinc-900 dark:text-white/90 font-bold text-base md:text-xl leading-snug line-clamp-2 mb-3">
+                            {course.nameHe}
+                          </h4>
+                          <div className="w-full h-1 md:h-1.5 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
                             <m.div
                               initial={{ width: 0 }}
                               animate={{ width: `${progress}%` }}
-                              className={cn("h-full opacity-80 bg-gradient-to-r", track.color)}
+                              className={cn("h-full opacity-80 bg-gradient-to-r", category.color)}
                             />
-                          );
-                        })()}
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                </Link>
-              </m.div>
-            ))}
+                    </Link>
+                  </m.div>
+                );
+              })}
           </div>
         </section>
 
@@ -281,12 +326,13 @@ export default function Home() {
         <section className="space-y-8">
           <div className="px-2">
             <h3 className="text-xl md:text-3xl font-bold font-serif">מומלץ עבורך</h3>
-            <p className="text-xs md:text-lg text-zinc-500 font-medium tracking-tight">מבוסס על תחומי העניין שלך בכלכלה התנהגותית</p>
+            <p className="text-xs md:text-lg text-zinc-500 font-medium tracking-tight">מבוסס על תחומי העניין שלך בבינה מלאכותית</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {otherLessons.map((lesson, i) => {
-              const lessonTrack = TRACKS.find(t => t.id === lesson.trackId);
+              const lessonCategory = CATEGORIES.find(c => c.id === lesson.categoryId);
+              const lessonCourse = COURSES.find(c => c.id === lesson.courseId);
               return (
                 <m.div
                   key={lesson.id}
@@ -297,8 +343,8 @@ export default function Home() {
                   <Link href={`/lesson/${lesson.id}`} className="group block focus:outline-none h-full">
                     <div className="bg-zinc-900/30 backdrop-blur-md border border-white/5 rounded-[40px] p-8 md:p-10 flex flex-col h-full hover:bg-zinc-900/60 transition-all duration-500 hover:border-blue-500/30 group-hover:translate-y-[-8px]">
                       <div className="flex justify-between items-start mb-10">
-                        <div className={cn("px-5 py-2 rounded-full text-[10px] font-black text-white shadow-xl bg-gradient-to-r", lessonTrack?.color)}>
-                          {lessonTrack?.name}
+                        <div className={cn("px-5 py-2 rounded-full text-[10px] font-black text-white shadow-xl bg-gradient-to-r", lessonCategory?.color)}>
+                          {lessonCourse?.nameHe || lessonCategory?.nameHe}
                         </div>
                         <div className="text-zinc-600 group-hover:text-blue-400 transition-colors">
                           <BookOpen className="w-6 h-6 md:w-8 md:h-8" />
