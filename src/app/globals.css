@@ -39,7 +39,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: var(--savant-onyx);
+    --background: #050508;
     --foreground: #F5F5F7;
     --surface-elevated: rgba(22, 22, 23, 0.8);
     --border-subtle: rgba(255, 255, 255, 0.08);

@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx next:*)",
+      "Bash(python -c \":*)",
+      "Bash(python -c \"import json; lines=open\\(r''C:\\\\Users\\\\evyat\\\\.claude\\\\projects\\\\D--savant\\\\ae1d7a8e-3de8-4f83-96af-78e414375e30.jsonl'',''r'',encoding=''utf-8''\\).readlines\\(\\); [print\\(json.loads\\(l\\).get\\(''type'',''''\\)\\) for l in lines[-10:]]\")",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(ls \"D:\\\\savant\\\\public\\\\assets\\\\logos\"\" 2>&1 || ls \"D:savantpublicassets\"\")"
+    ]
+  }
+}

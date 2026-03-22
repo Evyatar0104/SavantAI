@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { AnimatePresence, m } from "framer-motion";
 import { TERM_DEFINITIONS } from "@/data/ai-lessons";
 
-function TooltipPill({ term, definition, targetRect, onClose }: { term: string, definition: string, targetRect: DOMRect, onClose: () => void }) {
+function TooltipPill({ term, definition, targetRect, onClose, accentColor = "#00C48C" }: { term: string, definition: string, targetRect: DOMRect, onClose: () => void, accentColor?: string }) {
     const tooltipRef = useRef<HTMLDivElement>(null);
     const [position, setPosition] = useState({ top: 0, left: 0 });
 
@@ -51,17 +51,17 @@ function TooltipPill({ term, definition, targetRect, onClose }: { term: string, 
                 width: "max-content",
                 maxWidth: 260,
                 borderRadius: 8,
-                border: "1px solid rgba(0, 196, 140, 0.33)"
+                border: `1px solid ${accentColor}55`
             }}
             dir="rtl"
         >
-            <div className="font-bold text-[#00C48C] mb-1.5">{term}</div>
+            <div className="font-bold mb-1.5" style={{ color: accentColor }}>{term}</div>
             <div className="text-[15px] text-zinc-300 leading-snug">{definition}</div>
         </m.div>
     );
 }
 
-export function HighlightedText({ text }: { text: string }) {
+export function HighlightedText({ text, accentColor = "#00C48C" }: { text: string; accentColor?: string }) {
     const [activeTooltip, setActiveTooltip] = useState<{ term: string, rect: DOMRect } | null>(null);
 
     // Use empty string on old lessons without readContent
@@ -90,8 +90,8 @@ export function HighlightedText({ text }: { text: string }) {
                             }}
                             className="inline-block cursor-pointer"
                             style={{
-                                background: "rgba(0, 196, 140, 0.13)", // #00C48C22
-                                color: "#00C48C",
+                                background: `${accentColor}22`,
+                                color: accentColor,
                                 borderRadius: 3,
                                 padding: "0px 4px",
                                 margin: "0 2px"
@@ -127,6 +127,7 @@ export function HighlightedText({ text }: { text: string }) {
                         definition={TERM_DEFINITIONS[activeTooltip.term]}
                         targetRect={activeTooltip.rect}
                         onClose={() => setActiveTooltip(null)}
+                        accentColor={accentColor}
                     />
                 )}
             </AnimatePresence>

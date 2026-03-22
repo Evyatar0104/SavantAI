@@ -4,7 +4,6 @@ import Link from "next/link";
 import { m } from "framer-motion";
 import { CheckCircle, Lock, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { isLockedAI } from "@/data/ai-lessons";
 import { ModelQuiz } from "@/components/ModelQuiz";
 
 const TRACKS_INFO = [
@@ -58,8 +57,8 @@ export function AILearningPath({
                     {/* Progress indicator */}
                     <div className="flex flex-col items-end shrink-0">
                         <div className="flex items-center gap-2 mb-2">
+                            <span className="text-[#8B8B9E] text-lg">7 /</span>
                             <span className="text-2xl font-black text-white">{phase0Completed}</span>
-                            <span className="text-[#8B8B9E] text-lg">/ 7</span>
                         </div>
                         <div className="w-32 h-2 bg-[#1E1E2E] rounded-full overflow-hidden" dir="ltr">
                             <div 
@@ -214,7 +213,7 @@ export function AILearningPath({
 
                                 <div className="space-y-1 w-full mb-8 flex-1">
                                     {lessons.map((lesson, lIdx) => {
-                                        const locked = isLockedAI(lesson.id, unlockedAITracks);
+                                        const locked = false;
                                         const completed = completedLessons.includes(lesson.id);
                                         
                                         return (

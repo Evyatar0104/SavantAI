@@ -2,19 +2,21 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Compass, Trophy, User } from "lucide-react";
+import { Home, Compass, Trophy, User, Crosshair } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { m } from "framer-motion";
 
 export function BottomNav() {
     const pathname = usePathname();
-    const isLessonPage = pathname?.startsWith("/lesson");
+    const NAV_ROUTES = ["/", "/tracks", "/practice", "/leaderboard", "/profile"];
+    const isNavScreen = NAV_ROUTES.includes(pathname ?? "");
 
-    if (isLessonPage) return null;
+    if (!isNavScreen) return null;
 
     const links = [
         { href: "/", label: "ראשי", icon: Home },
         { href: "/tracks", label: "מסלולים", icon: Compass },
+        { href: "/practice", label: "תרגול", icon: Crosshair },
         { href: "/leaderboard", label: "דירוג", icon: Trophy },
         { href: "/profile", label: "פרופיל", icon: User },
     ];
