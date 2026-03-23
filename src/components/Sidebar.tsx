@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { Home, Compass, Trophy, User, Crosshair } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -207,7 +208,7 @@ export function Sidebar() {
                         transition={{ type: "spring", stiffness: 400, damping: 10 }}
                         className="w-9 h-9 flex items-center justify-center shrink-0"
                     >
-                        <img src="/assets/savant-logo.png" alt="Savant Logo" className="w-full h-full object-contain" />
+                        <Image src="/assets/savant-logo.png" alt="Savant Logo" width={36} height={36} className="w-full h-full object-contain" priority />
                     </m.div>
                     <h1 className="text-2xl font-black tracking-tighter text-foreground group-hover:text-blue-500 transition-colors leading-none">
                         Savant

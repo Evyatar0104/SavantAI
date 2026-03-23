@@ -3,11 +3,13 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { m, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 import { LESSONS, COURSES } from "@/data/lessons";
 import { useSavantStore } from "@/store/useSavantStore";
 import { X, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LessonProvider, useLesson } from "@/context/LessonContext";
+import LessonGraphic from "@/components/LessonGraphic";
 import { QuizEngine } from "@/components/QuizEngine";
 import { HighlightedText } from "@/components/HighlightedText";
 import { PracticalCall } from "@/components/PracticalCall";
@@ -302,6 +304,28 @@ function LessonContent({ lesson }: { lesson: any }) {
                             <div className="text-[16px] leading-[1.9]" style={{ color: "rgba(255,255,255,0.85)" }}>
                                 <HighlightedText text={lesson.scienceA || lesson.readContent || ""} accentColor={theme.accent} />
                             </div>
+
+                            {/* Lesson Graphic */}
+                            {lesson.image ? (
+                                <m.div 
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ duration: 0.5, delay: 0.2 }}
+                                    className="my-10 flex justify-center"
+                                >
+                                    <Image
+                                        src={lesson.image}
+                                        alt={lesson.title}
+                                        width={800}
+                                        height={600}
+                                        className="rounded-2xl max-w-full h-auto border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
+                                        loading="lazy"
+                                    />
+                                </m.div>
+                            ) : (
+                                <LessonGraphic lessonId={lesson.id} />
+                            )}
+
 
                             {/* Visual separator */}
                             {lesson.scienceB && (

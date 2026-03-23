@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 import { useSavantStore } from "@/store/useSavantStore";
 import { LESSONS, TRACKS, CATEGORIES, COURSES } from "@/data/lessons";
@@ -296,10 +297,22 @@ export default function Home() {
                         )} />
 
                         <div className={cn(
-                          "relative z-10 w-12 h-12 md:w-16 md:h-16 rounded-2xl flex items-center justify-center text-2xl md:text-3xl shadow-inner border border-white/20 bg-gradient-to-br",
+                          "relative z-10 w-12 h-12 md:w-16 md:h-16 flex items-center justify-center text-2xl md:text-3xl shadow-inner border border-white/15 squarcle bg-gradient-to-br",
                           category.color
                         )}>
-                          {course.icon}
+                          {course.image ? (
+                            <div className="w-full h-full p-2.5 flex items-center justify-center">
+                                {course.id === "course-notebooklm" ? (
+                                    <div className="w-full h-full squarcle bg-white overflow-hidden flex items-center justify-center">
+                                        <Image src={course.image} alt={course.nameHe} width={64} height={64} className="w-full h-full object-contain p-1.5" loading="lazy" />
+                                    </div>
+                                ) : (
+                                    <Image src={course.image} alt={course.nameHe} width={64} height={64} className="w-full h-full object-contain" loading="lazy" />
+                                )}
+                            </div>
+                          ) : (
+                            course.icon
+                          )}
                         </div>
                         <div className="relative z-10">
                           <p className="text-[10px] md:text-xs font-bold text-zinc-500 dark:text-zinc-400 mb-1 tracking-wide">{category.nameHe}</p>

@@ -1,4 +1,4 @@
-import { AI_LESSONS } from "./ai-lessons";
+import { AI_LESSONS } from "./lessons/index";
 import { CATEGORIES } from "./categories";
 import { COURSES } from "./courses";
 
@@ -28,6 +28,7 @@ export type Course = {
     nameHe: string;
     description: string;
     icon: string;
+    image?: string;
     order: number;
     isLocked: boolean;
     requiredCourseId?: string;
@@ -54,8 +55,10 @@ export type Lesson = {
         tool: string;
     };
     insight: string;
+    image?: string;
     questions: Question[];
 };
+
 
 export type Track = {
     id: string;

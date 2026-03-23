@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useParams, useRouter, notFound } from "next/navigation";
 import { useEffect } from "react";
 import { COURSES, LESSONS, CATEGORIES } from "@/data/lessons";
@@ -107,8 +108,23 @@ export default function CoursePage() {
             </Link>
 
             <div className="flex flex-col md:flex-row gap-8 md:items-end mb-16">
-                <div className={cn("w-32 h-32 md:w-48 md:h-48 rounded-[32px] md:rounded-[48px] bg-gradient-to-br flex items-center justify-center text-6xl md:text-8xl shadow-2xl shrink-0 border border-white/5", category?.color)}>
-                    {course.icon}
+                <div className={cn(
+                    "w-32 h-32 md:w-48 md:h-48 bg-gradient-to-br flex items-center justify-center text-6xl md:text-8xl shadow-2xl shrink-0 border border-white/5 overflow-hidden squarcle",
+                    category?.color
+                )}>
+                    {course.image ? (
+                        <div className="w-full h-full p-8 flex items-center justify-center">
+                            {course.id === "course-notebooklm" ? (
+                                <div className="w-full h-full squarcle bg-white overflow-hidden flex items-center justify-center">
+                                    <Image src={course.image} alt={course.nameHe} width={192} height={192} className="w-full h-full object-contain p-4" priority />
+                                </div>
+                            ) : (
+                                <Image src={course.image} alt={course.nameHe} width={192} height={192} className="w-full h-full object-contain" priority />
+                            )}
+                        </div>
+                    ) : (
+                        course.icon
+                    )}
                 </div>
                 <div className="flex-1 space-y-4">
                     <span className="text-sm font-bold uppercase tracking-widest text-zinc-500">{category?.nameHe}</span>

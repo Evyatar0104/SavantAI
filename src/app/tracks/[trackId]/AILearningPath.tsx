@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { m } from "framer-motion";
 import { CheckCircle, Lock, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -180,18 +181,21 @@ export function AILearningPath({
                                     {track.label}
                                 </div>
                                 <h3 className="text-3xl font-bold text-white mb-2 flex items-center">
-                                    <img src={track.logoUrl} alt={track.model} className="w-7 h-7 rounded-md ml-2 object-contain" />
+                                    <Image src={track.logoUrl} alt={track.model} width={28} height={28} className="w-7 h-7 rounded-md ml-2 object-contain" loading="lazy" />
                                     {track.model}
                                 </h3>
                                 <div className="flex items-center text-[#8B8B9E] text-sm font-medium mb-8">
                                     <div className="relative ml-4">
-                                        <img 
-                                            src={track.badgeUrl} 
-                                            alt={track.badge} 
+                                        <Image
+                                            src={track.badgeUrl}
+                                            alt={track.badge}
+                                            width={48}
+                                            height={48}
                                             className={cn(
                                                 "w-12 h-12 object-contain transition-all duration-500",
                                                 isTrackCompleted ? "drop-shadow-[0_0_15px_rgba(255,215,0,0.4)]" : "grayscale opacity-30 brightness-50"
-                                            )} 
+                                            )}
+                                            loading="lazy"
                                         />
                                         {isTrackCompleted && (
                                             <m.div 

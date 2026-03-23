@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { m, AnimatePresence } from "framer-motion";
 import { ChevronDown, CheckCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -185,7 +186,7 @@ export function ModelQuiz({ onTrackSelected }: { onTrackSelected: (trackId: stri
                             <h3 className="text-[#8B8B9E] font-bold text-sm mb-4">המודל המומלץ עבורך:</h3>
                             <div className="flex flex-col items-center bg-[#1A1A24] p-6 rounded-2xl w-full border border-white/5 mb-6">
                                 <div className={cn("text-4xl mb-4 font-black flex items-center justify-center gap-3", resultInfo.colorClass)}>
-                                    <img src={resultInfo.logoUrl} alt={resultInfo.name} className="w-10 h-10 rounded-lg object-contain" />
+                                    <Image src={resultInfo.logoUrl} alt={resultInfo.name} width={40} height={40} className="w-10 h-10 rounded-lg object-contain" loading="lazy" />
                                     <span>{resultInfo.name}</span>
                                 </div>
                                 <p className="text-lg text-white font-medium max-w-sm">

@@ -34,6 +34,73 @@ export const COURSES: Course[] = [
         isLocked: true,
         requiredCourseId: "prompting-mastery"
     },
+    // Tools (open)
+    {
+        id: "course-chatgpt",
+        categoryId: "tools",
+        name: "ChatGPT — The Complete Guide",
+        nameHe: "ChatGPT — המדריך המלא",
+        description: "ממשק, זיכרון, Custom GPTs, DALL-E, קוד — כל מה שצריך לדעת",
+        icon: "💬",
+        image: "/assets/logos/chatgpt.png",
+        order: 1,
+        isLocked: false
+    },
+    {
+        id: "course-claude",
+        categoryId: "tools",
+        name: "Claude — The Complete Guide",
+        nameHe: "Claude — המדריך המלא",
+        description: "Projects, Artifacts, מסמכים ארוכים, וכתיבה שנשמעת אנושית",
+        icon: "🎯",
+        image: "/assets/logos/claude.png",
+        order: 2,
+        isLocked: false
+    },
+    {
+        id: "course-gemini",
+        categoryId: "tools",
+        name: "Gemini — The Complete Guide",
+        nameHe: "Gemini — המדריך המלא",
+        description: "Google Workspace, חיפוש חי, Gems, ו-1M token context",
+        icon: "🌐",
+        image: "/assets/logos/gemini.png",
+        order: 3,
+        isLocked: false
+    },
+    {
+        id: "course-notebooklm",
+        categoryId: "tools",
+        name: "NotebookLM",
+        nameHe: "NotebookLM — מחקר בלי לאבד את הדעת",
+        description: "העלה מקורות, שאל שאלות, קבל פודקאסט — מחקר שעובד אחרת",
+        icon: "📓",
+        image: "/assets/logos/notebooklm.png",
+        order: 4,
+        isLocked: false
+    },
+    {
+        id: "course-vibe-coding",
+        categoryId: "tools",
+        name: "Vibe Coding",
+        nameHe: "Vibe Coding — לבנות בלי לדעת לקודד",
+        description: "מרעיון לאפליקציה עם Lovable, Bolt ו-Claude Code — בלי שורת קוד אחת",
+        icon: "⚡",
+        image: "/assets/logos/vibe-coding.png",
+        order: 5,
+        isLocked: false
+    },
+    {
+        id: "course-image-gen",
+        categoryId: "tools",
+        name: "Image Generators",
+        nameHe: "Image Generators — לייצר ויז'ואל עם AI",
+        description: "לדבר בשפה הויזואלית של ה-AI. סגנון, תאורה, קומפוזיציה ועקביות ב-Midjourney, Flux ו-Nano Banana 2.",
+        icon: "🎨",
+        image: "/assets/logos/image-generation.png",
+        order: 6,
+        isLocked: false
+    },
     // Real Life (open)
     {
         id: "ai-productivity",
