@@ -21,6 +21,9 @@ export const metadata: Metadata = {
     statusBarStyle: "black-translucent",
     title: "Savant",
   },
+  icons: {
+    apple: "/icons/icon-192.png",
+  },
 };
 
 export const viewport: Viewport = {
@@ -28,7 +31,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: "#000000",
+  themeColor: "#534AB7",
 };
 
 export default function RootLayout({

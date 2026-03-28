@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { CATEGORIES, COURSES, LESSONS } from "@/data/lessons";
+import { CATEGORIES, COURSES } from "@/data/lessons";
+import { LESSON_INDEX } from "@/data/lessons-index";
 import { useSavantStore } from "@/store/useSavantStore";
 import { m, Variants } from "framer-motion";
 import { Lock } from "lucide-react";
@@ -64,7 +65,7 @@ export default function Tracks() {
                                 animate="show"
                             >
                                 {categoryCourses.map((course) => {
-                                    const courseLessons = LESSONS.filter(l => l.courseId === course.id);
+                                    const courseLessons = LESSON_INDEX.filter(l => l.courseId === course.id);
                                     const completedInCourse = courseLessons.filter(l => completedLessons.includes(l.id));
                                     const lessonsCount = courseLessons.length;
                                     const isCompleted = completedCourses.includes(course.id);

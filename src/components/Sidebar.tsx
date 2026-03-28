@@ -119,7 +119,7 @@ export function Sidebar() {
                     const isActive = pathname === link.href || (link.href === "/tracks" && pathname?.startsWith("/tracks"));
                     const Icon = link.icon;
                     return (
-                        <Link key={link.href} href={link.href} className="outline-none" style={{ margin: "2px 8px" }}>
+                        <Link key={link.href} href={link.href} prefetch={true} className="outline-none" style={{ margin: "2px 8px" }}>
                             <div className={cn(
                                 "flex items-center gap-[10px] cursor-pointer transition-all duration-150",
                                 isActive
@@ -140,7 +140,7 @@ export function Sidebar() {
                     const isActive = pathname === link.href;
                     const Icon = link.icon;
                     return (
-                        <Link key={link.href} href={link.href} className="outline-none" style={{ margin: "2px 8px" }}>
+                        <Link key={link.href} href={link.href} prefetch={true} className="outline-none" style={{ margin: "2px 8px" }}>
                             <div className={cn(
                                 "flex items-center gap-[10px] cursor-pointer transition-all duration-150",
                                 isActive

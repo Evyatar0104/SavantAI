@@ -4,7 +4,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { useParams, useRouter, notFound } from "next/navigation";
 import { useEffect } from "react";
-import { COURSES, LESSONS, CATEGORIES } from "@/data/lessons";
+import { COURSES, CATEGORIES } from "@/data/lessons";
+import { LESSON_INDEX } from "@/data/lessons-index";
 import { ArrowLeft, Clock, Target } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSavantStore } from "@/store/useSavantStore";
@@ -35,7 +36,7 @@ export default function CoursePage() {
     }
 
     const category = CATEGORIES.find((cat) => cat.id === course.categoryId);
-    const courseLessons = LESSONS.filter(l => l.courseId === courseId).sort((a, b) => a.order - b.order);
+    const courseLessons = LESSON_INDEX.filter(l => l.courseId === courseId).sort((a, b) => a.order - b.order);
 
     const nextLesson = courseLessons.find(l => !completedLessons.includes(l.id)) || courseLessons[0];
 

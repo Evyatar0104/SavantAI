@@ -4,7 +4,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 import { useSavantStore } from "@/store/useSavantStore";
-import { LESSONS, TRACKS, CATEGORIES, COURSES } from "@/data/lessons";
+import { TRACKS, CATEGORIES, COURSES } from "@/data/lessons";
+import { LESSON_INDEX } from "@/data/lessons-index";
 import { m, AnimatePresence } from "framer-motion";
 import { ArrowRight, Sparkles, Flame, Clock, BookOpen, ChevronRight, Brain, Cpu, Bot } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -13,8 +14,8 @@ export default function Home() {
   const streak = useSavantStore((state: any) => state.streak);
   const xp = useSavantStore((state: any) => state.xp);
   const completedLessons = useSavantStore((state: any) => state.completedLessons);
-  const featuredLesson = LESSONS[0];
-  const otherLessons = LESSONS.slice(1);
+  const featuredLesson = LESSON_INDEX[0];
+  const otherLessons = LESSON_INDEX.slice(1);
   const featuredTrack = TRACKS.find(t => t.id === featuredLesson.trackId);
   const featuredCategory = CATEGORIES.find(c => c.id === featuredLesson.categoryId);
 
@@ -262,7 +263,7 @@ export default function Home() {
                   .map((course) => ({ course, category }))
               )
               .map(({ course, category }, i) => {
-                const courseLessons = LESSONS.filter(l => l.courseId === course.id);
+                const courseLessons = LESSON_INDEX.filter(l => l.courseId === course.id);
                 const completedInCourse = courseLessons.filter(l => completedLessons.includes(l.id));
                 const progress = courseLessons.length > 0
                   ? (completedInCourse.length / courseLessons.length) * 100

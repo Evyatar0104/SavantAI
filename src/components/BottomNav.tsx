@@ -39,6 +39,7 @@ export function BottomNav() {
                         <Link
                             key={link.href}
                             href={link.href}
+                            prefetch={true}
                             className="relative flex flex-col items-center justify-center w-16 h-14 rounded-full group outline-none"
                         >
                             {isActive && (

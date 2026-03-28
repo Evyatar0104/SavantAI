@@ -1,4 +1,3 @@
-import { AI_LESSONS } from "./lessons/index";
 import { CATEGORIES } from "./categories";
 import { COURSES } from "./courses";
 
@@ -72,8 +71,4 @@ export const TRACKS: Track[] = [
 ];
 
 export { CATEGORIES, COURSES };
-
-export const LESSONS: Lesson[] = [
-    ...AI_LESSONS
-];
 
