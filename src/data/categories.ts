@@ -12,13 +12,23 @@ export const CATEGORIES: Category[] = [
         unlockType: "linear"
     },
     {
+        id: "tools",
+        name: "Tool Guides",
+        nameHe: "כלים",
+        description: "מדריכים מעמיקים לכלי ה-AI המובילים — ChatGPT, Claude, Gemini ועוד",
+        color: "from-[#0D1B2A] to-[#1B263B]",
+        icon: "🛠️",
+        order: 2,
+        unlockType: "open"
+    },
+    {
         id: "real-life",
         name: "Real Life",
         nameHe: "AI בחיים האמיתיים",
         description: "כלי בינה מלאכותית שימושיים למשימות יומיומיות",
         color: "from-emerald-500 to-teal-700",
         icon: "🌍",
-        order: 2,
+        order: 3,
         unlockType: "open"
     },
     {
@@ -28,7 +38,7 @@ export const CATEGORIES: Category[] = [
         description: "ללמוד איך להיות אלוף עם בינה מלאכותית בתחומים שונים",
         color: "from-orange-500 to-red-700",
         icon: "💼",
-        order: 3,
+        order: 4,
         unlockType: "open"
     },
     {
@@ -38,7 +48,7 @@ export const CATEGORIES: Category[] = [
         description: "השקפות עולם וסטטיסטיקות מהמובילים בתחום, אתיקה וכלים מתקדמים",
         color: "from-amber-500 to-yellow-700",
         icon: "🔮",
-        order: 4,
+        order: 5,
         unlockType: "open"
     }
 ];

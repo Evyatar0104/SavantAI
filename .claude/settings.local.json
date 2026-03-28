@@ -5,7 +5,29 @@
       "Bash(python -c \":*)",
       "Bash(python -c \"import json; lines=open\\(r''C:\\\\Users\\\\evyat\\\\.claude\\\\projects\\\\D--savant\\\\ae1d7a8e-3de8-4f83-96af-78e414375e30.jsonl'',''r'',encoding=''utf-8''\\).readlines\\(\\); [print\\(json.loads\\(l\\).get\\(''type'',''''\\)\\) for l in lines[-10:]]\")",
       "mcp__Claude_Preview__preview_start",
-      "Bash(ls \"D:\\\\savant\\\\public\\\\assets\\\\logos\"\" 2>&1 || ls \"D:savantpublicassets\"\")"
+      "Bash(ls \"D:\\\\savant\\\\public\\\\assets\\\\logos\"\" 2>&1 || ls \"D:savantpublicassets\"\")",
+      "Bash(taskkill //F //IM node.exe)",
+      "Bash(find /d/savant/src -type f \\\\\\(-name *.ts -o -name *.tsx \\\\\\))",
+      "Bash(grep -r 'Image from' /d/savant/src --include=*.tsx --include=*.ts)",
+      "Bash(grep -r 'img src' /d/savant/src --include=*.tsx)",
+      "Bash(grep -r 'from framer-motion' /d/savant/src --include=*.tsx --include=*.ts)",
+      "Bash(grep -r \"firebase\\\\|db\\\\|auth\\\\|getDoc\\\\|setDoc\" /d/savant/src/app --include=*.tsx)",
+      "Bash(node -e \":*)",
+      "Bash(npm install:*)",
+      "Bash(npm run:*)",
+      "Bash(find /d/savant/src/data -type f -exec wc -c {} +)",
+      "Bash(sort -k5 -rn)",
+      "Bash(for f:*)",
+      "Bash(do echo:*)",
+      "Read(//d/savant/**)",
+      "Bash(done)",
+      "Bash(ls -la /d/savant/public/swe-worker*.js)",
+      "Bash(ls -la /d/savant/public/workbox*.js)",
+      "Bash(curl -s http://localhost:3099/manifest.json)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}, Size: %{size_download} bytes\" http://localhost:3099/sw.js)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}, Size: %{size_download} bytes\" http://localhost:3099/icons/icon-192.png)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}, Size: %{size_download} bytes\" http://localhost:3099/icons/icon-512.png)",
+      "Bash(curl -s http://localhost:3099/)"
     ]
   }
 }

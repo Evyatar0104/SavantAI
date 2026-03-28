@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 import { useSavantStore } from "@/store/useSavantStore";
-import { LESSONS, TRACKS, CATEGORIES, COURSES } from "@/data/lessons";
+import { TRACKS, CATEGORIES, COURSES } from "@/data/lessons";
+import { LESSON_INDEX } from "@/data/lessons-index";
 import { m, AnimatePresence } from "framer-motion";
 import { ArrowRight, Sparkles, Flame, Clock, BookOpen, ChevronRight, Brain, Cpu, Bot } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -12,8 +14,8 @@ export default function Home() {
   const streak = useSavantStore((state: any) => state.streak);
   const xp = useSavantStore((state: any) => state.xp);
   const completedLessons = useSavantStore((state: any) => state.completedLessons);
-  const featuredLesson = LESSONS[0];
-  const otherLessons = LESSONS.slice(1);
+  const featuredLesson = LESSON_INDEX[0];
+  const otherLessons = LESSON_INDEX.slice(1);
   const featuredTrack = TRACKS.find(t => t.id === featuredLesson.trackId);
   const featuredCategory = CATEGORIES.find(c => c.id === featuredLesson.categoryId);
 
@@ -77,8 +79,8 @@ export default function Home() {
             animate={{ opacity: 1, x: 0 }}
             className="flex flex-col"
           >
-            <span className="text-[10px] md:text-sm font-black uppercase tracking-widest text-zinc-500 mb-2">הצמיחה היומית שלך</span>
-            <h1 className="text-3xl md:text-6xl font-serif font-semibold tracking-tight">ניצוץ יומי</h1>
+            <span className="text-[10px] md:text-sm font-black uppercase tracking-widest text-zinc-500 mb-2">ברוך הבא</span>
+            <h1 className="text-3xl md:text-6xl font-serif font-semibold tracking-tight">מוכן ללמוד?</h1>
           </m.div>
 
           <div className="flex items-center space-x-4 md:space-x-8">
@@ -261,7 +263,7 @@ export default function Home() {
                   .map((course) => ({ course, category }))
               )
               .map(({ course, category }, i) => {
-                const courseLessons = LESSONS.filter(l => l.courseId === course.id);
+                const courseLessons = LESSON_INDEX.filter(l => l.courseId === course.id);
                 const completedInCourse = courseLessons.filter(l => completedLessons.includes(l.id));
                 const progress = courseLessons.length > 0
                   ? (completedInCourse.length / courseLessons.length) * 100
@@ -296,10 +298,22 @@ export default function Home() {
                         )} />
 
                         <div className={cn(
-                          "relative z-10 w-12 h-12 md:w-16 md:h-16 rounded-2xl flex items-center justify-center text-2xl md:text-3xl shadow-inner border border-white/20 bg-gradient-to-br",
+                          "relative z-10 w-12 h-12 md:w-16 md:h-16 flex items-center justify-center text-2xl md:text-3xl shadow-inner border border-white/15 squarcle bg-gradient-to-br",
                           category.color
                         )}>
-                          {course.icon}
+                          {course.image ? (
+                            <div className="w-full h-full p-2.5 flex items-center justify-center">
+                                {course.id === "course-notebooklm" ? (
+                                    <div className="w-full h-full squarcle bg-white overflow-hidden flex items-center justify-center">
+                                        <Image src={course.image} alt={course.nameHe} width={64} height={64} className="w-full h-full object-contain p-1.5" loading="lazy" />
+                                    </div>
+                                ) : (
+                                    <Image src={course.image} alt={course.nameHe} width={64} height={64} className="w-full h-full object-contain" loading="lazy" />
+                                )}
+                            </div>
+                          ) : (
+                            course.icon
+                          )}
                         </div>
                         <div className="relative z-10">
                           <p className="text-[10px] md:text-xs font-bold text-zinc-500 dark:text-zinc-400 mb-1 tracking-wide">{category.nameHe}</p>

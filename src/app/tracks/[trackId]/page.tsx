@@ -2,7 +2,8 @@
 
 import { useParams, useRouter, notFound } from "next/navigation";
 import { useEffect } from "react";
-import { TRACKS, LESSONS } from "@/data/lessons";
+import { TRACKS } from "@/data/lessons";
+import { LESSON_INDEX } from "@/data/lessons-index";
 import { useSavantStore } from "@/store/useSavantStore";
 import { AILearningPath } from "./AILearningPath";
 import Link from "next/link";
@@ -34,7 +35,7 @@ export default function TrackSyllabusPage() {
     }
 
     // Show existing UI while redirect happens
-    const trackLessons = LESSONS.filter(l => l.trackId === trackId);
+    const trackLessons = LESSON_INDEX.filter(l => l.trackId === trackId);
     const unlockedAITracks = useSavantStore((state: any) => state.unlockedAITracks);
     const completedLessons = useSavantStore((state: any) => state.completedLessons);
 

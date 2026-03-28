@@ -1,6 +1,7 @@
 "use client";
 
 import { useSavantStore } from "@/store/useSavantStore";
+import Image from "next/image";
 import { m, Variants, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
@@ -340,10 +341,13 @@ export default function Profile() {
                         padding: "20px 24px",
                         marginBottom: 20,
                     }}>
-                        <img
+                        <Image
                             src={`/assets/logos/${primaryModel === "chatgpt" ? "openai" : primaryModel}.svg`}
                             alt={primaryModel}
+                            width={48}
+                            height={48}
                             className="w-10 h-10 sm:w-12 sm:h-12 object-contain shrink-0"
+                            loading="lazy"
                             onError={(e) => {
                                 (e.target as HTMLImageElement).src = `/assets/logos/${primaryModel === "chatgpt" ? "openai" : primaryModel}.png`;
                             }}

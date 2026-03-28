@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { CATEGORIES, COURSES, LESSONS } from "@/data/lessons";
+import Image from "next/image";
+import { CATEGORIES, COURSES } from "@/data/lessons";
+import { LESSON_INDEX } from "@/data/lessons-index";
 import { useSavantStore } from "@/store/useSavantStore";
 import { m, Variants } from "framer-motion";
 import { Lock } from "lucide-react";
@@ -63,7 +65,7 @@ export default function Tracks() {
                                 animate="show"
                             >
                                 {categoryCourses.map((course) => {
-                                    const courseLessons = LESSONS.filter(l => l.courseId === course.id);
+                                    const courseLessons = LESSON_INDEX.filter(l => l.courseId === course.id);
                                     const completedInCourse = courseLessons.filter(l => completedLessons.includes(l.id));
                                     const lessonsCount = courseLessons.length;
                                     const isCompleted = completedCourses.includes(course.id);
@@ -89,11 +91,25 @@ export default function Tracks() {
                                                 )}
 
                                                 <div className={cn(
-                                                    "w-20 h-20 md:w-24 md:h-24 rounded-[24px] bg-gradient-to-br flex items-center justify-center text-4xl md:text-5xl shadow-xl shadow-black/10 shrink-0 relative z-10 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3",
+                                                    "w-20 h-20 md:w-24 md:h-24 flex items-center justify-center text-4xl md:text-5xl shadow-xl shadow-black/10 shrink-0 relative z-10 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3 squarcle bg-gradient-to-br",
                                                     category.color
                                                 )}>
-                                                    <div className="absolute inset-0 bg-white/20 dark:bg-black/20 rounded-[24px] mix-blend-overlay"></div>
-                                                    <div className="drop-shadow-md">{course.icon}</div>
+                                                    <div className="absolute inset-0 bg-white/10 dark:bg-black/10 mix-blend-overlay"></div>
+                                                    <div className="drop-shadow-md relative z-10 w-full h-full flex items-center justify-center">
+                                                        {course.image ? (
+                                                            <div className="w-full h-full p-4 flex items-center justify-center">
+                                                                 {course.id === "course-notebooklm" ? (
+                                                                     <div className="w-full h-full squarcle bg-white overflow-hidden flex items-center justify-center">
+                                                                         <Image src={course.image} alt={course.nameHe} width={96} height={96} className="w-full h-full object-contain p-2" loading="lazy" />
+                                                                     </div>
+                                                                 ) : (
+                                                                     <Image src={course.image} alt={course.nameHe} width={96} height={96} className="w-full h-full object-contain" loading="lazy" />
+                                                                 )}
+                                                            </div>
+                                                        ) : (
+                                                            course.icon
+                                                        )}
+                                                    </div>
                                                 </div>
 
                                                 <div className="flex-1 w-full relative z-10">

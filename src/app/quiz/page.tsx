@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { m, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -178,7 +179,7 @@ function ToolCard({
             )}
         >
             {tool.logo ? (
-                <img src={tool.logo} alt={tool.label} className="w-8 h-8 rounded-lg object-contain mb-2" />
+                <Image src={tool.logo} alt={tool.label} width={32} height={32} className="w-8 h-8 rounded-lg object-contain mb-2" loading="lazy" />
             ) : (
                 <span className="text-2xl mb-2">{tool.emoji}</span>
             )}
@@ -612,7 +613,7 @@ export default function QuizPage() {
                                             )}
 
                                             <div className="flex items-center relative z-10">
-                                                <img src={`/assets/logos/${primary.model}.png`} alt={primary.model} className="w-[52px] h-[52px] object-contain ml-[14px] rounded-xl" />
+                                                <Image src={`/assets/logos/${primary.model}.png`} alt={primary.model} width={52} height={52} className="w-[52px] h-[52px] object-contain ml-[14px] rounded-xl" loading="lazy" />
                                                 <div>
                                                     <span className="text-[24px] font-medium text-white">{MODEL_NAMES[primary.model]}</span>
                                                     <div className="text-[11px] mt-[1px]" style={{ color: theme.accentColor }}>{theme.tagline}</div>
@@ -666,7 +667,7 @@ export default function QuizPage() {
                                                 style={{ background: `radial-gradient(circle, ${secTheme.orbColors[0]} 0%, transparent 70%)`, filter: "blur(15px)" }} />
 
                                             <div className="flex items-center relative z-10">
-                                                <img src={`/assets/logos/${secondary.model}.png`} alt={secondary.model} className="w-[36px] h-[36px] object-contain ml-[12px] rounded-lg" />
+                                                <Image src={`/assets/logos/${secondary.model}.png`} alt={secondary.model} width={36} height={36} className="w-[36px] h-[36px] object-contain ml-[12px] rounded-lg" loading="lazy" />
                                                 <div>
                                                     <span className="text-[16px] font-medium text-white">{MODEL_NAMES[secondary.model]}</span>
                                                     <div className="text-[10px]" style={{ color: secTheme.accentColor }}>{secTheme.tagline}</div>

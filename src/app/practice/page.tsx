@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { m } from "framer-motion";
 import { Clock, Zap, Sparkles, Filter } from "lucide-react";
+import Image from "next/image";
 import { PRACTICE_ITEMS, SKILL_TAG_LABELS } from "@/data/practice";
 import type { PracticeItem, SkillTag } from "@/data/practice";
 
@@ -122,10 +123,13 @@ function PracticeCard({ item, index }: { item: PracticeItem; index: number }) {
                 {/* Tool badge */}
                 <div className="flex items-center gap-1.5">
                     {toolMeta.logo ? (
-                        <img
+                        <Image
                             src={toolMeta.logo}
                             alt={toolMeta.label}
-                            style={{ width: 16, height: 16, borderRadius: 4, objectFit: "contain" }}
+                            width={16}
+                            height={16}
+                            style={{ borderRadius: 4, objectFit: "contain" }}
+                            loading="lazy"
                         />
                     ) : (
                         <Sparkles className="w-3.5 h-3.5" style={{ color: "rgba(255,255,255,0.4)" }} />
