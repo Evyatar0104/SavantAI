@@ -79,8 +79,8 @@ export default function Home() {
             animate={{ opacity: 1, x: 0 }}
             className="flex flex-col"
           >
-            <span className="text-[10px] md:text-sm font-black uppercase tracking-widest text-zinc-500 mb-2">הצמיחה היומית שלך</span>
-            <h1 className="text-3xl md:text-6xl font-serif font-semibold tracking-tight">ניצוץ יומי</h1>
+            <span className="text-[10px] md:text-sm font-black uppercase tracking-widest text-zinc-500 mb-2">ברוך הבא</span>
+            <h1 className="text-3xl md:text-6xl font-serif font-semibold tracking-tight">מוכן ללמוד?</h1>
           </m.div>
 
           <div className="flex items-center space-x-4 md:space-x-8">
