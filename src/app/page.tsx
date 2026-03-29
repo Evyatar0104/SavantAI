@@ -7,17 +7,49 @@ import { useSavantStore } from "@/store/useSavantStore";
 import { TRACKS, CATEGORIES, COURSES } from "@/data/lessons";
 import { LESSON_INDEX } from "@/data/lessons-index";
 import { m, AnimatePresence } from "framer-motion";
-import { ArrowRight, Sparkles, Flame, Clock, BookOpen, ChevronRight, Brain, Cpu, Bot } from "lucide-react";
+import { ArrowRight, Sparkles, Clock, BookOpen, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getLessonTheme, FLOATING_ICONS_MAP } from "@/lib/lessonTheme";
+
+// Positions for orbiting icons around the main icon (relative offsets in px)
+// Pushed far enough out so the large main emoji never covers them
+const ORBIT_POSITIONS = [
+  { dx: -130, dy: -120, size: 44 },  // top-left
+  { dx: 140, dy: -100, size: 36 },   // top-right
+  { dx: -150, dy: 60, size: 38 },    // bottom-left
+  { dx: 130, dy: 90, size: 42 },     // bottom-right
+  { dx: -50, dy: -160, size: 30 },   // far top
+  { dx: 160, dy: -10, size: 34 },    // far right
+];
+
+const getFloatingIcons = (courseId: string, lessonId: string) => {
+  let hash = 0;
+  for (let i = 0; i < lessonId.length; i++) {
+    hash = Math.imul(31, hash) + lessonId.charCodeAt(i) | 0;
+  }
+  const rand = () => {
+    hash = (hash * 9301 + 49297) % 233280;
+    return hash / 233280;
+  };
+
+  const pool = FLOATING_ICONS_MAP[courseId] || FLOATING_ICONS_MAP.DEFAULT;
+  return ORBIT_POSITIONS.map((pos, i) => ({
+    emoji: pool[i % pool.length],
+    dx: pos.dx,
+    dy: pos.dy,
+    size: pos.size,
+    opacity: 0.12 + rand() * 0.15,
+    duration: 10 + rand() * 8,
+    delay: rand() * 3,
+    rotateRange: 5 + rand() * 15,
+  }));
+};
 
 export default function Home() {
   const streak = useSavantStore((state: any) => state.streak);
   const xp = useSavantStore((state: any) => state.xp);
   const completedLessons = useSavantStore((state: any) => state.completedLessons);
-  const featuredLesson = LESSON_INDEX[0];
-  const otherLessons = LESSON_INDEX.slice(1);
-  const featuredTrack = TRACKS.find(t => t.id === featuredLesson.trackId);
-  const featuredCategory = CATEGORIES.find(c => c.id === featuredLesson.categoryId);
+  const otherLessons = LESSON_INDEX.slice(1, 4); // Just get top 3 for recommendations
 
   const [scrollState, setScrollState] = useState({ isAtStart: true, isAtEnd: false });
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -26,6 +58,8 @@ export default function Home() {
   const startX = useRef(0);
   const scrollLeftStart = useRef(0);
   const [hasMoved, setHasMoved] = useState(false);
+  
+  const [heroLesson, setHeroLesson] = useState<any>(null);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!scrollRef.current) return;
@@ -59,6 +93,14 @@ export default function Home() {
     const isAtEnd = absScrollLeft + clientWidth >= scrollWidth - 10;
     setScrollState({ isAtStart, isAtEnd });
   };
+
+  useEffect(() => {
+    const validLessons = LESSON_INDEX.filter(l => l.title && l.description && l.icon);
+    const available = validLessons.filter(l => !completedLessons.includes(l.id));
+    const pool = available.length > 0 ? available : validLessons;
+    const random = pool[Math.floor(Math.random() * pool.length)];
+    setHeroLesson(random);
+  }, [completedLessons]);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -102,130 +144,144 @@ export default function Home() {
       <main className="relative z-10 flex-1 flex flex-col space-y-12 pb-32 px-6 md:px-10 lg:px-14 w-full">
 
         {/* Premium Animated Hero Banner */}
-        <section className="relative w-full pt-4">
-          <m.div
-            initial={{ opacity: 0, y: 40, filter: 'blur(10px)' }}
-            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-            transition={{ duration: 1, ease: "easeOut" }}
-          >
-            <Link href={`/lesson/${featuredLesson.id}`} className="group block focus:outline-none perspective-1000">
-              <div className={cn(
-                "relative overflow-hidden rounded-[32px] md:rounded-[48px] min-h-[350px] md:min-h-[420px] p-6 md:p-10 lg:p-14 flex flex-col justify-end transition-all duration-700 shadow-2xl hover:shadow-[0_40px_100px_-20px_rgba(0,0,0,0.8)] border border-white/10 group-hover:border-white/20 transform-style-3d group-hover:-translate-y-2",
-                "bg-zinc-950"
-              )}>
-                {/* Dynamic Animated Background Gradient */}
-                <div className={cn("absolute inset-0 opacity-40 mix-blend-screen transition-opacity duration-1000 group-hover:opacity-60", `bg-gradient-to-br ${featuredCategory?.color || featuredTrack?.color}`)} />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent z-0" />
+        <section className="relative w-full pt-4 min-h-[350px] md:min-h-[420px]">
+          <AnimatePresence mode="wait">
+            {!heroLesson ? (
+              <m.div
+                key="skeleton"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="relative overflow-hidden rounded-[32px] md:rounded-[48px] min-h-[350px] md:min-h-[420px] p-6 md:p-10 lg:p-14 bg-white/[0.04] animate-pulse"
+              />
+            ) : (
+              <m.div
+                key={heroLesson.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+              >
+                <Link href={`/lesson/${heroLesson.id}`} className="group block focus:outline-none perspective-1000" dir="rtl">
+                  {(() => {
+                    const theme = getLessonTheme(heroLesson.icon);
+                    const floatingIcons = getFloatingIcons(heroLesson.courseId, heroLesson.id);
+                    return (
+                      <div className={cn(
+                        "relative overflow-hidden rounded-[32px] md:rounded-[48px] min-h-[350px] md:min-h-[420px] p-6 md:p-10 lg:p-14 flex flex-col justify-end transition-all duration-700 shadow-2xl hover:shadow-[0_40px_100px_-20px_rgba(0,0,0,0.8)] border border-white/10 group-hover:border-white/20 transform-style-3d group-hover:-translate-y-2",
+                        "bg-zinc-950"
+                      )}>
+                        {/* Dynamic Animated Background Gradient */}
+                        <div className="absolute inset-0 opacity-40 mix-blend-screen transition-opacity duration-1000 group-hover:opacity-60" 
+                             style={{ background: `linear-gradient(135deg, ${theme.secondary}CC 0%, ${theme.primary}99 50%, #0a0a0f 100%)` }} />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent z-0 pointer-events-none" />
 
-                {/* Generative Animated Orbs (Frontend Developer Skill Implementation) */}
-                <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                  <m.div
-                    animate={{
-                      y: [0, -30, 0],
-                      x: [0, 20, 0],
-                      scale: [1, 1.1, 1],
-                    }}
-                    transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-                    className="absolute top-[-10%] right-[10%] w-[400px] h-[400px] rounded-full bg-blue-500/20 blur-[80px] mix-blend-screen"
-                  />
-                  <m.div
-                    animate={{
-                      y: [0, 40, 0],
-                      x: [0, -30, 0],
-                      scale: [1, 1.2, 1],
-                    }}
-                    transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-                    className="absolute bottom-[-20%] right-[20%] w-[300px] h-[300px] rounded-full bg-purple-500/20 blur-[60px] mix-blend-screen"
-                  />
-                </div>
+                        {/* Floating Lesson Icon + Orbiting Background Icons */}
+                        <div className="absolute top-1/2 -translate-y-1/2 left-8 md:left-16 lg:left-24 pointer-events-none transition-all duration-1000 group-hover:scale-105 z-[1]">
+                          {/* Radial Glow behind the icon cluster */}
+                          <div className="absolute -inset-20 md:-inset-28" style={{ background: `radial-gradient(circle, ${theme.glow} 0%, transparent 65%)`, mixBlendMode: 'screen' }} />
 
-                {/* Floating Track Icon with 3D Parallax & Background Elements */}
-                <div className="absolute top-1/2 -translate-y-1/2 left-8 md:left-16 lg:left-24 pointer-events-none transition-all duration-1000 group-hover:scale-105">
-                  {/* Background AI Icons */}
-                  <div className="absolute inset-0 z-0 opacity-10 group-hover:opacity-20 transition-opacity duration-1000">
-                    <m.div animate={{ y: [0, -20, 0], x: [0, 10, 0], rotate: [0, 10, 0] }} transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }} className="absolute -top-10 -left-10"><Brain size={64} /></m.div>
-                    <m.div animate={{ y: [0, 15, 0], x: [0, -15, 0], rotate: [0, -15, 0] }} transition={{ duration: 15, repeat: Infinity, ease: "easeInOut", delay: 1 }} className="absolute -bottom-10 -right-10"><Cpu size={48} /></m.div>
-                    <m.div animate={{ y: [0, -10, 0], x: [0, 20, 0] }} transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 }} className="absolute top-20 -right-20"><Bot size={40} /></m.div>
-                    <m.div animate={{ y: [0, 25, 0], rotate: [0, 20, 0] }} transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 0.5 }} className="absolute -top-20 right-10"><Sparkles size={32} /></m.div>
-                  </div>
+                          {/* Orbiting background icons */}
+                          {floatingIcons.map((fi, i) => (
+                            <m.div
+                              key={i}
+                              className="absolute pointer-events-none select-none"
+                              style={{
+                                left: '50%',
+                                top: '50%',
+                                marginLeft: fi.dx,
+                                marginTop: fi.dy,
+                                fontSize: `${fi.size}px`,
+                                lineHeight: 1,
+                                filter: 'none',
+                              }}
+                              animate={{
+                                y: [0, -15, 0],
+                                x: [0, 8, 0],
+                                rotate: [0, fi.rotateRange, 0],
+                                opacity: [fi.opacity, fi.opacity * 1.4, fi.opacity],
+                              }}
+                              transition={{ duration: fi.duration, delay: fi.delay, repeat: Infinity, ease: "easeInOut" }}
+                            >
+                              {fi.emoji}
+                            </m.div>
+                          ))}
 
-                  {/* Main Icon */}
-                  <m.div
-                    animate={{
-                      y: [0, -15, 0],
-                      rotate: [-5, 5, -5]
-                    }}
-                    transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-                    className="relative z-10 text-[120px] md:text-[200px] lg:text-[280px] leading-none opacity-40 group-hover:opacity-70 transition-all duration-700 select-none drop-shadow-[0_0_30px_rgba(255,255,255,0.2)] translate-z-50"
-                  >
-                    {featuredCategory?.icon || featuredTrack?.icon}
-                  </m.div>
-                </div>
+                          {/* Main Icon — large and prominent */}
+                          <m.div
+                            animate={{ y: [0, -12, 0], rotate: [-3, 3, -3] }}
+                            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                            className="relative z-10 text-[100px] md:text-[160px] lg:text-[220px] leading-none select-none opacity-50 group-hover:opacity-80 transition-opacity duration-700"
+                          >
+                            {heroLesson.icon}
+                          </m.div>
+                        </div>
 
-                {/* Staggered Content Area */}
-                <div className="relative z-10 flex flex-col space-y-4 max-w-2xl lg:max-w-3xl translate-z-20">
-                  <div className="flex items-center space-x-3">
-                    <m.span
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.3 }}
-                      className="bg-white/10 backdrop-blur-3xl border border-white/20 px-3 py-1.5 rounded-full text-[10px] md:text-xs font-black tracking-wider text-white shadow-xl"
-                    >
-                      שיעור מומלץ
-                    </m.span>
-                    <m.span
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.4 }}
-                      className="bg-blue-500/20 backdrop-blur-3xl border border-blue-500/30 px-3 py-1.5 rounded-full text-[10px] md:text-xs font-bold text-blue-100 flex items-center shadow-xl"
-                    >
-                      <Clock className="w-3.5 h-3.5 ml-1.5" /> 3 דק'
-                    </m.span>
-                  </div>
+                        {/* Content */}
+                        <div className="relative z-10 flex flex-col space-y-4 max-w-2xl lg:max-w-3xl translate-z-20">
+                          <div className="flex items-center space-x-3 mb-2 rtl:space-x-reverse">
+                            <m.span
+                              initial={{ opacity: 0, x: -20 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ delay: 0.1 }}
+                              className="bg-white/10 backdrop-blur-3xl border border-white/20 px-3 py-1.5 rounded-full text-[10px] md:text-xs font-black tracking-wider text-white shadow-xl"
+                            >
+                              למידה יומית
+                            </m.span>
+                          </div>
 
-                  <m.h2
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5, type: "spring", stiffness: 100 }}
-                    className="text-3xl md:text-5xl lg:text-7xl font-serif font-bold text-white leading-[1.1] tracking-tight drop-shadow-2xl"
-                  >
-                    {featuredLesson.title}
-                  </m.h2>
+                          <m.h2
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.2, type: "spring", stiffness: 100 }}
+                            className="text-3xl md:text-5xl lg:text-7xl font-serif font-bold text-white leading-[1.1] tracking-tight drop-shadow-2xl"
+                          >
+                            {heroLesson.title}
+                          </m.h2>
 
-                  <m.p
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.6 }}
-                    className="text-white/80 text-sm md:text-lg lg:text-xl font-medium max-w-xl line-clamp-2 leading-relaxed"
-                  >
-                    {featuredLesson.description}
-                  </m.p>
+                          <m.p
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.3 }}
+                            className="text-white/80 text-sm md:text-lg lg:text-xl font-medium max-w-xl line-clamp-2 leading-relaxed"
+                          >
+                            {heroLesson.description}
+                          </m.p>
 
-                  <m.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.7 }}
-                    className="pt-6 flex flex-wrap items-center gap-4 md:gap-6"
-                  >
-                    <div className="bg-white text-black px-6 py-3 md:px-8 md:py-4 rounded-full font-black text-sm md:text-base flex items-center group-hover:bg-blue-50 transition-colors shadow-[0_0_40px_rgba(255,255,255,0.3)]">
-                      התחל ללמוד <ArrowRight className="mr-2 w-4 h-4 md:w-5 md:h-5 transition-transform group-hover:-translate-x-1 rotate-180" />
-                    </div>
+                          <m.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.4 }}
+                            className="pt-6 flex flex-wrap items-center gap-4 md:gap-6"
+                          >
+                            <div 
+                              className="bg-white text-black px-6 py-3 md:px-8 md:py-4 rounded-full font-black text-sm md:text-base flex items-center transition-all shadow-xl hover:scale-105"
+                              style={{ border: `2px solid ${theme.primary}` }}
+                            >
+                              התחל ללמוד <ArrowRight className="mr-2 w-4 h-4 md:w-5 md:h-5 rtl:rotate-180" style={{ color: theme.primary }} />
+                            </div>
 
-                    <div className="flex space-x-6 items-center bg-black/30 backdrop-blur-xl px-5 py-2.5 rounded-full border border-white/10">
-                      <div className="flex flex-col">
-                        <span className="text-white/40 text-[8px] md:text-[10px] font-bold tracking-widest leading-none mb-1">פרס</span>
-                        <span className="text-white font-black text-sm md:text-lg leading-none">+750 XP</span>
+                            <div 
+                              className="flex space-x-6 rtl:space-x-reverse items-center backdrop-blur-xl px-5 py-2.5 rounded-full border border-white/10"
+                              style={{ backgroundColor: `${theme.primary}33` }} // 20% opacity using hex
+                            >
+                              <div className="flex flex-col">
+                                <span className="text-white/60 text-[8px] md:text-[10px] font-bold tracking-widest leading-none mb-1">פרס</span>
+                                <span className="text-white font-black text-sm md:text-lg leading-none">+150 XP</span>
+                              </div>
+                              <div className="h-6 w-px bg-white/15" />
+                              <div className="flex items-center text-white/90 font-bold text-xs md:text-sm">
+                                <Sparkles className="w-3.5 h-3.5 ml-1.5 rtl:mr-1.5 rtl:ml-0" style={{ color: theme.primary }} /> צמיחה
+                              </div>
+                            </div>
+                          </m.div>
+                        </div>
                       </div>
-                      <div className="h-6 w-px bg-white/15" />
-                      <div className="flex items-center text-white/90 font-bold text-xs md:text-sm">
-                        <Sparkles className="w-3.5 h-3.5 ml-1.5 text-yellow-400" /> שליטה
-                      </div>
-                    </div>
-                  </m.div>
-                </div>
-              </div>
-            </Link>
-          </m.div>
+                    );
+                  })()}
+                </Link>
+              </m.div>
+            )}
+          </AnimatePresence>
         </section>
 
         {/* Courses Carousel Section — grouped by category */}
