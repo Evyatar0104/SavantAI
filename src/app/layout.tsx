@@ -22,8 +22,8 @@ export const metadata: Metadata = {
     title: "Savant",
   },
   icons: {
+    icon: "/icon.png",
     apple: "/icons/apple-touch-icon.png",
-    shortcut: "/icons/icon-192.png",
   },
 };
 
@@ -32,7 +32,8 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: "#534AB7",
+  themeColor: "#0A0A0F",
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
@@ -52,7 +53,7 @@ export default function RootLayout({
 
             {/* Main content area */}
             <div className="flex-1 min-w-0 flex flex-col relative h-[100dvh]">
-              <main className="flex-1 overflow-y-auto safe-bottom-padding md:pb-12 no-scrollbar relative z-10 w-full h-full">
+              <main className="flex-1 overflow-y-auto safe-bottom-padding pt-[env(safe-area-inset-top)] md:pb-12 no-scrollbar relative z-10 w-full h-full">
                 {children}
               </main>
               {/* Bottom Nav for Mobile Only */}
