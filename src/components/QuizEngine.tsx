@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { useSavantStore } from "@/store/useSavantStore";
 import { useLesson } from "@/context/LessonContext";
 import { AnimatedGradient } from "@/components/AnimatedGradient";
+import { haptics } from "@/lib/haptics";
 
 interface Question {
     id: string;
@@ -68,8 +69,10 @@ export function QuizEngine({ questions, onComplete, accentColor = "#00C48C", ico
         setCorrectAnswers((prev) => [...prev, isCorrect]);
 
         if (isCorrect) {
+            haptics.success();
             setEarnedXp(prev => prev + (quizMode === "scholar" ? 10 : 30));
         } else {
+            haptics.error();
             if (quizMode === "gauntlet") {
                 setEarnedXp(prev => prev - 20); // Penalty
             } else {

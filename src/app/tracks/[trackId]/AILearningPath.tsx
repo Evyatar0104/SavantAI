@@ -19,12 +19,14 @@ const PRESTIGE_BADGES = [
     { id: "savant", name: "AI Savant", desc: "3 tracks", req: 3 }
 ];
 
+import { LessonMeta } from "@/data/lessons-index";
+
 export function AILearningPath({ 
     trackLessons, 
     unlockedAITracks, 
     completedLessons 
 }: { 
-    trackLessons: any[], 
+    trackLessons: LessonMeta[], 
     unlockedAITracks: string[], 
     completedLessons: string[] 
 }) {

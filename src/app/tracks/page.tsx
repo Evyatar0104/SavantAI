@@ -8,6 +8,7 @@ import { useSavantStore } from "@/store/useSavantStore";
 import { m, Variants } from "framer-motion";
 import { Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { isCourseUnlocked, getCoursePrerequisiteName } from "@/lib/courseUnlock";
 
 const containerVariants: Variants = {
     hidden: { opacity: 0 },
@@ -25,8 +26,8 @@ const itemVariants: Variants = {
 };
 
 export default function Tracks() {
-    const completedLessons = useSavantStore((state: any) => state.completedLessons);
-    const completedCourses = useSavantStore((state: any) => state.completedCourses);
+    const completedLessons = useSavantStore(state => state.completedLessons);
+    const completedCourses = useSavantStore(state => state.completedCourses);
 
     const sortedCategories = [...CATEGORIES].sort((a, b) => a.order - b.order);
 
@@ -70,16 +71,19 @@ export default function Tracks() {
                                     const lessonsCount = courseLessons.length;
                                     const isCompleted = completedCourses.includes(course.id);
                                     const hasLessons = lessonsCount > 0;
+                                    const unlocked = isCourseUnlocked(course.id, completedCourses);
+                                    const prereqName = getCoursePrerequisiteName(course.id);
 
                                     return (
                                         <m.div key={course.id} variants={itemVariants} className="h-full">
                                             <Link
-                                                href={hasLessons ? `/courses/${course.id}` : "#"}
+                                                href={hasLessons && unlocked ? `/courses/${course.id}` : "#"}
+                                                onClick={(e) => { if (!unlocked || !hasLessons) e.preventDefault(); }}
                                                 className={cn(
                                                     "group h-full p-8 rounded-[32px] flex flex-col items-start space-y-6 transition-all duration-300 relative overflow-hidden",
-                                                    hasLessons
+                                                    hasLessons && unlocked
                                                         ? "glass-panel dark:hover:bg-white/[0.04] hover:bg-black/[0.02] hover:-translate-y-2 hover:shadow-2xl active:scale-[0.98]"
-                                                        : "border border-black/5 dark:border-white/5 bg-black/[0.02] dark:bg-white/[0.02] opacity-60 cursor-not-allowed saturate-50 hover:bg-transparent"
+                                                        : "border border-black/5 dark:border-white/5 bg-black/[0.02] dark:bg-white/[0.02] opacity-50 cursor-default saturate-50"
                                                 )}
                                             >
                                                 {/* Decorative gradient blob */}
@@ -115,11 +119,17 @@ export default function Tracks() {
                                                 <div className="flex-1 w-full relative z-10">
                                                     <h3 className="font-black text-2xl md:text-3xl leading-tight mb-2 tracking-tight text-foreground">{course.nameHe}</h3>
                                                     <p className="text-sm text-zinc-500 dark:text-zinc-400 font-medium line-clamp-2 mb-3">{course.description}</p>
-                                                    <p className="text-sm md:text-base font-medium text-zinc-500 dark:text-zinc-400">
-                                                        {hasLessons
-                                                            ? `${lessonsCount} / ${completedInCourse.length} שיעורים`
-                                                            : "בקרוב"}
-                                                    </p>
+                                                    {!unlocked && prereqName ? (
+                                                        <p className="text-xs font-medium text-zinc-500 dark:text-zinc-500">
+                                                            נפתח אחרי השלמה של &ldquo;{prereqName}&rdquo;
+                                                        </p>
+                                                    ) : (
+                                                        <p className="text-sm md:text-base font-medium text-zinc-500 dark:text-zinc-400">
+                                                            {hasLessons
+                                                                ? `${lessonsCount} / ${completedInCourse.length} שיעורים`
+                                                                : "בקרוב"}
+                                                        </p>
+                                                    )}
                                                 </div>
 
                                                 {course.id === "how-llms-work" && completedInCourse.length === 0 && (
@@ -153,7 +163,7 @@ export default function Tracks() {
                                                     </m.div>
                                                 )}
 
-                                                {course.isLocked && !isCompleted && (
+                                                {!unlocked && !isCompleted && (
                                                     <div className="absolute top-4 left-4 z-10">
                                                         <Lock className="w-5 h-5 text-zinc-500" />
                                                     </div>

@@ -1,3 +1,5 @@
+import { LessonReward } from "./lessons";
+
 /**
  * Lightweight lesson index — metadata only, no heavy content fields.
  * Import this instead of the full LESSONS array when you only need
@@ -13,6 +15,7 @@ export interface LessonMeta {
     title: string;
     icon?: string;
     description: string;
+    reward?: LessonReward;
 }
 
 export const LESSON_INDEX: LessonMeta[] = [
@@ -26,7 +29,7 @@ export const LESSON_INDEX: LessonMeta[] = [
     { id: "ai-p0-06", trackId: "ai", courseId: "how-llms-work", categoryId: "foundation", order: 7, title: "כשה-AI משקר לך בפנים", icon: "🎭", description: "זה היה נשמע מלוטש, רהוט ובטוח לחלוטין. הבעיה שהוא המציא את הסיפור מאפס." },
 
     // ── prompting-mastery (10 lessons) ──
-    { id: "prompting-why-prompts-fail", trackId: "ai", courseId: "prompting-mastery", categoryId: "foundation", order: 1, title: "למה רוב הפרומפטים נכשלים", icon: "🤔", description: "ה-AI לא טיפש. פשוט חסר לו הקשר." },
+    { id: "prompting-why-prompts-fail", trackId: "ai", courseId: "prompting-mastery", categoryId: "foundation", order: 1, title: "למה רוב הפרומפטים נכשלים", icon: "🤔", description: "ה-AI לא טיפש. פשוט חסר לו הקשר.", reward: { type: "badge", value: "prompt-master", label: "תג מאסטר" } },
     { id: "prompting-give-it-a-role", trackId: "ai", courseId: "prompting-mastery", categoryId: "foundation", order: 2, title: "תן לו תפקיד (Role)", icon: "👨🏫", description: "משפט הפתיחה משנה לחלוטין את העומק והסגנון של הפלט." },
     { id: "prompting-context-is-everything", trackId: "ai", courseId: "prompting-mastery", categoryId: "foundation", order: 3, title: "תן לו הקשר ורקע עמוק", icon: "📝", description: "המודל יודע רק מה שסיפרת לו כרגע. ספר לו את התמונה המלאה." },
     { id: "prompting-say-what-you-dont-want", trackId: "ai", courseId: "prompting-mastery", categoryId: "foundation", order: 4, title: "ציין במפורש מה אתה לא רוצה שיהיה", icon: "🚫", description: "לפעמים ה-לא שאתה אומר לו משמעותי פי כמה מהדברים שביקשת." },

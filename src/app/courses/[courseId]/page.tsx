@@ -16,7 +16,7 @@ export default function CoursePage() {
     const router = useRouter();
     const courseId = params.courseId as string;
     const course = COURSES.find((c) => c.id === courseId);
-    const quizCompleted = useSavantStore((s: any) => s.quizCompleted);
+    const quizCompleted = useSavantStore(s => s.quizCompleted);
 
     // Quiz gate: redirect to quiz if foundation course and quiz not done
     useEffect(() => {
@@ -25,7 +25,7 @@ export default function CoursePage() {
         }
     }, [courseId, quizCompleted, router]);
 
-    const completedLessons = useSavantStore((state: any) => state.completedLessons);
+    const completedLessons = useSavantStore(state => state.completedLessons);
 
     if (!course) {
         return notFound();
@@ -143,7 +143,7 @@ export default function CoursePage() {
 
                 {nextLesson && (
                     <div className="mt-8 md:mt-0">
-                        <Link href={`/lesson/${nextLesson.id}`}>
+                        <Link href={`/lesson/${nextLesson.id}?from=course`}>
                             <button className="w-full md:w-auto px-8 py-5 bg-white text-black font-black text-lg rounded-full hover:bg-zinc-200 hover:scale-105 transition-all shadow-[0_0_40px_rgba(255,255,255,0.2)]">
                                 המשך קורס
                             </button>
@@ -210,7 +210,7 @@ export default function CoursePage() {
                                     }
 
                                     return (
-                                        <Link href={`/lesson/${lesson.id}`} key={lesson.id} className="block group">
+                                        <Link href={`/lesson/${lesson.id}?from=course`} key={lesson.id} className="block group">
                                             {cardContent}
                                         </Link>
                                     );

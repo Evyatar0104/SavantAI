@@ -200,8 +200,8 @@ const slideVariants = {
 
 export default function QuizPage() {
     const router = useRouter();
-    const setQuizResult = useSavantStore((s: any) => s.setQuizResult);
-    const quizCompleted = useSavantStore((s: any) => s.quizCompleted);
+    const setQuizResult = useSavantStore(s => s.setQuizResult);
+    const quizCompleted = useSavantStore(s => s.quizCompleted);
 
     const [step, setStep] = useState(1);
     const [selectedUseCases, setSelectedUseCases] = useState<string[]>([]);

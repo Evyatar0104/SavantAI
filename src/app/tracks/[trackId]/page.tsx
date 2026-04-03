@@ -36,8 +36,8 @@ export default function TrackSyllabusPage() {
 
     // Show existing UI while redirect happens
     const trackLessons = LESSON_INDEX.filter(l => l.trackId === trackId);
-    const unlockedAITracks = useSavantStore((state: any) => state.unlockedAITracks);
-    const completedLessons = useSavantStore((state: any) => state.completedLessons);
+    const unlockedAITracks = useSavantStore(state => state.unlockedAITracks);
+    const completedLessons = useSavantStore(state => state.completedLessons);
 
     const nextLesson = trackLessons[0];
 

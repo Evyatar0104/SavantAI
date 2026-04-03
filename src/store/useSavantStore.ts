@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { COURSES } from '@/data/lessons';
+import { LESSON_INDEX } from '@/data/lessons-index';
 
 type ModelName = "claude" | "chatgpt" | "gemini";
 
@@ -26,9 +27,11 @@ interface SavantState {
     streak: number;
     lastActiveDate: string | null;
     completedLessons: string[];
+    completedPractice: string[];
     unlockedAITracks: string[];
     completedCourses: string[];
     unlockedCategories: string[];
+    badges: string[];
     // Quiz profile
     quizCompleted: boolean;
     primaryUseCase: string | null;
@@ -51,6 +54,7 @@ interface SavantState {
     // Actions
     addXp: (amount: number) => void;
     completeLesson: (lessonId: string) => void;
+    completePracticeItem: (itemId: string, xp: number) => void;
     unlockAITrack: (trackId: string) => void;
     completeCourse: (courseId: string) => void;
     unlockCategory: (categoryId: string) => void;
@@ -68,9 +72,11 @@ export const useSavantStore = create<SavantState>()(
             streak: 0,
             lastActiveDate: null,
             completedLessons: [],
+            completedPractice: [],
             unlockedAITracks: [],
             completedCourses: [],
             unlockedCategories: ["foundation"],
+            badges: [],
             // Quiz profile
             quizCompleted: false,
             primaryUseCase: null,
@@ -92,12 +98,42 @@ export const useSavantStore = create<SavantState>()(
             recommendedCourseId: null,
             // Actions
             addXp: (amount: number) => set((state: SavantState) => ({ xp: state.xp + amount })),
-            completeLesson: (lessonId: string) =>
-                set((state: SavantState) => ({
-                    completedLessons: state.completedLessons.includes(lessonId)
-                        ? state.completedLessons
-                        : [...state.completedLessons, lessonId],
-                })),
+            completeLesson: (lessonId: string) => {
+                const state = get();
+                if (state.completedLessons.includes(lessonId)) return;
+
+                // Process potential rewards
+                let newXp = state.xp;
+                const newBadges = [...state.badges];
+                
+                const meta = LESSON_INDEX.find(l => l.id === lessonId);
+                if (meta?.reward) {
+                    if (meta.reward.type === 'xp' && typeof meta.reward.value === 'number') {
+                        newXp += meta.reward.value;
+                    } else if (meta.reward.type === 'badge' && typeof meta.reward.value === 'string') {
+                        if (!newBadges.includes(meta.reward.value)) {
+                            newBadges.push(meta.reward.value);
+                        }
+                    }
+                }
+
+                set({
+                    completedLessons: [...state.completedLessons, lessonId],
+                    xp: newXp,
+                    badges: newBadges
+                });
+            },
+            completePracticeItem: (itemId: string, xp: number) =>
+                set((state: SavantState) => {
+                    if (state.completedPractice.includes(itemId)) return {};
+                    const updatedPractice = [...state.completedPractice, itemId];
+                    const completedProjects = updatedPractice.filter(id => id.startsWith('project-'));
+                    const newBadges = [...state.badges];
+                    if (completedProjects.length >= 3 && !newBadges.includes('hall-of-projects')) {
+                        newBadges.push('hall-of-projects');
+                    }
+                    return { completedPractice: updatedPractice, xp: state.xp + xp, badges: newBadges };
+                }),
             unlockAITrack: (trackId: string) =>
                 set((state: SavantState) => ({
                     unlockedAITracks: state.unlockedAITracks.includes(trackId)
@@ -185,6 +221,15 @@ export const useSavantStore = create<SavantState>()(
                 }),
             resetAllData: () =>
                 set({
+                    xp: 0,
+                    streak: 0,
+                    lastActiveDate: null,
+                    completedLessons: [],
+                    completedPractice: [],
+                    unlockedAITracks: [],
+                    completedCourses: [],
+                    unlockedCategories: ["foundation"],
+                    badges: [],
                     quizCompleted: false,
                     primaryUseCase: null,
                     profileTitle: null,

@@ -15,6 +15,7 @@ import LessonGraphic from "@/components/LessonGraphic";
 import { QuizEngine } from "@/components/QuizEngine";
 import { HighlightedText } from "@/components/HighlightedText";
 import { PracticalCall } from "@/components/PracticalCall";
+import { haptics } from "@/lib/haptics";
 
 // ── Icon → Theme map ─────────────────────────────────
 const ICON_THEMES: Record<string, { bgGlow: string; accent: string }> = {
@@ -33,7 +34,7 @@ const ICON_THEMES: Record<string, { bgGlow: string; accent: string }> = {
 };
 const DEFAULT_THEME = { bgGlow: "#064E3B", accent: "#34D399" };
 
-interface Props { lessonId: string; }
+interface Props { lessonId: string; from?: string; }
 
 // ── Confetti particles ───────────────────────────────
 function Confetti({ color }: { color: string }) {
@@ -59,7 +60,7 @@ function Confetti({ color }: { color: string }) {
                     initial={{ y: -20, x: 0, opacity: p.opacity, rotate: 0, scale: 1 }}
                     animate={{ y: "110vh", x: p.xDrift, opacity: 0, rotate: p.rotate + 360, scale: 0.5 }}
                     transition={{ duration: p.duration, delay: p.delay, ease: "easeIn" }}
-                    style={{
+                    style={{ willChange: 'transform',
                         position: "absolute",
                         top: 0,
                         left: p.left,
@@ -99,14 +100,20 @@ function XPCounter({ target }: { target: number }) {
 }
 
 // ── Main content ─────────────────────────────────────
-function LessonContent({ lesson }: { lesson: any }) {
+function LessonContent({ lesson, from }: { lesson: Lesson; from?: string }) {
     const router = useRouter();
     const { currentPulse, maxPulses, nextPulse, prevPulse } = useLesson();
 
-    const addXp = useSavantStore((s: any) => s.addXp);
-    const completeLesson = useSavantStore((s: any) => s.completeLesson);
-    const checkStreak = useSavantStore((s: any) => s.checkStreak);
-    const recommendedCourseId = useSavantStore((s: any) => s.recommendedCourseId);
+    const exitLesson = () => {
+        haptics.tap();
+        if (from === 'course') router.push(`/courses/${lesson.courseId}`);
+        else router.push('/');
+    };
+
+    const addXp = useSavantStore(s => s.addXp);
+    const completeLesson = useSavantStore(s => s.completeLesson);
+    const checkStreak = useSavantStore(s => s.checkStreak);
+    const recommendedCourseId = useSavantStore(s => s.recommendedCourseId);
 
     const [step, setStep] = useState<"story" | "quiz" | "complete">("story");
     const [earnedXp, setEarnedXp] = useState(0);
@@ -157,6 +164,7 @@ function LessonContent({ lesson }: { lesson: any }) {
 
         setStep("complete");
         setShowConfetti(true);
+        haptics.complete();
         setTimeout(() => setShowConfetti(false), 3000);
     };
 
@@ -238,7 +246,7 @@ function LessonContent({ lesson }: { lesson: any }) {
                     >
                         <m.button
                             whileTap={{ scale: 0.96 }}
-                            onClick={() => handleSwipe(-1)}
+                            onClick={() => { haptics.tap(); handleSwipe(-1); }}
                             className="rounded-full font-medium text-[15px] text-black bg-white overflow-hidden relative"
                             style={{ width: 200, height: 48 }}
                         >
@@ -542,7 +550,7 @@ function LessonContent({ lesson }: { lesson: any }) {
                 {/* Progress bar + controls */}
                 <div className="relative flex items-center justify-between p-4 px-6 z-50 w-full pt-[env(safe-area-inset-top)] mt-2 md:mt-4 md:px-10">
                     <div className="flex items-center gap-3">
-                        <button onClick={() => router.back()} className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors backdrop-blur-md">
+                        <button onClick={exitLesson} className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors backdrop-blur-md">
                             <X className="w-5 h-5 text-white" />
                         </button>
                         {(currentPulse > 0 || step === "quiz") && step !== "complete" && (
@@ -707,7 +715,7 @@ function LessonContent({ lesson }: { lesson: any }) {
                                         {nextLesson ? (
                                             <m.button
                                                 whileTap={{ scale: 0.95 }}
-                                                onClick={() => router.push(`/lesson/${nextLesson.id}`)}
+                                                onClick={() => router.push(`/lesson/${nextLesson.id}?from=${from ?? 'home'}`)}
                                                 className="w-full py-4 rounded-full bg-white text-black font-medium text-base"
                                                 style={{ height: 52 }}
                                             >
@@ -717,7 +725,7 @@ function LessonContent({ lesson }: { lesson: any }) {
 
                                         <m.button
                                             whileTap={{ scale: 0.95 }}
-                                            onClick={() => router.push(`/courses/${lesson.courseId}`)}
+                                            onClick={exitLesson}
                                             className="w-full py-4 rounded-full font-medium text-base border border-white/20 text-white"
                                             style={{ height: 52 }}
                                         >
@@ -747,12 +755,28 @@ function LessonContent({ lesson }: { lesson: any }) {
 }
 
 // ── Wrapper ──────────────────────────────────────────
-export function LessonRunner({ lessonId }: Props) {
+export function LessonRunner({ lessonId, from }: Props) {
     const router = useRouter();
     const [lesson, setLesson] = useState<Lesson | null | undefined>(undefined);
+    const nextLessonData = useRef<Lesson | null>(null);
 
     useEffect(() => {
-        loadLessonById(lessonId).then(setLesson);
+        loadLessonById(lessonId).then(loadedLesson => {
+            setLesson(loadedLesson);
+            
+            // Preload next lesson data
+            if (loadedLesson) {
+                const courseLessons = LESSON_INDEX.filter(l => l.courseId === loadedLesson.courseId).sort((a, b) => a.order - b.order);
+                const currentIndex = courseLessons.findIndex(l => l.id === loadedLesson.id);
+                const next = currentIndex !== -1 && currentIndex < courseLessons.length - 1 ? courseLessons[currentIndex + 1] : null;
+                
+                if (next) {
+                    loadLessonById(next.id).then(data => {
+                        nextLessonData.current = data;
+                    });
+                }
+            }
+        });
     }, [lessonId]);
 
     if (lesson === undefined) {
@@ -767,14 +791,14 @@ export function LessonRunner({ lessonId }: Props) {
         return (
             <div className="flex flex-col items-center justify-center p-6 min-h-[100dvh]">
                 <h2 className="text-xl font-bold mb-4 text-white">השיעור לא נמצא</h2>
-                <button className="px-4 py-2 bg-white text-black rounded-full font-semibold" onClick={() => router.back()}>חזור</button>
+                <button className="px-4 py-2 bg-white text-black rounded-full font-semibold" onClick={() => router.push('/')}>חזור</button>
             </div>
         );
     }
 
     return (
         <LessonProvider maxPulses={lesson.practicalCall ? 5 : 4}>
-            <LessonContent lesson={lesson} />
+            <LessonContent lesson={lesson} from={from} />
         </LessonProvider>
     );
 }

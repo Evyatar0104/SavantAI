@@ -5,7 +5,17 @@ export interface LessonTheme {
   text: string;
 }
 
-export function getLessonTheme(icon: string): LessonTheme {
+export function getLessonTheme(icon: string, courseId?: string): LessonTheme {
+  if (courseId === "course-chatgpt") {
+    return { primary: '#74AA9C', secondary: '#5C8A7D', glow: 'rgba(116, 170, 156, 0.3)', text: '#FFFFFF' };
+  }
+  if (courseId === "course-gemini") {
+    return { primary: '#4796E3', secondary: '#3679BD', glow: 'rgba(71, 150, 227, 0.3)', text: '#FFFFFF' };
+  }
+  if (courseId === "course-claude") {
+    return { primary: '#C15F3C', secondary: '#A14D2E', glow: 'rgba(193, 95, 60, 0.3)', text: '#FFFFFF' };
+  }
+
   if (!icon) {
     return {
       primary: '#534AB7',

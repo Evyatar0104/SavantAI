@@ -33,6 +33,14 @@ export type Course = {
     requiredCourseId?: string;
 };
 
+export type RewardType = "xp" | "badge" | "unlock";
+
+export type LessonReward = {
+    type: RewardType;
+    value: number | string;
+    label: string;
+};
+
 export type Lesson = {
     id: string;
     trackId?: string;
@@ -56,6 +64,7 @@ export type Lesson = {
     insight: string;
     image?: string;
     questions: Question[];
+    reward?: LessonReward;
 };
 
 
