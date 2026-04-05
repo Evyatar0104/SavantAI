@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { m, AnimatePresence } from "framer-motion";
-import { Clock, Zap, Sparkles, Search } from "lucide-react";
+import { Clock, Zap, Sparkles, Search, LayoutGrid, List } from "lucide-react";
 import Image from "next/image";
 import { PRACTICE_ITEMS, type PracticeItem, type AIModelType } from "@/data/practice";
 import { useSavantStore } from "@/store/useSavantStore";
@@ -19,6 +19,44 @@ const TOOL_META: Record<string, { label: string; logo: string | null }> = {
 type TypeFilter = "drill" | "project";
 type ToolFilter = "Claude" | "ChatGPT" | "Gemini" | "כל מודל";
 
+// ── View Toggle ──────────────────────────────────────
+function ViewToggle({ compact, setCompact }: { compact: boolean; setCompact: (v: boolean) => void }) {
+    return (
+        <div style={{
+            display: "flex",
+            background: "rgba(255,255,255,0.04)",
+            padding: 4,
+            borderRadius: 10,
+            border: "1px solid rgba(255,255,255,0.08)",
+        }}>
+            <button
+                onClick={() => setCompact(false)}
+                style={{
+                    padding: "6px 10px",
+                    borderRadius: 7,
+                    background: !compact ? "rgba(83,74,183,0.3)" : "transparent",
+                    color: !compact ? "white" : "rgba(255,255,255,0.4)",
+                    transition: "all 0.2s",
+                }}
+            >
+                <LayoutGrid className="w-4 h-4" />
+            </button>
+            <button
+                onClick={() => setCompact(true)}
+                style={{
+                    padding: "6px 10px",
+                    borderRadius: 7,
+                    background: compact ? "rgba(83,74,183,0.3)" : "transparent",
+                    color: compact ? "white" : "rgba(255,255,255,0.4)",
+                    transition: "all 0.2s",
+                }}
+            >
+                <List className="w-4 h-4" />
+            </button>
+        </div>
+    );
+}
+
 // ── Filter pill ──────────────────────────────────────
 function FilterPill({
     label,
@@ -32,8 +70,9 @@ function FilterPill({
     logo?: string | null;
 }) {
     return (
-        <button
+        <m.button
             onClick={onClick}
+            whileTap={{ scale: 0.95 }}
             style={{
                 display: "flex",
                 alignItems: "center",
@@ -55,7 +94,103 @@ function FilterPill({
                 <Image src={logo} alt={label} width={14} height={14} style={{ borderRadius: 3, objectFit: "contain" }} />
             )}
             <span>{label}</span>
-        </button>
+        </m.button>
+    );
+}
+
+// ── Compact Practice Card ────────────────────────────
+function CompactPracticeCard({
+    item,
+    isCompleted,
+    onClick,
+    activeTool,
+}: {
+    item: PracticeItem;
+    isCompleted: boolean;
+    onClick: () => void;
+    activeTool?: ToolFilter | null;
+}) {
+    const toolToDisplay = activeTool || item.recommendedModel;
+    const toolMeta = TOOL_META[toolToDisplay] || TOOL_META[item.recommendedModel] || TOOL_META["כל מודל"];
+
+    return (
+        <m.div
+            layout
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, scale: 0.98 }}
+            whileTap={{ scale: 0.99 }}
+            onClick={onClick}
+            style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 16,
+                padding: "12px 16px",
+                borderRadius: 14,
+                background: "rgba(255,255,255,0.03)",
+                border: "0.5px solid rgba(255,255,255,0.06)",
+                cursor: "pointer",
+                position: "relative",
+                overflow: "hidden",
+            }}
+        >
+            {/* Model Logo */}
+            <div style={{
+                width: 36, height: 36, borderRadius: 10,
+                background: "rgba(255,255,255,0.05)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                flexShrink: 0,
+            }}>
+                {toolMeta.logo ? (
+                    <Image src={toolMeta.logo} alt={toolMeta.label} width={20} height={20} style={{ borderRadius: 4 }} />
+                ) : (
+                    <Sparkles className="w-4 h-4 opacity-40" />
+                )}
+            </div>
+
+            {/* Content */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
+                    <h3 style={{ 
+                        fontSize: 15, fontWeight: 600, color: "white", 
+                        whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" 
+                    }}>
+                        {item.title}
+                    </h3>
+                    {isCompleted && (
+                        <div style={{
+                            width: 14, height: 14, borderRadius: "50%",
+                            background: "#534AB7", color: "white",
+                            display: "flex", alignItems: "center", justifyContent: "center",
+                            fontSize: 8, fontWeight: 800,
+                        }}>✓</div>
+                    )}
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <span style={{ 
+                        fontSize: 10, color: item.type === "project" ? "#C4B5FD" : "rgba(255,255,255,0.4)",
+                        fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.02em"
+                    }}>
+                        {item.type === "drill" ? "תרגיל" : "פרויקט"}
+                    </span>
+                    <span style={{ fontSize: 10, color: "rgba(255,255,255,0.25)" }}>•</span>
+                    <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, color: "rgba(255,255,255,0.35)" }}>
+                        <Clock className="w-3 h-3" />
+                        <span>{item.timeMinutes} דק׳</span>
+                    </div>
+                </div>
+            </div>
+
+            {/* XP Badge */}
+            <div style={{
+                fontSize: 12, fontWeight: 700, color: "#FCD34D",
+                background: "rgba(252,211,77,0.08)", padding: "4px 10px", borderRadius: 8,
+                display: "flex", alignItems: "center", gap: 4,
+            }}>
+                <Zap className="w-3 h-3" />
+                <span>{item.xp}</span>
+            </div>
+        </m.div>
     );
 }
 
@@ -83,6 +218,7 @@ function PracticeCard({
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95 }}
+            whileTap={{ scale: 0.98 }}
             transition={{ duration: 0.35, ease: "easeOut" }}
             onClick={onClick}
             style={{
@@ -219,6 +355,9 @@ export default function PracticePage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedTypes, setSelectedTypes] = useState<TypeFilter[]>([]);
     const [selectedTools, setSelectedTools] = useState<ToolFilter[]>([]);
+    const [isCompact, setIsCompact] = useState(false);
+
+    const isSearching = searchQuery.trim().length > 0;
 
     const primaryModel = useSavantStore(s => s.primaryModel);
 
@@ -293,51 +432,83 @@ export default function PracticePage() {
         <div className="min-h-dvh w-full pb-32 md:pb-12" dir="rtl" style={{ color: "white" }}>
             <div className="max-w-[720px] mx-auto px-5 md:px-6 pt-10 md:pt-16">
                 {/* Hero */}
-                <m.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="mb-6">
-                    <h1 style={{ fontSize: 32, fontWeight: 700, marginBottom: 8, letterSpacing: "-0.02em" }}>
+                <m.div 
+                    layout
+                    initial={{ opacity: 0, y: 20 }} 
+                    animate={{ 
+                        opacity: isSearching ? 0.4 : 1, 
+                        y: 0,
+                        scale: isSearching ? 0.95 : 1,
+                        marginBottom: isSearching ? 12 : 24
+                    }} 
+                    transition={{ duration: 0.4, ease: "easeInOut" }} 
+                    className="origin-right"
+                >
+                    <h1 style={{ fontSize: isSearching ? 24 : 32, fontWeight: 700, marginBottom: 4, letterSpacing: "-0.02em", transition: "font-size 0.4s" }}>
                         זירת המשימות
                     </h1>
-                    <p style={{ fontSize: 15, color: "rgba(255,255,255,0.5)", lineHeight: 1.6 }}>
-                        ברוך הבא לסדנה. בחר משימה להתאצה וניכנס לעבודה.
-                    </p>
+                    <AnimatePresence>
+                        {!isSearching && (
+                            <m.p 
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: "auto" }}
+                                exit={{ opacity: 0, height: 0 }}
+                                style={{ fontSize: 15, color: "rgba(255,255,255,0.5)", lineHeight: 1.6, overflow: "hidden" }}
+                            >
+                                ברוך הבא לסדנה. בחר משימה להתאצה וניכנס לעבודה.
+                            </m.p>
+                        )}
+                    </AnimatePresence>
                 </m.div>
 
-                {/* Search box */}
+                {/* Search box & View Toggle */}
                 <m.div
+                    layout
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.35, delay: 0.05 }}
-                    className="relative mb-3"
+                    className="flex items-center gap-3 mb-3"
                 >
-                    <Search
-                        className="absolute top-1/2 -translate-y-1/2 right-3 w-4 h-4 pointer-events-none"
-                        style={{ color: "rgba(255,255,255,0.3)" }}
-                    />
-                    <input
-                        type="text"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="חפש תרגיל או פרויקט..."
-                        dir="rtl"
-                        style={{
-                            width: "100%",
-                            padding: "10px 40px 10px 14px",
-                            borderRadius: 12,
-                            border: "0.5px solid rgba(255,255,255,0.1)",
-                            background: "rgba(255,255,255,0.04)",
-                            color: "white",
-                            fontSize: 14,
-                            outline: "none",
-                        }}
-                    />
+                    <div className="relative flex-1">
+                        <Search
+                            className="absolute top-1/2 -translate-y-1/2 right-3 w-4 h-4 pointer-events-none"
+                            style={{ color: "rgba(255,255,255,0.3)" }}
+                        />
+                        <input
+                            type="text"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            placeholder="חפש תרגיל או פרויקט..."
+                            dir="rtl"
+                            style={{
+                                width: "100%",
+                                padding: "10px 40px 10px 14px",
+                                borderRadius: 12,
+                                border: isSearching ? "0.5px solid rgba(139,92,246,0.3)" : "0.5px solid rgba(255,255,255,0.1)",
+                                background: isSearching ? "rgba(139,92,246,0.08)" : "rgba(255,255,255,0.04)",
+                                color: "white",
+                                fontSize: 14,
+                                outline: "none",
+                                transition: "all 0.3s",
+                            }}
+                        />
+                    </div>
+                    <ViewToggle compact={isCompact} setCompact={setIsCompact} />
                 </m.div>
 
                 {/* Type filters */}
                 <m.div
+                    layout
                     initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    animate={{ 
+                        opacity: 1, 
+                        y: 0,
+                        height: isSearching ? 0 : "auto",
+                        marginBottom: isSearching ? 0 : 8,
+                        overflow: "hidden"
+                    }}
                     transition={{ duration: 0.35, delay: 0.1 }}
-                    className="flex gap-2 overflow-x-auto no-scrollbar mb-2 pb-1"
+                    className="flex gap-2 overflow-x-auto no-scrollbar pb-1"
                 >
                     <FilterPill 
                         label="הכל" 
@@ -362,10 +533,17 @@ export default function PracticePage() {
 
                 {/* Model filters */}
                 <m.div
+                    layout
                     initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    animate={{ 
+                        opacity: 1, 
+                        y: 0,
+                        height: isSearching ? 0 : "auto",
+                        marginBottom: isSearching ? 0 : 32,
+                        overflow: "hidden"
+                    }}
                     transition={{ duration: 0.35, delay: 0.15 }}
-                    className="flex gap-2 overflow-x-auto no-scrollbar mb-8 pb-1"
+                    className="flex gap-2 overflow-x-auto no-scrollbar pb-1"
                 >
                     <FilterPill 
                         label="כולם" 
@@ -387,26 +565,51 @@ export default function PracticePage() {
 
                 {/* Drills section */}
                 {drills.length > 0 && (
-                    <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="mb-12">
-                        <div className="flex items-center gap-2 mb-4">
-                            <span style={{ fontSize: 18 }}>⚡</span>
-                            <h2 style={{ fontSize: 18, fontWeight: 600 }}>תרגילים</h2>
+                    <m.div 
+                        layout
+                        initial={{ opacity: 0 }} 
+                        animate={{ opacity: 1 }} 
+                        transition={{ delay: 0.2 }} 
+                        className="mb-12"
+                    >
+                        <m.div 
+                            layout
+                            animate={{ 
+                                opacity: isSearching ? 0.7 : 1,
+                                scale: isSearching ? 0.98 : 1
+                            }}
+                            className="flex items-center gap-2 mb-4 origin-right"
+                        >
+                            <span style={{ fontSize: isSearching ? 16 : 18 }}>⚡</span>
+                            <h2 style={{ fontSize: isSearching ? 16 : 18, fontWeight: 600 }}>תרגילים</h2>
                             <span style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", fontWeight: 500, marginRight: 4 }}>
                                 {drills.length} משימות
                             </span>
-                        </div>
-                        <div className="flex flex-col gap-3">
+                        </m.div>
+                        <div className={isCompact ? "grid grid-cols-1 sm:grid-cols-2 gap-2" : "flex flex-col gap-3"}>
                             <AnimatePresence mode="popLayout" initial={false}>
                                 {drills.map((item: PracticeItem) => (
-                                <PracticeCard
-                                        key={item.id}
-                                        item={item}
-                                        activeTool={selectedTools.find(t => 
-                                            item.recommendedModel === t || item.compatibleModels.includes(t as AIModelType)
-                                        )}
-                                        isCompleted={completedPractice.includes(item.id)}
-                                        onClick={() => router.push(`/practice/builder/${item.id}?from=practice`)}
-                                    />
+                                    isCompact ? (
+                                        <CompactPracticeCard
+                                            key={item.id}
+                                            item={item}
+                                            activeTool={selectedTools.find(t => 
+                                                item.recommendedModel === t || item.compatibleModels.includes(t as AIModelType)
+                                            )}
+                                            isCompleted={completedPractice.includes(item.id)}
+                                            onClick={() => router.push(`/practice/builder/${item.id}?from=practice`)}
+                                        />
+                                    ) : (
+                                        <PracticeCard
+                                            key={item.id}
+                                            item={item}
+                                            activeTool={selectedTools.find(t => 
+                                                item.recommendedModel === t || item.compatibleModels.includes(t as AIModelType)
+                                            )}
+                                            isCompleted={completedPractice.includes(item.id)}
+                                            onClick={() => router.push(`/practice/builder/${item.id}?from=practice`)}
+                                        />
+                                    )
                                 ))}
                             </AnimatePresence>
                         </div>
@@ -415,26 +618,50 @@ export default function PracticePage() {
 
                 {/* Projects section */}
                 {projects.length > 0 && (
-                    <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}>
-                        <div className="flex items-center gap-2 mb-4">
-                            <span style={{ fontSize: 18 }}>🚀</span>
-                            <h2 style={{ fontSize: 18, fontWeight: 600 }}>פרויקטים</h2>
+                    <m.div 
+                        layout
+                        initial={{ opacity: 0 }} 
+                        animate={{ opacity: 1 }} 
+                        transition={{ delay: 0.25 }}
+                    >
+                        <m.div 
+                            layout
+                            animate={{ 
+                                opacity: isSearching ? 0.7 : 1,
+                                scale: isSearching ? 0.98 : 1
+                            }}
+                            className="flex items-center gap-2 mb-4 origin-right"
+                        >
+                            <span style={{ fontSize: isSearching ? 16 : 18 }}>🚀</span>
+                            <h2 style={{ fontSize: isSearching ? 16 : 18, fontWeight: 600 }}>פרויקטים</h2>
                             <span style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", fontWeight: 500, marginRight: 4 }}>
                                 {projects.length} משימות
                             </span>
-                        </div>
-                        <div className="flex flex-col gap-3">
+                        </m.div>
+                        <div className={isCompact ? "grid grid-cols-1 sm:grid-cols-2 gap-2" : "flex flex-col gap-3"}>
                             <AnimatePresence mode="popLayout" initial={false}>
                                 {projects.map((item: PracticeItem) => (
-                                <PracticeCard
-                                        key={item.id}
-                                        item={item}
-                                        activeTool={selectedTools.find(t => 
-                                            item.recommendedModel === t || item.compatibleModels.includes(t as AIModelType)
-                                        )}
-                                        isCompleted={completedPractice.includes(item.id)}
-                                        onClick={() => router.push(`/practice/builder/${item.id}?from=practice`)}
-                                    />
+                                    isCompact ? (
+                                        <CompactPracticeCard
+                                            key={item.id}
+                                            item={item}
+                                            activeTool={selectedTools.find(t => 
+                                                item.recommendedModel === t || item.compatibleModels.includes(t as AIModelType)
+                                            )}
+                                            isCompleted={completedPractice.includes(item.id)}
+                                            onClick={() => router.push(`/practice/builder/${item.id}?from=practice`)}
+                                        />
+                                    ) : (
+                                        <PracticeCard
+                                            key={item.id}
+                                            item={item}
+                                            activeTool={selectedTools.find(t => 
+                                                item.recommendedModel === t || item.compatibleModels.includes(t as AIModelType)
+                                            )}
+                                            isCompleted={completedPractice.includes(item.id)}
+                                            onClick={() => router.push(`/practice/builder/${item.id}?from=practice`)}
+                                        />
+                                    )
                                 ))}
                             </AnimatePresence>
                         </div>

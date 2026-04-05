@@ -5,7 +5,7 @@ import Image from "next/image";
 import { m, Variants, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useState, useRef, useEffect, memo } from "react";
-import { Badge, BADGES, isBadgeEarned } from "@/data/badges";
+import { Badge, BADGES, isBadgeEarned, RARITY_COLORS } from "@/data/badges";
 import { haptics } from "@/lib/haptics";
 
 const containerVariants: Variants = {
@@ -31,32 +31,8 @@ const MODEL_ACCENT: Record<string, { color: string; bg: string; label: string }>
     gemini:  { color: "#4285F4", bg: "#4285F410", label: "Gemini"  },
 };
 
-const RARITY_COLORS: Record<string, { main: string; border: string; glow: string }> = {
-    Common: { 
-        main: "rgba(161, 161, 170, 0.1)", 
-        border: "rgba(161, 161, 170, 0.3)", 
-        glow: "rgba(161, 161, 170, 0.1)" 
-    },
-    Rare: { 
-        main: "rgba(59, 130, 246, 0.1)", 
-        border: "rgba(59, 130, 246, 0.4)", 
-        glow: "rgba(59, 130, 246, 0.2)" 
-    },
-    Epic: { 
-        main: "rgba(168, 85, 247, 0.15)", 
-        border: "rgba(168, 85, 247, 0.5)", 
-        glow: "rgba(168, 85, 247, 0.3)" 
-    },
-    Legendary: { 
-        main: "rgba(245, 158, 11, 0.2)", 
-        border: "rgba(245, 158, 11, 0.6)", 
-        glow: "rgba(245, 158, 11, 0.4)" 
-    },
-};
-
 const BadgeCard = memo(({ badge, earned, onClick }: { badge: Badge, earned: boolean, onClick: () => void }) => {
     const tierColor = RARITY_COLORS[badge.rarity || "Common"];
-    const isCommon = badge.rarity === "Common";
 
     return (
         <m.div
@@ -140,15 +116,6 @@ const BadgeCard = memo(({ badge, earned, onClick }: { badge: Badge, earned: bool
             >
                 {badge.description}
             </p>
-
-            {/* Rarity Indicator (except for Common) */}
-            {earned && !isCommon && (
-                <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded-full bg-white/5 border border-white/10">
-                    <span className="text-[7px] uppercase tracking-tighter font-bold opacity-60">
-                        {badge.rarity}
-                    </span>
-                </div>
-            )}
         </m.div>
     );
 });
@@ -452,7 +419,12 @@ export default function Profile() {
 
                 {/* ── THE VAULT DIRECT GRID ───────────────────── */}
                 <m.div variants={itemVariants} className="mb-6">
-                    <h2 className="text-lg font-medium mb-4 text-white">אוסף ההישגים שלי</h2>
+                    <h2 className="text-lg font-medium mb-4 text-white flex items-center gap-3">
+                        אוסף קלפים
+                        <span className="bg-indigo-500 text-white text-[10px] px-2 py-0.5 rounded-full font-black uppercase tracking-wider shadow-[0_0_10px_rgba(99,102,241,0.5)]">
+                            BETA
+                        </span>
+                    </h2>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                         {BADGES.map((badge) => {
                             const earned = isBadgeEarned(badge.id, state);

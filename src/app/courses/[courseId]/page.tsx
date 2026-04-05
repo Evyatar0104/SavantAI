@@ -5,11 +5,14 @@ import Image from "next/image";
 import { useParams, useRouter, notFound } from "next/navigation";
 import { useEffect } from "react";
 import { COURSES, CATEGORIES } from "@/data/lessons";
-import { LESSON_INDEX } from "@/data/lessons-index";
-import { ArrowLeft, Clock, Target } from "lucide-react";
+import { LESSON_INDEX, loadCourseLessons } from "@/data/lessons-index";
+import { ArrowLeft, Clock, Target, Sparkles } from "lucide-react";
+import { haptics } from "@/lib/haptics";
 import { cn } from "@/lib/utils";
 import { useSavantStore } from "@/store/useSavantStore";
 import { m } from "framer-motion";
+import { useState } from "react";
+import { CoursePracticeSheet } from "@/components/CoursePracticeSheet";
 
 export default function CoursePage() {
     const params = useParams();
@@ -17,13 +20,15 @@ export default function CoursePage() {
     const courseId = params.courseId as string;
     const course = COURSES.find((c) => c.id === courseId);
     const quizCompleted = useSavantStore(s => s.quizCompleted);
+    const [isPracticeOpen, setIsPracticeOpen] = useState(false);
+    const [hasPractice, setHasPractice] = useState(false);
 
-    // Quiz gate: redirect to quiz if foundation course and quiz not done
+    // Load full lessons to check for practicalCall
     useEffect(() => {
-        if (courseId === "how-llms-work" && !quizCompleted) {
-            router.replace("/quiz");
-        }
-    }, [courseId, quizCompleted, router]);
+        loadCourseLessons(courseId).then(lessons => {
+            setHasPractice(lessons.some(l => l.practicalCall));
+        });
+    }, [courseId]);
 
     const completedLessons = useSavantStore(state => state.completedLessons);
 
@@ -138,6 +143,17 @@ export default function CoursePage() {
                         <div className="glass-panel px-4 py-2 rounded-full flex items-center text-sm font-semibold text-zinc-200">
                             <Target className="w-4 h-4 ml-2 text-green-400" /> {courseLessons.length} שיעורים
                         </div>
+                        {hasPractice && (
+                            <button 
+                                onClick={() => {
+                                    setIsPracticeOpen(true);
+                                    haptics.tap();
+                                }}
+                                className="glass-panel px-4 py-2 rounded-full flex items-center text-sm font-semibold text-zinc-200 hover:bg-white/10 transition-colors border-purple-500/30 bg-purple-500/5"
+                            >
+                                <Sparkles className="w-4 h-4 ml-2 text-purple-400" /> הצג תרגילים
+                            </button>
+                        )}
                     </div>
                 </div>
 
@@ -151,6 +167,13 @@ export default function CoursePage() {
                     </div>
                 )}
             </div>
+
+            <CoursePracticeSheet 
+                courseId={courseId} 
+                courseName={course.nameHe} 
+                isOpen={isPracticeOpen} 
+                onClose={() => setIsPracticeOpen(false)} 
+            />
 
             <m.div 
                 variants={containerVariants}

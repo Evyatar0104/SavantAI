@@ -121,37 +121,43 @@ export const LESSON_INDEX: LessonMeta[] = [
     { id: "image-gen-consistency", trackId: "ai", courseId: "course-image-gen", categoryId: "tools", order: 5, title: "עקביות — אותו אופי, תמונות שונות", icon: "🔄", description: "איך שומרים על אותה דמות או סגנון לאורך זמן מבלי שזה ישתנה." },
     { id: "image-gen-real-use-cases", trackId: "ai", courseId: "course-image-gen", categoryId: "tools", order: 6, title: "שימושים אמיתיים — פוסטים, לוגו, UI, מוצרים", icon: "💼", description: "איך מתאימים את הכלי למשימה כדי לקבל תוצאה סופית לשימוש." },
     { id: "image-gen-personal-stack", trackId: "ai", courseId: "course-image-gen", categoryId: "tools", order: 7, title: "ה-Stack האישי שלך + מה מותר לעשות עם התמונות", icon: "⚖️", description: "איך לבנות את ארגז הכלים שלך ולהבין את נושא זכויות היוצרים ב-AI." },
+
+    // ── agent-mastery (9 lessons) ──
+    { id: "agent-mastery-1", trackId: "ai", courseId: "agent-mastery", categoryId: "advanced", order: 1, title: "Agent, Subagent, Skill — המילון", icon: "🤖", description: "שלושה מושגים שישנו איך אתה עובד עם AI" },
+    { id: "agent-mastery-2", trackId: "ai", courseId: "agent-mastery", categoryId: "advanced", order: 2, title: "למה הפרומפטים שלך לא עובדים על סוכנים", icon: "🔄", description: "Mental model shift: אתה לא מפרומפט, אתה מתכנן עובד" },
+    { id: "agent-mastery-3", trackId: "ai", courseId: "agent-mastery", categoryId: "advanced", order: 3, title: "ההבדל בין פרומפט שאדם מבין לפרומפט שסוכן מבין", icon: "✍️", description: "איך לכתוב הוראות שסוכן באמת יכול לפעול לפיהן" },
+    { id: "agent-mastery-4", trackId: "ai", courseId: "agent-mastery", categoryId: "advanced", order: 4, title: "איך לגרום לסוכנים לעבוד אחד בשביל השני", icon: "🏗️", description: "Orchestrator ו-subagents — כשמשימה גדולה מדי לסוכן אחד" },
+    { id: "agent-mastery-5", trackId: "ai", courseId: "agent-mastery", categoryId: "advanced", order: 5, title: "מה סוכן יכול לגעת בו — וזה הרבה יותר ממה שחשבת", icon: "🔧", description: "כלים — העיניים והידיים של הסוכן" },
+    { id: "agent-mastery-6", trackId: "ai", courseId: "agent-mastery", categoryId: "advanced", order: 6, title: "קובץ אחד שהופך סוכן בינוני לסוכן מדהים", icon: "📄", description: "Skills כתשתית — למה SKILL.md שווה יותר מפרומפט ארוך" },
+    { id: "agent-mastery-7", trackId: "ai", courseId: "agent-mastery", categoryId: "advanced", order: 7, title: "למה סוכנים משתגעים — ואיך לזהות את זה לפני שזה קורה", icon: "⚠️", description: "שלושת כשלי ה-agent הנפוצים — וסימני האזהרה המוקדמים" },
+    { id: "agent-mastery-8", trackId: "ai", courseId: "agent-mastery", categoryId: "advanced", order: 8, title: "כמה שליטה לוותר — ומתי לעצור הכל", icon: "🎛️", description: "Checkpoints, human-in-the-loop, ואיפה לשים את קו הוודאות" },
+    { id: "agent-mastery-9", trackId: "ai", courseId: "agent-mastery", categoryId: "advanced", order: 9, title: "מפרומפט ראשון לפיצ׳ר ששוחרר: תזרים עבודה שלם עם סוכן", icon: "🚀", description: "איך מחברים את כל מה שלמדנו לתהליך עבודה אמיתי" },
 ];
+
+const COURSE_LOADERS: Record<string, () => Promise<any>> = {
+    "how-llms-work": () => import("./lessons/how-llms-work").then(m => m.HOW_LLMS_WORK_LESSONS),
+    "prompting-mastery": () => import("./lessons/prompting-mastery").then(m => m.PROMPTING_MASTERY_LESSONS),
+    "choosing-models": () => import("./lessons/choosing-models").then(m => m.CHOOSING_MODELS_LESSONS),
+    "course-chatgpt": () => import("./lessons/course-chatgpt").then(m => m.COURSE_CHATGPT_LESSONS),
+    "course-claude": () => import("./lessons/course-claude").then(m => m.COURSE_CLAUDE_LESSONS),
+    "course-gemini": () => import("./lessons/course-gemini").then(m => m.COURSE_GEMINI_LESSONS),
+    "course-notebooklm": () => import("./lessons/course-notebooklm").then(m => m.COURSE_NOTEBOOKLM_LESSONS),
+    "course-vibe-coding": () => import("./lessons/course-vibe-coding").then(m => m.COURSE_VIBE_CODING_LESSONS),
+    "course-image-gen": () => import("./lessons/course-image-gen").then(m => m.COURSE_IMAGE_GEN_LESSONS),
+    "learning-with-ai": () => import("./lessons/course-learning-with-ai").then(m => m.COURSE_LEARNING_WITH_AI_LESSONS),
+    "agent-mastery": () => import("./lessons/agent-mastery-lessons").then(m => m.AGENT_MASTERY_LESSONS),
+};
 
 /**
  * Dynamically load full lesson data for a specific course.
  * Use this in lesson pages instead of importing the full LESSONS array.
  */
 export async function loadCourseLessons(courseId: string) {
-    switch (courseId) {
-        case "how-llms-work":
-            return (await import("./lessons/how-llms-work")).HOW_LLMS_WORK_LESSONS;
-        case "prompting-mastery":
-            return (await import("./lessons/prompting-mastery")).PROMPTING_MASTERY_LESSONS;
-        case "choosing-models":
-            return (await import("./lessons/choosing-models")).CHOOSING_MODELS_LESSONS;
-        case "course-chatgpt":
-            return (await import("./lessons/course-chatgpt")).COURSE_CHATGPT_LESSONS;
-        case "course-claude":
-            return (await import("./lessons/course-claude")).COURSE_CLAUDE_LESSONS;
-        case "course-gemini":
-            return (await import("./lessons/course-gemini")).COURSE_GEMINI_LESSONS;
-        case "course-notebooklm":
-            return (await import("./lessons/course-notebooklm")).COURSE_NOTEBOOKLM_LESSONS;
-        case "course-vibe-coding":
-            return (await import("./lessons/course-vibe-coding")).COURSE_VIBE_CODING_LESSONS;
-        case "course-image-gen":
-            return (await import("./lessons/course-image-gen")).COURSE_IMAGE_GEN_LESSONS;
-        case "learning-with-ai":
-            return (await import("./lessons/course-learning-with-ai")).COURSE_LEARNING_WITH_AI_LESSONS;
-        default:
-            return [];
+    const loader = COURSE_LOADERS[courseId];
+    if (loader) {
+        return await loader();
     }
+    return [];
 }
 
 /**

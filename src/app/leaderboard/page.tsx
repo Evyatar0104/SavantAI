@@ -39,6 +39,7 @@ export default function Leaderboard() {
     const xp = useSavantStore(state => state.xp);
     const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     // In a real app we'd have a user ID. We use a mock ID for the current user.
     const userId = "current-user-id";
@@ -51,58 +52,66 @@ export default function Leaderboard() {
     };
 
     useEffect(() => {
-        const updateCurrentUser = async () => {
+        let unsubscribe: (() => void) | undefined;
+
+        const initLeaderboard = async () => {
             try {
+                // Try to update current user first
                 const userRef = doc(db, "users", userId);
                 await setDoc(userRef, {
                     name: userName,
                     xp: xp,
                     avatar: "🧑‍🎓",
                     badges: ["🎓"]
-                }, { merge: true });
-            } catch (e) {
-                console.warn("Firebase not fully configured. Using fallback data.", e);
-            }
-        };
-        updateCurrentUser();
-
-        try {
-            const usersRef = collection(db, "users");
-            const q = query(usersRef, orderBy("xp", "desc"), limit(10));
-
-            const unsubscribe = onSnapshot(q, (querySnapshot) => {
-                const users: LeaderboardEntry[] = [];
-                querySnapshot.forEach((doc) => {
-                    const data = doc.data();
-                    users.push({
-                        id: doc.id,
-                        name: data.name,
-                        xp: data.xp,
-                        avatar: data.avatar,
-                        badges: data.badges || [],
-                        isCurrentUser: doc.id === userId
-                    });
+                }, { merge: true }).catch(err => {
+                    console.warn("Could not update user in Firebase, using local state only.", err);
                 });
 
-                if (users.length === 0) throw new Error("Empty query");
+                const usersRef = collection(db, "users");
+                const q = query(usersRef, orderBy("xp", "desc"), limit(10));
 
-                setLeaderboardData(users);
-                setLoading(false);
-            }, () => {
-                // Fallback to mock data if no DB access
-                setTimeout(() => {
-                    setLeaderboardData(getFallbackData(xp));
-                    setLoading(false);
-                }, 0);
-            });
+                unsubscribe = onSnapshot(q, 
+                    (querySnapshot) => {
+                        const users: LeaderboardEntry[] = [];
+                        querySnapshot.forEach((doc) => {
+                            const data = doc.data();
+                            users.push({
+                                id: doc.id,
+                                name: data.name,
+                                xp: data.xp,
+                                avatar: data.avatar,
+                                badges: data.badges || [],
+                                isCurrentUser: doc.id === userId
+                            });
+                        });
 
-            return () => unsubscribe();
-        } catch (e) {
-            setTimeout(() => {
+                        if (users.length > 0) {
+                            setLeaderboardData(users);
+                            setLoading(false);
+                            setError(null);
+                        } else {
+                            // If empty, use fallback
+                            setLeaderboardData(getFallbackData(xp));
+                            setLoading(false);
+                        }
+                    }, 
+                    (err) => {
+                        console.error("Leaderboard snapshot error:", err);
+                        setLeaderboardData(getFallbackData(xp));
+                        setLoading(false);
+                    }
+                );
+            } catch (e) {
+                console.error("Leaderboard initialization error:", e);
                 setLeaderboardData(getFallbackData(xp));
                 setLoading(false);
-            }, 0);
-        }
+            }
+        };
+
+        initLeaderboard();
+        return () => {
+            if (unsubscribe) unsubscribe();
+        };
     }, [xp]);
 
     return (

@@ -345,6 +345,14 @@ function LessonContent({ lesson, from }: { lesson: Lesson; from?: string }) {
                                         loading="lazy"
                                     />
                                 </m.div>
+                            ) : lesson.diagram ? (
+                                <m.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.4 }}
+                                    className="my-10 w-full flex justify-center"
+                                    dangerouslySetInnerHTML={{ __html: lesson.diagram }}
+                                />
                             ) : (
                                 <LessonGraphic lessonId={lesson.id} />
                             )}

@@ -20,6 +20,7 @@ export type BuilderStep = {
 
 export type PracticeItem = {
     id: string;
+    courseId?: string;
     type: "drill" | "project";
     recommendedModel: AIModelType;
     compatibleModels: AIModelType[];
@@ -56,6 +57,7 @@ export const PRACTICE_ITEMS: PracticeItem[] = [
     // ── DRILLS (6) ──────────────────────────────────────
     {
         id: "drill-system-prompt-business",
+        courseId: "prompting-mastery",
         type: "drill",
         recommendedModel: "Claude",
         compatibleModels: ["ChatGPT", "Gemini"],
@@ -107,10 +109,11 @@ export const PRACTICE_ITEMS: PracticeItem[] = [
         difficulty: 1,
         xpReward: 75,
         isPinned: true,
-        relatedLessonId: "how-llms-work-4",
+        relatedLessonId: "prompting-system-prompt-mindset",
     },
     {
         id: "drill-summarize-article",
+        courseId: "prompting-mastery",
         type: "drill",
         recommendedModel: "כל מודל",
         compatibleModels: ["Claude", "ChatGPT", "Gemini"],
@@ -156,6 +159,7 @@ export const PRACTICE_ITEMS: PracticeItem[] = [
     },
     {
         id: "drill-compare-models",
+        courseId: "choosing-models",
         type: "drill",
         recommendedModel: "כל מודל",
         compatibleModels: ["Claude", "ChatGPT", "Gemini"],
@@ -186,7 +190,7 @@ export const PRACTICE_ITEMS: PracticeItem[] = [
                 template: "אני אשווה את התשובות שלך לפי {{input}}."
             }
         ],
-        goal: "בסוף תבין מתי כל מודל עדיף — לא מהתיאוריה, מהניסיון",
+        goal: "בסוף תבינו מתי כל מודל עדיף — לא מהתיאוריה, מהניסיון",
         estimatedMinutes: 15,
         skillTags: ["analysis", "research"],
         difficulty: 2,
@@ -194,6 +198,7 @@ export const PRACTICE_ITEMS: PracticeItem[] = [
     },
     {
         id: "drill-chain-of-thought",
+        courseId: "prompting-mastery",
         type: "drill",
         recommendedModel: "Claude",
         compatibleModels: ["ChatGPT", "Gemini"],
@@ -229,10 +234,11 @@ export const PRACTICE_ITEMS: PracticeItem[] = [
         skillTags: ["system-prompts", "analysis"],
         difficulty: 2,
         xpReward: 75,
-        relatedLessonId: "how-llms-work-3",
+        relatedLessonId: "prompting-chain-of-thought",
     },
     {
         id: "drill-email-rewrite",
+        courseId: "course-chatgpt",
         type: "drill",
         recommendedModel: "ChatGPT",
         compatibleModels: ["Claude", "Gemini"],
@@ -271,6 +277,7 @@ export const PRACTICE_ITEMS: PracticeItem[] = [
     },
     {
         id: "drill-data-extraction",
+        courseId: "prompting-mastery",
         type: "drill",
         recommendedModel: "Gemini",
         compatibleModels: ["Claude", "ChatGPT"],
@@ -311,6 +318,7 @@ export const PRACTICE_ITEMS: PracticeItem[] = [
     // ── PROJECTS (4) ────────────────────────────────────
     {
         id: "project-presentation",
+        courseId: "course-claude",
         type: "project",
         recommendedModel: "Claude",
         compatibleModels: ["ChatGPT"],
@@ -365,6 +373,7 @@ export const PRACTICE_ITEMS: PracticeItem[] = [
     },
     {
         id: "project-market-research",
+        courseId: "course-gemini",
         type: "project",
         recommendedModel: "Gemini",
         compatibleModels: ["Claude", "ChatGPT"],
@@ -411,6 +420,7 @@ export const PRACTICE_ITEMS: PracticeItem[] = [
     },
     {
         id: "project-landing-page",
+        courseId: "course-vibe-coding",
         type: "project",
         recommendedModel: "Claude",
         compatibleModels: ["ChatGPT", "Gemini"],
@@ -456,6 +466,7 @@ export const PRACTICE_ITEMS: PracticeItem[] = [
     },
     {
         id: "project-content-calendar",
+        courseId: "course-chatgpt",
         type: "project",
         recommendedModel: "ChatGPT",
         compatibleModels: ["Claude"],

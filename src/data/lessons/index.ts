@@ -7,6 +7,7 @@ import { COURSE_GEMINI_LESSONS } from "./course-gemini";
 import { COURSE_NOTEBOOKLM_LESSONS } from "./course-notebooklm";
 import { COURSE_VIBE_CODING_LESSONS } from "./course-vibe-coding";
 import { COURSE_IMAGE_GEN_LESSONS } from "./course-image-gen";
+import { AGENT_MASTERY_LESSONS } from "./agent-mastery-lessons";
 
 import { Lesson } from "../lessons";
 
@@ -19,7 +20,8 @@ export const AI_LESSONS: Lesson[] = [
     ...COURSE_GEMINI_LESSONS,
     ...COURSE_NOTEBOOKLM_LESSONS,
     ...COURSE_VIBE_CODING_LESSONS,
-    ...COURSE_IMAGE_GEN_LESSONS
+    ...COURSE_IMAGE_GEN_LESSONS,
+    ...AGENT_MASTERY_LESSONS
 ];
 
 export { HOW_LLMS_WORK_LESSONS };
@@ -31,5 +33,6 @@ export { COURSE_GEMINI_LESSONS };
 export { COURSE_NOTEBOOKLM_LESSONS };
 export { COURSE_VIBE_CODING_LESSONS };
 export { COURSE_IMAGE_GEN_LESSONS };
+export { AGENT_MASTERY_LESSONS };
 
 

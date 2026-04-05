@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { COURSES } from '@/data/lessons';
-import { LESSON_INDEX } from '@/data/lessons-index';
+import { calculateLessonRewards, calculateStreakRewards, calculateCourseRewards } from '@/lib/rewardUtils';
 
 type ModelName = "claude" | "chatgpt" | "gemini";
 
@@ -122,27 +121,12 @@ export const useSavantStore = create<SavantState>()(
                 const state = get();
                 if (state.completedLessons.includes(lessonId)) return;
 
-                // Process potential rewards
-                let newXp = state.xp;
-                const newBadges = [...state.badges];
-                let newCard: string | null = null;
-                
-                const meta = LESSON_INDEX.find(l => l.id === lessonId);
-                if (meta?.reward) {
-                    if (meta.reward.type === 'xp' && typeof meta.reward.value === 'number') {
-                        newXp += meta.reward.value;
-                    } else if (meta.reward.type === 'badge' && typeof meta.reward.value === 'string') {
-                        if (!newBadges.includes(meta.reward.value)) {
-                            newBadges.push(meta.reward.value);
-                            newCard = meta.reward.value;
-                        }
-                    }
-                }
-
-                const newCompletedCount = state.completedLessons.length + 1;
-                if (newCompletedCount === 1 && !newBadges.includes("first-lesson")) { newBadges.push("first-lesson"); newCard = "first-lesson"; }
-                if (newCompletedCount === 3 && !newBadges.includes("three-lessons")) { newBadges.push("three-lessons"); newCard = "three-lessons"; }
-                if (newCompletedCount === 6 && !newBadges.includes("six-lessons")) { newBadges.push("six-lessons"); newCard = "six-lessons"; }
+                const { newXp, newBadges, newCard } = calculateLessonRewards(
+                    lessonId,
+                    state.xp,
+                    state.badges,
+                    state.completedLessons.length + 1
+                );
 
                 set({
                     completedLessons: [...state.completedLessons, lessonId],
@@ -180,31 +164,19 @@ export const useSavantStore = create<SavantState>()(
                 if (state.completedCourses.includes(courseId)) return;
 
                 const updatedCourses = [...state.completedCourses, courseId];
-                const newBadges = [...state.badges];
-                let newCard: string | null = null;
-                
-                if (updatedCourses.length === 1 && !newBadges.includes("first-course")) {
-                    newBadges.push("first-course");
-                    newCard = "first-course";
-                }
+                const { newBadges, newCard, categoryUnlocked } = calculateCourseRewards(
+                    courseId,
+                    updatedCourses,
+                    state.badges
+                );
 
-                const course = COURSES.find(c => c.id === courseId);
-                if (course) {
-                    const categoryCourses = COURSES.filter(c => c.categoryId === course.categoryId);
-                    const allCategoryDone = categoryCourses.every(c => updatedCourses.includes(c.id));
-                    if (allCategoryDone && !state.unlockedCategories.includes(course.categoryId)) {
-                        set({
-                            completedCourses: updatedCourses,
-                            unlockedCategories: [...state.unlockedCategories, course.categoryId],
-                            badges: newBadges,
-                            ...(newCard ? { unlockedVaultCard: newCard } : {})
-                        });
-                        return;
-                    }
-                }
+                const newUnlockedCategories = categoryUnlocked && !state.unlockedCategories.includes(categoryUnlocked)
+                    ? [...state.unlockedCategories, categoryUnlocked]
+                    : state.unlockedCategories;
 
                 set({ 
                     completedCourses: updatedCourses, 
+                    unlockedCategories: newUnlockedCategories,
                     badges: newBadges,
                     ...(newCard ? { unlockedVaultCard: newCard } : {})
                 });
@@ -231,12 +203,7 @@ export const useSavantStore = create<SavantState>()(
                         newStreak = 1;
                     }
                     
-                    const newBadges = [...state.badges];
-                    let newCard: string | null = null;
-                    if (newStreak >= 3 && !newBadges.includes("streak-3")) {
-                        newBadges.push("streak-3");
-                        newCard = "streak-3";
-                    }
+                    const { newBadges, newCard } = calculateStreakRewards(newStreak, state.badges);
 
                     set({ 
                         streak: newStreak, 

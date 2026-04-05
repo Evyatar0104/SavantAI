@@ -186,5 +186,6 @@ export const FLOATING_ICONS_MAP: Record<string, string[]> = {
   "course-notebooklm": ["📚", "🎙️", "🗂️", "🔬", "💡", "📊", "🎧"],
   "course-vibe-coding": ["⚡", "🚀", "🛠️", "💻", "🔧", "📦", "🌐"],
   "course-image-gen": ["🎨", "🖌️", "✨", "🖼️", "🌈", "📸", "🎭"],
+  "agent-mastery": ["🤖", "⚙️", "🔄", "🧠", "📄", "⚡", "🔧"],
   DEFAULT: ["✨", "💡", "🔮", "⚡", "🎯", "🔷", "⭐"],
 };

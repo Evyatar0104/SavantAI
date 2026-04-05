@@ -170,18 +170,17 @@ export const COURSES: Course[] = [
     },
     // Advanced (open)
     {
-        id: "vibe-coding",
-        categoryId: "advanced",
-        name: "AI for Coding & Vibe Coding",
-        nameHe: "ניהול סוכני תכנות",
-        description: "Cursor, v0, Claude — איך לבנות כלים, אתרים ואוטומציות אמיתיות גם בלי ידע עמוק בקוד.",
-        icon: "💻",
-        order: 1,
-        isLocked: true,
-        requiredCourseId: "prompting-mastery"
+      id: "agent-mastery",
+      categoryId: "advanced",
+      name: "AI Coding Agents",
+      nameHe: "סוכני קוד",
+      description: "תלמד לעצב, להפעיל ולשלוט בסוכני AI שעושים עבודה אמיתית — לא רק עונים על שאלות.",
+      icon: "🤖",
+      order: 1,
+      isLocked: false,
     },
     {
-        id: "new-software-mindset",
+      id: "new-software-mindset",
         categoryId: "advanced",
         name: "The New Software Mindset",
         nameHe: "התוכנה החדשה",

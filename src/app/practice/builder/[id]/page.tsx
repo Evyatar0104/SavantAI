@@ -513,6 +513,7 @@ export default function PromptBuilderPage() {
     const searchParams = useSearchParams();
     const id           = params.id as string;
     const from         = searchParams.get("from");
+    const courseId     = searchParams.get("courseId");
 
     const item = useMemo(() => PRACTICE_ITEMS.find((p) => p.id === id), [id]);
 
@@ -561,7 +562,13 @@ export default function PromptBuilderPage() {
     const handleExit = () => {
         haptics.tap();
         resetBuilder();
-        router.push(from === "practice" ? "/practice" : "/");
+        if (from === "course" && courseId) {
+            router.push(`/courses/${courseId}`);
+        } else if (from === "practice") {
+            router.push("/practice");
+        } else {
+            router.push("/");
+        }
     };
 
     const handlePrevStep = () => {

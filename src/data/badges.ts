@@ -12,6 +12,29 @@ export interface Badge {
     rarity?: RarityTier;
 }
 
+export const RARITY_COLORS: Record<RarityTier, { main: string; border: string; glow: string }> = {
+    Common: { 
+        main: "rgba(161, 161, 170, 0.1)", 
+        border: "rgba(161, 161, 170, 0.3)", 
+        glow: "rgba(161, 161, 170, 0.1)" 
+    },
+    Rare: { 
+        main: "rgba(59, 130, 246, 0.1)", 
+        border: "rgba(59, 130, 246, 0.4)", 
+        glow: "rgba(59, 130, 246, 0.2)" 
+    },
+    Epic: { 
+        main: "rgba(168, 85, 247, 0.15)", 
+        border: "rgba(168, 85, 247, 0.5)", 
+        glow: "rgba(168, 85, 247, 0.3)" 
+    },
+    Legendary: { 
+        main: "rgba(245, 158, 11, 0.2)", 
+        border: "rgba(245, 158, 11, 0.6)", 
+        glow: "rgba(245, 158, 11, 0.4)" 
+    },
+};
+
 export const BADGES: Badge[] = [
     {
         id: "first-lesson",

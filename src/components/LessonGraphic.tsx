@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { m } from "framer-motion";
+import { haptics } from "@/lib/haptics";
 
 // ── Colors ──
 const PURPLE = "#534AB7";
@@ -1501,6 +1502,312 @@ function LearningAI08() {
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// COURSE: agent-mastery
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function AgentMastery01() {
+  return (
+    <GfxWrap dir="rtl">
+      <svg viewBox="0 0 400 240" width="100%" style={{ maxWidth: 400 }}>
+        {/* Agent Outer */}
+        <m.rect x={10} y={10} width={380} height={220} rx={16} fill="rgba(124, 58, 237, 0.05)" stroke={PURPLE} strokeWidth={1.5} strokeDasharray="6 4"
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }} />
+        <text x={30} y={35} fill={PURPLE} fontSize={12} fontWeight={700} fontFamily={LAI_FONT}>Agent (Orchestrator)</text>
+
+        {/* Subagents */}
+        {[0, 1].map((i) => (
+          <m.g key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 + i * 0.2 }}>
+            <rect x={30 + i * 185} y={60} width={155} height={140} rx={12} fill="rgba(45, 212, 191, 0.05)" stroke={TEAL} strokeWidth={1} />
+            <text x={45 + i * 185} y={85} fill={TEAL} fontSize={11} fontWeight={600} fontFamily={LAI_FONT}>Subagent</text>
+            
+            {/* Skill inside */}
+            <m.g initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.6 + i * 0.2 }}>
+              <rect x={45 + i * 185} y={105} width={125} height={75} rx={8} fill="rgba(245, 158, 11, 0.05)" stroke={AMBER} strokeWidth={1} />
+              <text x={60 + i * 185} y={130} fill={AMBER} fontSize={10} fontWeight={700} fontFamily={LAI_FONT}>Skill</text>
+              <text x={60 + i * 185} y={148} fill={AMBER} fontSize={9} fontFamily={LAI_FONT} fillOpacity={0.7}>הוראות ספציפיות</text>
+              <text x={60 + i * 185} y={162} fill={AMBER} fontSize={9} fontFamily={LAI_FONT} fillOpacity={0.7}>SKILL.md</text>
+            </m.g>
+          </m.g>
+        ))}
+      </svg>
+    </GfxWrap>
+  );
+}
+
+function AgentMastery02() {
+  return (
+    <GfxWrap dir="rtl">
+      <svg viewBox="0 0 400 240" width="100%" style={{ maxWidth: 400, margin: "0 auto" }}>
+        <m.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
+          <text x={80} y={30} textAnchor="middle" fill={LAI_GRAY} fontSize={12} fontFamily={LAI_FONT}>צ׳אטבוט</text>
+          <rect x={30} y={100} width={100} height={36} rx={8} fill={LAI_DARK} stroke={LAI_GRAY} strokeWidth={1} />
+          <text x={80} y={124} textAnchor="middle" fill={LAI_GRAY} fontSize={11} fontFamily={LAI_FONT}>פרומפט ➔ תשובה</text>
+          <text x={80} y={160} textAnchor="middle" fill={LAI_GRAY} fontSize={10} fontFamily={LAI_FONT}>פעם אחת. עצור.</text>
+        </m.g>
+        <line x1={200} y1={20} x2={200} y2={220} stroke={LAI_DARK} strokeWidth={1} strokeDasharray="4 4" />
+        <m.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>
+          <text x={310} y={30} textAnchor="middle" fill={PURPLE} fontSize={12} fontWeight={700} fontFamily={LAI_FONT}>Agent Loop (ReAct)</text>
+          <m.circle cx={310} cy={120} r={60} fill="none" stroke={PURPLE} strokeWidth={2} strokeDasharray="10 5"
+            style={{ transformOrigin: "310px 120px" }}
+            animate={{ rotate: 360 }} transition={{ duration: 20, repeat: Infinity, ease: "linear" }} />
+          {[
+            { label: "תפוס", a: -90 },
+            { label: "תכנן", a: 0 },
+            { label: "פעל", a: 90 },
+            { label: "הסתכל", a: 180 }
+          ].map((n, i) => {
+            const rad = (n.a * Math.PI) / 180;
+            const x = 310 + Math.cos(rad) * 60;
+            const y = 120 + Math.sin(rad) * 60;
+            return (
+              <m.g key={i} initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.8 + i * 0.1 }}>
+                <circle cx={x} cy={y} r={22} fill={LAI_DARK} stroke={PURPLE} strokeWidth={1} />
+                <text x={x} y={y + 4} textAnchor="middle" fill="white" fontSize={9} fontFamily={LAI_FONT} dominantBaseline="central">{n.label}</text>
+              </m.g>
+            );
+          })}
+          <text x={310} y={210} textAnchor="middle" fill={PURPLE} fontSize={10} fontFamily={LAI_FONT} fillOpacity={0.7}>חוזר עד שהמשימה הושלמה</text>
+        </m.g>
+      </svg>
+    </GfxWrap>
+  );
+}
+
+function AgentMastery03() {
+  const parts = [
+    { label: "Goal", desc: "מה המוצר הסופי המדויק?", color: TEAL },
+    { label: "Tools", desc: "באילו כלים מותר להשתמש?", color: PURPLE },
+    { label: "Constraints", desc: "מה אסור לעשות?", color: AMBER },
+    { label: "Exit", desc: "מתי לעצור ולדווח?", color: CORAL }
+  ];
+  return (
+    <GfxWrap dir="rtl">
+      <svg viewBox="0 0 400 240" width="100%" style={{ maxWidth: 360, margin: "0 auto" }}>
+        <text x={200} y={25} textAnchor="middle" fill={TEXT_DIM} fontSize={12} fontFamily={LAI_FONT}>אנטומיה של פרומפט לסוכן</text>
+        {parts.map((p, i) => (
+          <m.g key={i} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.15 }}>
+            <rect x={40} y={45 + i * 46} width={320} height={38} rx={10} fill={`${p.color}08`} stroke={p.color} strokeWidth={1} />
+            <text x={60} y={70 + i * 46} fill={p.color} fontSize={12} fontWeight={700} fontFamily={LAI_FONT} dominantBaseline="central">{p.label}</text>
+            <text x={120} y={70 + i * 46} fill={TEXT_DIM} fontSize={11} fontFamily={LAI_FONT} dominantBaseline="central">{p.desc}</text>
+            <circle cx={340} cy={64 + i * 46} r={8} fill={`${p.color}20`} />
+            <path d={`M336 ${64+i*46} L339 ${67+i*46} L344 ${61+i*46}`} fill="none" stroke={p.color} strokeWidth={1.5} />
+          </m.g>
+        ))}
+      </svg>
+    </GfxWrap>
+  );
+}
+
+function AgentMastery04() {
+  return (
+    <GfxWrap dir="rtl">
+      <svg viewBox="0 0 400 260" width="100%" style={{ maxWidth: 400, margin: "0 auto" }}>
+        <m.g initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
+          <rect x={125} y={10} width={150} height={44} rx={12} fill={`${PURPLE}10`} stroke={PURPLE} strokeWidth={2} />
+          <text x={200} y={38} textAnchor="middle" fill="white" fontSize={13} fontWeight={700} fontFamily={LAI_FONT}>Orchestrator</text>
+        </m.g>
+        {[60, 200, 340].map((x, i) => (
+          <m.path key={i} d={`M200,54 L${x},100`} stroke={LAI_GRAY} strokeWidth={1} strokeDasharray="4 2"
+            initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: 0.4 }} />
+        ))}
+        {["API", "Tests", "Docs"].map((label, i) => (
+          <m.g key={i} initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.6 + i * 0.1 }}>
+            <rect x={15 + i * 135} y={100} width={100} height={44} rx={10} fill={`${TEAL}08`} stroke={TEAL} strokeWidth={1} />
+            <text x={65 + i * 135} y={128} textAnchor="middle" fill={TEAL} fontSize={11} fontWeight={600} fontFamily={LAI_FONT}>{label} Agent</text>
+            <m.path d={`M${65+i*135},144 L200,200`} stroke={LAI_GRAY} strokeWidth={1} strokeDasharray="4 2"
+              initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: 1.2 }} />
+          </m.g>
+        ))}
+        <m.g initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.5 }}>
+          <rect x={140} y={200} width={120} height={44} rx={12} fill={`${AMBER}10`} stroke={AMBER} strokeWidth={2} />
+          <text x={200} y={228} textAnchor="middle" fill={AMBER} fontSize={13} fontWeight={700} fontFamily={LAI_FONT}>Final Output</text>
+        </m.g>
+      </svg>
+    </GfxWrap>
+  );
+}
+
+function AgentMastery05() {
+  const tools = [
+    { label: "File System", icon: "📁" },
+    { label: "Bash / CLI", icon: "💻" },
+    { label: "Browser", icon: "🌐" },
+    { label: "APIs", icon: "🔌" },
+    { label: "Email / Cal", icon: "📅" },
+    { label: "Code Exec", icon: "⚡" }
+  ];
+  return (
+    <GfxWrap dir="rtl">
+      <svg viewBox="0 0 400 280" width="100%" style={{ maxWidth: 400, margin: "0 auto" }}>
+        <m.g initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", damping: 12 }}>
+          <circle cx={200} cy={140} r={45} fill={`${PURPLE}15`} stroke={PURPLE} strokeWidth={2} />
+          <text x={200} y={135} textAnchor="middle" fill="white" fontSize={14} fontWeight={700} fontFamily={LAI_FONT}>Agent</text>
+          <text x={200} y={155} textAnchor="middle" fill={PURPLE} fontSize={10} fontFamily={LAI_FONT}>+ Tools</text>
+        </m.g>
+        {tools.map((t, i) => {
+          const angle = (i * 60 - 90) * (Math.PI / 180);
+          const r = 105;
+          const x = 200 + Math.cos(angle) * r;
+          const y = 140 + Math.sin(angle) * r;
+          return (
+            <m.g key={i} initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3 + i * 0.1 }}>
+              <m.line x1={200} y1={140} x2={x} y2={y} stroke={LAI_GRAY} strokeWidth={1} strokeDasharray="3 3" />
+              <rect x={x - 45} y={y - 22} width={90} height={44} rx={10} fill={LAI_DARK} stroke={TEAL} strokeWidth={1} />
+              <text x={x} y={y - 2} textAnchor="middle" fill="white" fontSize={14}>{t.icon}</text>
+              <text x={x} y={y + 14} textAnchor="middle" fill={TEAL} fontSize={9} fontWeight={600} fontFamily={LAI_FONT}>{t.label}</text>
+            </m.g>
+          );
+        })}
+      </svg>
+    </GfxWrap>
+  );
+}
+
+function AgentMastery06() {
+  return (
+    <GfxWrap dir="rtl">
+      <svg viewBox="0 0 400 220" width="100%" style={{ maxWidth: 400, margin: "0 auto" }}>
+        <m.g initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }}>
+          <rect x={20} y={80} width={80} height={50} rx={12} fill={`${PURPLE}10`} stroke={PURPLE} strokeWidth={1.5} />
+          <text x={60} y={110} textAnchor="middle" fill="white" fontSize={12} fontWeight={600} fontFamily={LAI_FONT} dominantBaseline="central">Agent</text>
+        </m.g>
+        <m.path d="M100,105 L150,105" stroke={PURPLE} strokeWidth={2} markerEnd="url(#arrowP)"
+          initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: 0.4 }} />
+        <m.g initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.6 }}>
+          <rect x={150} y={70} width={100} height={70} rx={12} fill={`${AMBER}10`} stroke={AMBER} strokeWidth={2} />
+          <text x={200} y={102} textAnchor="middle" fill={AMBER} fontSize={14} fontWeight={700} fontFamily={LAI_FONT}>SKILL.md</text>
+          <text x={200} y={120} textAnchor="middle" fill={AMBER} fontSize={9} fontFamily={LAI_FONT} fillOpacity={0.7}>תשתית עבודה</text>
+        </m.g>
+        <m.path d="M250,105 L300,105" stroke={AMBER} strokeWidth={2} markerEnd="url(#arrowA2)"
+          initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: 1.0 }} />
+        <m.g initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 1.3 }}>
+          {[0, 1, 2].map((i) => (
+            <m.rect key={i} x={310} y={75 + i * 22} width={70} height={16} rx={4} fill={`${GREEN}10`} stroke={GREEN} strokeWidth={1}
+              initial={{ width: 0 }} animate={{ width: 70 }} transition={{ delay: 1.5 + i * 0.1 }} />
+          ))}
+          <text x={345} y={145} textAnchor="middle" fill={GREEN} fontSize={10} fontWeight={600} fontFamily={LAI_FONT}>פלט עקבי ✓</text>
+        </m.g>
+        <defs>
+          <marker id="arrowP" markerWidth={6} markerHeight={6} refX={5} refY={3} orient="auto">
+            <path d="M0,0 L6,3 L0,6" fill={PURPLE} />
+          </marker>
+          <marker id="arrowA2" markerWidth={6} markerHeight={6} refX={5} refY={3} orient="auto">
+            <path d="M0,0 L6,3 L0,6" fill={AMBER} />
+          </marker>
+        </defs>
+      </svg>
+    </GfxWrap>
+  );
+}
+
+function AgentMastery07() {
+  return (
+    <GfxWrap dir="rtl">
+      <svg viewBox="0 0 400 240" width="100%" style={{ maxWidth: 400, margin: "0 auto" }}>
+        <m.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
+          <rect x={20} y={40} width={110} height={160} rx={12} fill="rgba(220, 38, 38, 0.05)" stroke={CORAL} strokeWidth={1} />
+          <text x={75} y={65} textAnchor="middle" fill={CORAL} fontSize={11} fontWeight={700} fontFamily={LAI_FONT}>Infinite Loop</text>
+          <m.path d="M75,90 A25,25 0 1,1 74.9,90" fill="none" stroke={CORAL} strokeWidth={2} strokeDasharray="5 3"
+            style={{ transformOrigin: "75px 115px" }}
+            animate={{ rotate: 360 }} transition={{ duration: 3, repeat: Infinity, ease: "linear" }} />
+          <text x={75} y={185} textAnchor="middle" fill={CORAL} fontSize={9} fontFamily={LAI_FONT}>נתקע בסיבוב</text>
+        </m.g>
+        <m.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>
+          <rect x={145} y={40} width={110} height={160} rx={12} fill="rgba(249, 115, 22, 0.05)" stroke={AMBER} strokeWidth={1} />
+          <text x={200} y={65} textAnchor="middle" fill={AMBER} fontSize={10} fontWeight={700} fontFamily={LAI_FONT}>Hallucination</text>
+          <m.text x={200} y={130} textAnchor="middle" fill={AMBER} fontSize={48} initial={{ opacity: 0 }} animate={{ opacity: [0, 1, 0.3, 1] }} transition={{ duration: 2, repeat: Infinity }} dominantBaseline="central">?</m.text>
+          <text x={200} y={185} textAnchor="middle" fill={AMBER} fontSize={9} fontFamily={LAI_FONT}>פעולה לא צפויה</text>
+        </m.g>
+        <m.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }}>
+          <rect x={270} y={40} width={110} height={160} rx={12} fill="rgba(217, 119, 6, 0.05)" stroke="#D97706" strokeWidth={1} />
+          <text x={325} y={65} textAnchor="middle" fill="#D97706" fontSize={11} fontWeight={700} fontFamily={LAI_FONT}>Scope Creep</text>
+          <m.rect x={305} y={100} width={40} height={40} rx={4} fill="none" stroke="#D97706" strokeWidth={1.5}
+            animate={{ width: [40, 80, 40], x: [305, 285, 305] }} transition={{ duration: 4, repeat: Infinity }} />
+          <text x={325} y={185} textAnchor="middle" fill="#D97706" fontSize={9} fontFamily={LAI_FONT}>המשימה מתנפחת</text>
+        </m.g>
+      </svg>
+    </GfxWrap>
+  );
+}
+
+function AgentMastery08() {
+  const [val, setVal] = useState(1);
+  const zones = [
+    { label: "Trust", color: GREEN, desc: "פעולות הפיכות" },
+    { label: "Checkpoint", color: AMBER, desc: "שינוי קבצים" },
+    { label: "Stop", color: CORAL, desc: "בלתי הפיך" }
+  ];
+  return (
+    <GfxWrap dir="rtl">
+      <div style={{ width: "100%", maxWidth: 360, margin: "0 auto" }}>
+        <div style={{ position: "relative", height: 60, marginBottom: 24 }}>
+          <div style={{
+            position: "absolute", top: 20, left: 0, right: 0, height: 12, borderRadius: 6,
+            background: `linear-gradient(90deg, ${GREEN}, ${AMBER}, ${CORAL})`, opacity: 0.3
+          }} />
+          <div style={{ display: "flex", justifyContent: "space-between", position: "relative", zIndex: 1, height: "100%" }}>
+            {zones.map((z, i) => (
+              <button key={i} onClick={() => { haptics.tap(); setVal(i); }} style={{
+                flex: 1, padding: "24px 0 0", cursor: "pointer", border: "none", background: "none",
+                color: val === i ? z.color : LAI_GRAY, fontSize: 11, fontWeight: 700, fontFamily: LAI_FONT,
+                transition: "color 0.3s", zIndex: 3
+              }}>
+                {z.label}
+              </button>
+            ))}
+          </div>
+          <m.div animate={{ right: `${(val / 2) * 100}%` }} transition={{ type: "spring", stiffness: 300, damping: 30 }} style={{
+            position: "absolute", top: 12, marginRight: -14, width: 28, height: 28, borderRadius: "50%",
+            background: "white", border: `3px solid ${zones[val].color}`, zIndex: 2, pointerEvents: "none"
+          }} />
+        </div>
+        <m.div key={val} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} style={{
+          background: LAI_DARK, border: `1px solid ${zones[val].color}44`, borderRadius: 12, padding: 16, textAlign: "center"
+        }}>
+          <p style={{ color: zones[val].color, fontWeight: 700, fontSize: 14, marginBottom: 4 }}>{zones[val].desc}</p>
+          <p style={{ color: TEXT_DIM, fontSize: 12 }}>{val === 0 ? "ה-agent רץ חופשי. אידיאלי לקוד חדש." : val === 1 ? "ה-agent עוצר לאישור לפני שינוי משמעותי." : "חובה אישור אדם לפני ביצוע (מיילים, Deploy)."}</p>
+        </m.div>
+      </div>
+    </GfxWrap>
+  );
+}
+
+function AgentMastery09() {
+  const steps = ["משימה", "פרומפט", "Skills", "הרצה", "Check-pt", "שחרור"];
+  return (
+    <GfxWrap dir="rtl">
+      <svg viewBox="0 0 400 180" width="100%" style={{ maxWidth: 400, margin: "0 auto" }}>
+        {steps.map((s, i) => {
+          const x = 20 + i * 62;
+          const y = 80;
+          const color = i === 5 ? GREEN : i === 4 ? CORAL : i === 2 ? AMBER : PURPLE;
+          return (
+            <m.g key={i}>
+              {i < steps.length - 1 && (
+                <m.line x1={x + 52} y1={y + 15} x2={x + 60} y2={y + 15} stroke={LAI_GRAY} strokeWidth={1} strokeDasharray="2 2"
+                  initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: 0.5 + i * 0.2 }} />
+              )}
+              <m.g initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.15 }}>
+                <rect x={x} y={y} width={52} height={30} rx={6} fill={`${color}08`} stroke={color} strokeWidth={1} />
+                <text x={x + 26} y={y + 15} textAnchor="middle" fill={color} fontSize={i === 4 ? 7.5 : 8} fontWeight={700} fontFamily={LAI_FONT} dominantBaseline="central">{s}</text>
+              </m.g>
+            </m.g>
+          );
+        })}
+        <m.path d="M20,135 L380,135" stroke={PURPLE} strokeWidth={1} strokeOpacity={0.3} markerEnd="url(#arrowP9)"
+          initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 2 }} />
+        <text x={200} y={155} textAnchor="middle" fill={LAI_GRAY} fontSize={10} fontFamily={LAI_FONT}>תזרים עבודה מקצועי עם סוכנים</text>
+        <defs>
+          <marker id="arrowP9" markerWidth={6} markerHeight={6} refX={5} refY={3} orient="auto">
+            <path d="M0,0 L6,3 L0,6" fill={PURPLE} fillOpacity={0.3} />
+          </marker>
+        </defs>
+      </svg>
+    </GfxWrap>
+  );
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // MAIN COMPONENT
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -1530,6 +1837,16 @@ const GRAPHIC_MAP: Record<string, React.FC> = {
   "learning-ai-05": LearningAI05,
   "learning-ai-06": LearningAI06,
   "learning-ai-08": LearningAI08,
+  // agent-mastery
+  "agent-mastery-1": AgentMastery01,
+  "agent-mastery-2": AgentMastery02,
+  "agent-mastery-3": AgentMastery03,
+  "agent-mastery-4": AgentMastery04,
+  "agent-mastery-5": AgentMastery05,
+  "agent-mastery-6": AgentMastery06,
+  "agent-mastery-7": AgentMastery07,
+  "agent-mastery-8": AgentMastery08,
+  "agent-mastery-9": AgentMastery09,
 };
 
 interface LessonGraphicProps {
