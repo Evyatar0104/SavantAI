@@ -45,7 +45,15 @@ const getFloatingIcons = (courseId: string, lessonId: string) => {
   }));
 };
 
-const CourseCard = memo(({ course, category, completedLessons, completedCourses, hasMoved }: any) => {
+interface CourseCardProps {
+    course: typeof COURSES[0];
+    category: typeof CATEGORIES[0];
+    completedLessons: string[];
+    completedCourses: string[];
+    hasMoved: boolean;
+}
+
+const CourseCard = memo(({ course, category, completedLessons, completedCourses, hasMoved }: CourseCardProps) => {
     const courseLessons = LESSON_INDEX.filter(l => l.courseId === course.id);
     const completedInCourse = courseLessons.filter(l => completedLessons.includes(l.id));
     const progress = courseLessons.length > 0
@@ -126,7 +134,11 @@ const CourseCard = memo(({ course, category, completedLessons, completedCourses,
 });
 CourseCard.displayName = "CourseCard";
 
-const LessonCard = memo(({ lesson }: any) => {
+interface LessonCardProps {
+    lesson: typeof LESSON_INDEX[0];
+}
+
+const LessonCard = memo(({ lesson }: LessonCardProps) => {
     const lessonCategory = CATEGORIES.find(c => c.id === lesson.categoryId);
     const lessonCourse = COURSES.find(c => c.id === lesson.courseId);
     const theme = getLessonTheme(lesson.icon || "", lesson.courseId);

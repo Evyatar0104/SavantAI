@@ -12,6 +12,12 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    "crop_icon.js",
+    "crop_icon_simple.js",
+    "fix-lessons.js",
+    "update-lessons.js",
+    "update-lessons2.js",
+    "update-lessons3.js",
   ]),
 ]);
 

@@ -5,7 +5,7 @@ import Image from "next/image";
 import { m, Variants, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useState, useRef, useEffect, memo } from "react";
-import { BADGES, isBadgeEarned } from "@/data/badges";
+import { Badge, BADGES, isBadgeEarned } from "@/data/badges";
 import { haptics } from "@/lib/haptics";
 
 const containerVariants: Variants = {
@@ -54,7 +54,7 @@ const RARITY_COLORS: Record<string, { main: string; border: string; glow: string
     },
 };
 
-const BadgeCard = memo(({ badge, earned, onClick }: { badge: any, earned: boolean, onClick: () => void }) => {
+const BadgeCard = memo(({ badge, earned, onClick }: { badge: Badge, earned: boolean, onClick: () => void }) => {
     const tierColor = RARITY_COLORS[badge.rarity || "Common"];
     const isCommon = badge.rarity === "Common";
 

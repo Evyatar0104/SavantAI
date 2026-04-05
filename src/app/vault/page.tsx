@@ -1,7 +1,7 @@
 "use client";
 
 import { useSavantStore } from "@/store/useSavantStore";
-import { BADGES, isBadgeEarned } from "@/data/badges";
+import { Badge, BADGES, isBadgeEarned } from "@/data/badges";
 import { m, Variants } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { haptics } from "@/lib/haptics";
@@ -25,7 +25,7 @@ const itemVariants: Variants = {
     }
 };
 
-const VaultBadgeCard = memo(({ badge, earned, onClick }: { badge: any, earned: boolean, onClick: () => void }) => (
+const VaultBadgeCard = memo(({ badge, earned, onClick }: { badge: Badge, earned: boolean, onClick: () => void }) => (
     <m.div
         variants={itemVariants}
         whileHover={earned ? { scale: 1.05, rotateY: 5, rotateX: 5 } : undefined}
@@ -138,16 +138,6 @@ export default function VaultPage() {
                     })}
                 </m.div>
             </div>
-            
-            <style dangerouslySetInnerHTML={{__html: `
-                @keyframes shimmer {
-                    0% { background-position: -100% -100%; }
-                    100% { background-position: 200% 200%; }
-                }
-            `}} />
-        </div>
-    );
-}
             
             <style dangerouslySetInnerHTML={{__html: `
                 @keyframes shimmer {
