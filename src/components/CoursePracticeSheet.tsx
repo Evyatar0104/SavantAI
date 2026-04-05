@@ -34,13 +34,20 @@ export function CoursePracticeSheet({ courseId, courseName, isOpen, onClose }: P
         if (isOpen) {
             setIsLoading(true);
             loadCourseLessons(courseId).then(data => {
-                setLessons(data);
+                if (Array.isArray(data)) {
+                    setLessons(data);
+                } else {
+                    setLessons([]);
+                }
+                setIsLoading(false);
+            }).catch(() => {
+                setLessons([]);
                 setIsLoading(false);
             });
         }
     }, [isOpen, courseId]);
 
-    const practicalTasks = lessons.filter(l => l.practicalCall);
+    const practicalTasks = (lessons || []).filter(l => l?.practicalCall);
 
     return (
         <AnimatePresence>

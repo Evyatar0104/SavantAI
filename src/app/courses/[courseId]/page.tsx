@@ -26,7 +26,9 @@ export default function CoursePage() {
     // Load full lessons to check for practicalCall
     useEffect(() => {
         loadCourseLessons(courseId).then(lessons => {
-            setHasPractice(lessons.some(l => l.practicalCall));
+            if (Array.isArray(lessons)) {
+                setHasPractice(lessons.some(l => l?.practicalCall));
+            }
         });
     }, [courseId]);
 
