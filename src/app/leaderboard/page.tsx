@@ -55,6 +55,13 @@ export default function Leaderboard() {
         let unsubscribe: (() => void) | undefined;
 
         const initLeaderboard = async () => {
+            if (!db) {
+                console.warn("Firebase DB not initialized. Using fallback data.");
+                setLeaderboardData(getFallbackData(xp));
+                setLoading(false);
+                return;
+            }
+
             try {
                 // Try to update current user first
                 const userRef = doc(db, "users", userId);
