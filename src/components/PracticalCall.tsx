@@ -3,12 +3,14 @@
 import { useState } from "react";
 import { m, AnimatePresence } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
 
 interface PracticalCallProps {
     task: string;
     goal: string;
     tool: string;
     accentColor: string;
+    courseCta?: { text: string; courseId: string };
     onDone: () => void;
     onBack: () => void;
     onNext: () => void;
@@ -43,7 +45,7 @@ function ToolBadge({ tool }: { tool: string }) {
     );
 }
 
-export function PracticalCall({ task, goal, tool, accentColor, onDone, onBack, onNext }: PracticalCallProps) {
+export function PracticalCall({ task, goal, tool, accentColor, courseCta, onDone, onBack, onNext }: PracticalCallProps) {
     const [done, setDone] = useState(false);
     const [skipped, setSkipped] = useState(false);
     const resolved = done || skipped;
@@ -169,6 +171,34 @@ export function PracticalCall({ task, goal, tool, accentColor, onDone, onBack, o
                     </m.div>
                 </m.div>
             </div>
+
+            {/* Course CTA — subtle inline card */}
+            {courseCta && (
+                <m.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.9 }}
+                    className="max-w-3xl mx-auto w-full mt-4"
+                    dir="rtl"
+                >
+                    <div style={{
+                        padding: "14px 18px",
+                        borderRadius: 12,
+                        border: "0.5px solid rgba(255,255,255,0.1)",
+                        background: "rgba(255,255,255,0.03)",
+                    }}>
+                        <p style={{ fontSize: 14, color: "rgba(255,255,255,0.45)", lineHeight: 1.6 }}>
+                            {courseCta.text}{" "}
+                            <Link
+                                href={`/courses/${courseCta.courseId}`}
+                                style={{ color: "#8B83D4", textDecoration: "underline", textUnderlineOffset: 3 }}
+                            >
+                                לקורס NotebookLM ←
+                            </Link>
+                        </p>
+                    </div>
+                </m.div>
+            )}
 
             {/* Navigation buttons */}
             <div className="mt-8 pt-4 pb-4 border-t border-white/10 md:pb-0 max-w-md mx-auto w-full md:mt-12 flex gap-3">

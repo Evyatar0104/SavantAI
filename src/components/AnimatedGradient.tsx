@@ -16,21 +16,26 @@ export function AnimatedGradient({ color = "#00C48C", backgroundColor = "#050510
     const sx = useSpring(mouseX, springConfig);
     const sy = useSpring(mouseY, springConfig);
 
-    const handleMouseMove = useCallback(
-        (e: MouseEvent) => {
-            const { clientX, clientY } = e;
-            const moveX = (clientX / window.innerWidth - 0.5) * 60;
-            const moveY = (clientY / window.innerHeight - 0.5) * 60;
-            mouseX.set(moveX);
-            mouseY.set(moveY);
-        },
-        [mouseX, mouseY]
-    );
-
     useEffect(() => {
-        window.addEventListener("mousemove", handleMouseMove);
-        return () => window.removeEventListener("mousemove", handleMouseMove);
-    }, [handleMouseMove]);
+        let rafId: number;
+        const onMouseMove = (e: MouseEvent) => {
+            if (rafId) return;
+            rafId = window.requestAnimationFrame(() => {
+                const { clientX, clientY } = e;
+                const moveX = (clientX / window.innerWidth - 0.5) * 60;
+                const moveY = (clientY / window.innerHeight - 0.5) * 60;
+                mouseX.set(moveX);
+                mouseY.set(moveY);
+                rafId = 0;
+            });
+        };
+
+        window.addEventListener("mousemove", onMouseMove);
+        return () => {
+            window.removeEventListener("mousemove", onMouseMove);
+            if (rafId) window.cancelAnimationFrame(rafId);
+        };
+    }, [mouseX, mouseY]);
 
     return (
         <div className="absolute inset-0 overflow-hidden pointer-events-none z-0" style={{ backgroundColor }}>

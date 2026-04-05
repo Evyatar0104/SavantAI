@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSavantStore } from "@/store/useSavantStore";
 import { m, Variants } from "framer-motion";
-import { Trophy, Flame, Brain, BookOpen } from "lucide-react";
+import { Trophy } from "lucide-react";
 import { collection, query, orderBy, limit, onSnapshot, doc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
@@ -44,6 +44,12 @@ export default function Leaderboard() {
     const userId = "current-user-id";
     const userName = "את/ה";
 
+    const getFallbackData = (currentXp: number) => {
+        const data = [...FALLBACK_LEADERBOARD, { id: userId, name: userName, xp: currentXp, avatar: "🧑‍🎓", badges: ["🎓"], isCurrentUser: true }];
+        data.sort((a, b) => b.xp - a.xp);
+        return data;
+    };
+
     useEffect(() => {
         const updateCurrentUser = async () => {
             try {
@@ -82,24 +88,22 @@ export default function Leaderboard() {
 
                 setLeaderboardData(users);
                 setLoading(false);
-            }, (err) => {
+            }, () => {
                 // Fallback to mock data if no DB access
-                setLeaderboardData(getFallbackData(xp));
-                setLoading(false);
+                setTimeout(() => {
+                    setLeaderboardData(getFallbackData(xp));
+                    setLoading(false);
+                }, 0);
             });
 
             return () => unsubscribe();
         } catch (e) {
-            setLeaderboardData(getFallbackData(xp));
-            setLoading(false);
+            setTimeout(() => {
+                setLeaderboardData(getFallbackData(xp));
+                setLoading(false);
+            }, 0);
         }
     }, [xp]);
-
-    const getFallbackData = (currentXp: number) => {
-        let data = [...FALLBACK_LEADERBOARD, { id: userId, name: userName, xp: currentXp, avatar: "🧑‍🎓", badges: ["🎓"], isCurrentUser: true }];
-        data.sort((a, b) => b.xp - a.xp);
-        return data;
-    };
 
     return (
         <div className="p-6 md:p-12 flex flex-col min-h-full pb-32 w-full max-w-2xl mx-auto" dir="rtl">

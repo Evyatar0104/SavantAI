@@ -540,12 +540,13 @@ export const COURSE_CLAUDE_LESSONS: Lesson[] = [
         title: "Free, Pro, Max — ההחלטה הכנה",
         description: "פירוט ישיר של תוכניות Claude — בלי upsell, עם המלצה ברורה לפי שימוש.",
         hook: "עשרים דולר לחודש. כמה שעות עבודה זה שווה לך?",
-        tldr: "Free מספיק לשימוש קל עד בינוני. Pro שווה לכל מי שמשתמש ב-Claude ברצינות כל יום. Max למי שמכה בתקרה של Pro.",
-        scienceA: "פירוט ישיר:\n\nFree ($0): Sonnet 4.6, Projects + Artifacts + Memory, ~30-100 הודעות ליום (תלוי באורך). מספיק לשימוש קל: כתיבה, ניתוח מסמכים, עזרה ב-one-off tasks. המגבלה שתרגיש: cap הודעות, אין Extended Thinking, אין Google Workspace, אין Cowork.\n\nPro ($20/mo): 5x usage, Extended Thinking, Google Workspace, Cowork, Claude Code, MCP Connectors. התוכנית למי שמשתמש ב-Claude ברצינות כל יום.\n\nMax $100/mo: 25x Free, Opus 4.6 (המודל שמוביל בבנצ'מארקים עם בטא של 1M tokens). למשתמשים כבדים שמכים בתקרת Pro.\n\nMax $200/mo: 100x Free, כמעט ללא מגבלות. למקצוענים שה-AI הוא ליבת ההכנסה שלהם.",
-        scienceB: "שתי תוכניות נוספות:\n\nTeam ($25/seat): Projects משותפים, בקרת מנהל, הכל של Pro. לצוותים שרוצים לעבוד יחד עם Claude.\n\nEnterprise: הקשר של 500K+ tokens, SSO, audit logs, תמיכה מותאמת. לארגונים עם דרישות אבטחה ופרטיות.\n\nהשאלה האמיתית לא 'האם $20 שווה'. היא 'כמה עולה לי לפגוע בתקרת Free באמצע יום עבודה?' אם זה קורה פעם בשבוע ומשבש שעה של עבודה — Pro מחזיר את עצמו בחודש אחד.",
+        tldr: "בחירת המנוי של Claude תלויה בפרמטר אחד: כמה פעמים בשבוע אתם נתקעים מול הודעת 'הגעת למכסה'. ה-Free מצוין להתחלה, ה-Pro הוא סוס העבודה, וה-Max נועד למי שה-AI הוא הלב של העסק שלו.",
+        scienceA: "**Free ($0):** המקום להתחיל בו. אתם מקבלים את Sonnet 4.6 (המודל הכי מאוזן בעולם), גישה ל-Projects ו-Artifacts, וחיפוש בסיסי. המגבלה? בערך 30-100 הודעות ביום.\n\n**Pro ($20/mo):** התוכנית למי שעובד עם Claude ברצינות.\n• פי 5 יותר הודעות מאשר בחינם.\n• **Extended Thinking:** מצב חשיבה עמוק (שיפור דיוק ב-30%).\n• **אינטגרציות:** חיבור ישיר ל-Google Workspace.\n• **Cowork:** סוכן אוטונומי שמבצע משימות במחשב שלכם.\n• **Claude Code:** כלי פיתוח מתקדם למתכנתים.",
+        scienceB: "**Max ($100-$200/mo):** למי שלא יכול להרשות לעצמו לעצור.\n• **נפח עצום:** פי 25 עד פי 100 יותר הודעות מהחינם.\n• **Opus 4.6:** גישה למודל החזק ביותר של Anthropic.\n• **Beta Features:** חלון הקשר של מיליון טוקנים (~2,500 עמודי טקסט).\n\n**Team & Enterprise:** לצוותים שצריכים ניהול משתמשים, אבטחה מוגברת (SSO) ו-Audit Logs. ב-Team מקבלים פיצ'רים של Pro לכל חבר צוות עם ניהול מרכזי.",
         pullQuote: "הכלי שמגביל אותך כשאתה הכי צריך אותו — הוא פחות שימושי ממה שחושבים.",
-        insight: "לא כולם צריכים Pro. אבל מי שפוגע בתקרת Free יותר מפעם בשבוע — כבר עשה את החשבון.",
-        readContent: "יש שאלה טובה ויש שאלה גרועה להחליט על תוכנית.\n\nשאלה גרועה: 'האם $20 לחודש שווה לי?'\nשאלה טובה: 'כמה פעמים בשבוע אני פוגע בתקרת Free, ומה זה עולה לי?'\n\nFree הוא טוב. Sonnet 4.6, Projects, Artifacts, Memory, חיפוש בסיסי — הכל שם. מספיק לשימוש קל עד בינוני. המגבלה שרוב האנשים פוגשים: cap הודעות ביום, שמופיע בדיוק כשאתה באמצע משהו חשוב.\n\nPro ב-$20 נותן 5x usage, Extended Thinking, Google Workspace, Cowork, Claude Code, ו-MCP Connectors. לאדם שClaude הוא חלק מיום העבודה — זה מחשבון פשוט.\n\nMax ב-$100 נותן 25x, Opus 4.6 (המודל הכי חזק של Anthropic), ו-1M token בטא. Max ב-$200 נותן 100x — כמעט ללא הפסקות.\n\nבדוק את השבוע האחרון. כמה פעמים פגעת בתקרה? כמה פעמים רצית Extended Thinking? כמה זמן בזבזת על copy-paste שWorkspace היה חוסך? התשובה לשאלה 'איזה מנוי?' נמצאת שם.",
+        insight: "אם אתם נתקלים במגבלת ההודעות באמצע יום עבודה פעם בשבוע — המנוי כבר החזיר את עצמו.",
+        image: "/assets/lessons/claude-plans.jpg",
+        readContent: "השאלה היא לא 'האם 20 דולר זה הרבה', אלא 'כמה שווה לי שעה של עבודה'.\n\nאם אתם נתקלים במגבלת ההודעות באמצע יום עבודה פעם בשבוע — המנוי כבר החזיר את עצמו. החיסכון בזמן של Google Workspace Integration ושל Extended Thinking הוא לא תוספת נחמדה, הוא יתרון תחרותי. למי שמשתמש ב-Claude כספרייה או כעוזר אישי — ה-Free מושלם. למי שמשתמש בו כקולגה — ה-Pro הוא חובה.",
         icon: "💳",
         practicalCall: {
             task: "עבור על 7 ימי השימוש האחרונים שלך עם Claude. לכל session שאל: פגעתי בתקרה? הרגשתי שהתשובה שטחית? רציתי Extended Thinking? בזבזתי זמן על copy-paste שWorkspace היה עושה? מפה כל friction לתוכנית שפותרת אותו. תחליט: Free, Pro, או Max?",
@@ -587,7 +588,7 @@ export const COURSE_CLAUDE_LESSONS: Lesson[] = [
                     "הכל כולל Extended Thinking ו-Workspace"
                 ],
                 correctIndex: 0,
-                explanation: "Free כולל Sonnet 4.6, Projects, Artifacts, Memory, וחיפוש בסיסי. Extended Thinking, Google Workspace, Cowork ו-MCP דורשים Pro."
+                explanation: "Free כולל Sonnet 4.6, Projects, Artifacts, Memory, וחיפוש בסיסי. ExtendedThinking, Google Workspace, Cowork ו-MCP דורשים Pro."
             }
         ]
     }

@@ -103,6 +103,16 @@ export const LESSON_INDEX: LessonMeta[] = [
     { id: "vibe-coding-deploy", trackId: "ai", courseId: "course-vibe-coding", categoryId: "tools", order: 5, title: "Deploy — תוציא את זה לעולם", icon: "🚀", description: "תהליך הפיכת התיקייה ב-Lovable או ב-Bolt לכתובת URL חיה שניתן לשלוח למשתמשים ולקוחות." },
     { id: "vibe-coding-whats-next", trackId: "ai", courseId: "course-vibe-coding", categoryId: "tools", order: 6, title: "מה הלאה — מתי לשדרג, מתי להביא מפתח", icon: "🎓", description: "ניהול אסטרטגי של המוצר שלך: מסלול ההתקדמות ממתחילים לכלי פיתוח מתקדמים וזיהוי הרגע הנכון להפוך את האב-טיפוס למוצר אמיתי." },
 
+    // ── learning-with-ai (8 lessons) ──
+    { id: "learning-ai-01", courseId: "learning-with-ai", categoryId: "real-life", order: 1, title: "איך המוח שלך באמת לומד — ולמה AI משנה הכל", icon: "🧠", description: "הסיבה שאתה קורא פעמיים ועדיין לא זוכר, והדרך שה-AI פותר אותה." },
+    { id: "learning-ai-02", courseId: "learning-with-ai", categoryId: "real-life", order: 2, title: "למה Gemini הוא חבר הלימודים הכי טוב שיש לך", icon: "💎", description: "ההבדל בין לחפש מידע להבין אותו — ולמה Gemini נמצא בצד הנכון." },
+    { id: "learning-ai-03", courseId: "learning-with-ai", categoryId: "real-life", order: 3, title: "הטכניקה שפיינמן השתמש בה — ועכשיו יש לך AI לעשות אותה", icon: "🔬", description: "ארבעה צעדים שמוכיחים אם באמת הבנת, ולמה AI הוא השותף המושלם לזה." },
+    { id: "learning-ai-04", courseId: "learning-with-ai", categoryId: "real-life", order: 4, title: "NotebookLM הופך כל מסמך לקורס פרטי שלך", icon: "📓", description: "תעלה מאמר, תוציא פודקאסט, כרטיסיות ומבחן — מותאם אישית, בלי מאמץ." },
+    { id: "learning-ai-05", courseId: "learning-with-ai", categoryId: "real-life", order: 5, title: "איך לבחון את עצמך כמו שאף מורה לא יעשה לך", icon: "🎯", description: "מבחן שמוצא בדיוק מה חסר לך — ומסביר לך למה." },
+    { id: "learning-ai-06", courseId: "learning-with-ai", categoryId: "real-life", order: 6, title: "הדרך לקרוא מאמר מדעי קשה בלי להישבר", icon: "📚", description: "שלוש שאלות לפני שאתה קורא שורה אחת — וכל השאר נופל למקום." },
+    { id: "learning-ai-07", courseId: "learning-with-ai", categoryId: "real-life", order: 7, title: "מה אם יכולת לשוחח עם פיינמן, סוקרטס, או באפט?", icon: "🎭", description: "לבקש מ-AI לחשוב בסגנון של מישהו ספציפי — ולמה זה שינוי עצום בלמידה." },
+    { id: "learning-ai-08", courseId: "learning-with-ai", categoryId: "real-life", order: 8, title: "איך הופכים שיחה עם AI לידע שנשאר לתמיד", icon: "💡", description: "מה לעשות עם מה שלמדת כדי שהמוח שלך ישמור את זה." },
+
     // ── course-image-gen (7 lessons) ──
     { id: "image-gen-tools-map", trackId: "ai", courseId: "course-image-gen", categoryId: "tools", order: 1, title: "הכלים — מי מצטיין במה ולמה זה משנה", icon: "🗺️", description: "ההבדלים הקריטיים בין Midjourney, Flux, Nano Banana ו-Firefly בשנת 2026." },
     { id: "image-gen-prompt-language", trackId: "ai", courseId: "course-image-gen", categoryId: "tools", order: 2, title: "הפרומפט לתמונה — שפה אחרת לגמרי", icon: "✍️", description: "איך לכתוב ב-5 אלמנטים כדי להפסיק לקבל תוצאות גנריות." },
@@ -137,6 +147,8 @@ export async function loadCourseLessons(courseId: string) {
             return (await import("./lessons/course-vibe-coding")).COURSE_VIBE_CODING_LESSONS;
         case "course-image-gen":
             return (await import("./lessons/course-image-gen")).COURSE_IMAGE_GEN_LESSONS;
+        case "learning-with-ai":
+            return (await import("./lessons/course-learning-with-ai")).COURSE_LEARNING_WITH_AI_LESSONS;
         default:
             return [];
     }

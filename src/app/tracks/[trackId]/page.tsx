@@ -18,9 +18,12 @@ const TRACK_TO_COURSE: Record<string, string> = {
 export default function TrackSyllabusPage() {
     const params = useParams();
     const router = useRouter();
+    const unlockedAITracks = useSavantStore(state => state.unlockedAITracks);
+    const completedLessons = useSavantStore(state => state.completedLessons);
+
     const trackId = params.trackId as string;
     const track = TRACKS.find((t) => t.id === trackId);
-
+    
     // If there's a known course mapping, redirect
     const courseId = TRACK_TO_COURSE[trackId];
 
@@ -36,9 +39,6 @@ export default function TrackSyllabusPage() {
 
     // Show existing UI while redirect happens
     const trackLessons = LESSON_INDEX.filter(l => l.trackId === trackId);
-    const unlockedAITracks = useSavantStore(state => state.unlockedAITracks);
-    const completedLessons = useSavantStore(state => state.completedLessons);
-
     const nextLesson = trackLessons[0];
 
     return (

@@ -24,7 +24,8 @@ function TooltipPill({ term, definition, targetRect, onClose, accentColor = "#00
             left = window.innerWidth - tooltipRect.width - 10;
         }
 
-        setPosition({ top, left });
+        const timer = setTimeout(() => setPosition({ top, left }), 0);
+        return () => clearTimeout(timer);
     }, [targetRect]);
 
     useEffect(() => {
@@ -88,12 +89,12 @@ export function HighlightedText({ text, accentColor = "#00C48C" }: { text: strin
                                     rect: e.currentTarget.getBoundingClientRect()
                                 });
                             }}
-                            className="inline-block cursor-pointer"
+                            className="inline-block cursor-pointer font-bold"
                             style={{
                                 background: `${accentColor}22`,
                                 color: accentColor,
-                                borderRadius: 3,
-                                padding: "0px 4px",
+                                borderRadius: 4,
+                                padding: "0px 6px",
                                 margin: "0 2px"
                             }}
                         >
@@ -102,6 +103,21 @@ export function HighlightedText({ text, accentColor = "#00C48C" }: { text: strin
                     );
                 }
                 
+                // Bold support (**text**)
+                if (part.includes('**')) {
+                    const boldParts = part.split(/(\*\*.*?\*\*)/g);
+                    return (
+                        <React.Fragment key={i}>
+                            {boldParts.map((bp, j) => {
+                                if (bp.startsWith('**') && bp.endsWith('**')) {
+                                    return <strong key={j} className="font-bold text-white">{bp.slice(2, -2)}</strong>;
+                                }
+                                return <span key={j}>{bp}</span>;
+                            })}
+                        </React.Fragment>
+                    );
+                }
+
                 // Return preserved text with newlines mapped to <br/>
                 if (part.includes('\\n')) {
                     return (

@@ -1064,6 +1064,443 @@ function FreeVsPaid() {
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// COURSE: learning-with-ai
+//
+// Architecture: Option B — inline SVG via LessonGraphic (existing pattern).
+// Font: var(--font-assistant) for consistent Hebrew rendering.
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const LAI_TEAL   = "#2DD4BF"; // Use app's TEAL
+const LAI_AMBER  = "#F59E0B"; // Use app's AMBER
+const LAI_CORAL  = "#F87171"; // Use app's CORAL
+const LAI_WHITE  = "rgba(255, 255, 255, 0.95)";
+const LAI_GRAY   = "rgba(255, 255, 255, 0.4)";
+const LAI_DARK   = "rgba(255, 255, 255, 0.03)";
+const LAI_FONT   = "var(--font-assistant), sans-serif";
+
+// ── learning-ai-01: Two-column passive vs. active learning ──
+function LearningAI01() {
+  const rows = [
+    { passive: "קריאה חוזרת",  active: "עונה על שאלות" },
+    { passive: "סימון בצהוב",  active: "מתאים לרמה" },
+    { passive: "האזנה פסיבית", active: "מתקן טעויות" },
+  ];
+  const colW = 145, rowH = 44, headerH = 48, gap = 10;
+  const lx = 10, rx = lx + colW + gap;
+  const tableY = 10;
+
+  return (
+    <GfxWrap dir="rtl">
+      <svg viewBox="0 0 320 220" width="100%" style={{ maxWidth: 400 }}>
+        {/* Left header */}
+        <m.rect x={lx} y={tableY} width={colW} height={headerH} rx={12}
+          fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)" strokeWidth={1}
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.05 }} />
+        <m.text x={lx + colW / 2} y={tableY + 28} textAnchor="middle"
+          fill={TEXT_DIM} fontSize={13} fontWeight={500} fontFamily={LAI_FONT}
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.12 }}>
+          למידה פסיבית
+        </m.text>
+
+        {/* Right header */}
+        <m.rect x={rx} y={tableY} width={colW} height={headerH} rx={12}
+          fill={`${PURPLE}15`} stroke={PURPLE} strokeWidth={1.5}
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.05 }} />
+        <m.text x={rx + colW / 2} y={tableY + 28} textAnchor="middle"
+          fill="white" fontSize={13} fontWeight={700} fontFamily={LAI_FONT}
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.12 }}>
+          למידה אקטיבית (AI)
+        </m.text>
+
+        {/* Data rows */}
+        {rows.map((row, i) => {
+          const y = tableY + headerH + 8 + i * (rowH + 8);
+          return (
+            <m.g key={i}
+              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 + i * 0.1, duration: 0.4 }}>
+              {/* passive */}
+              <rect x={lx} y={y} width={colW} height={rowH} rx={10}
+                fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.05)" strokeWidth={1} />
+              <text x={lx + colW / 2} y={y + rowH / 2 + 5} textAnchor="middle"
+                fill={TEXT_DIM} fontSize={12} fontFamily={LAI_FONT}>{row.passive}</text>
+              
+              {/* vs arrow */}
+              <m.path d={`M${lx + colW + 2},${y + rowH / 2} L${rx - 2},${y + rowH / 2}`} 
+                stroke={LAI_GRAY} strokeWidth={1} strokeDasharray="2 2"
+                initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: 0.5 + i * 0.1 }} />
+
+              {/* active */}
+              <rect x={rx} y={y} width={colW} height={rowH} rx={10}
+                fill={`${PURPLE}08`} stroke={`${PURPLE}44`} strokeWidth={1} />
+              <text x={rx + colW / 2} y={y + rowH / 2 + 5} textAnchor="middle"
+                fill="white" fontSize={12} fontWeight={600} fontFamily={LAI_FONT}>{row.active}</text>
+            </m.g>
+          );
+        })}
+      </svg>
+    </GfxWrap>
+  );
+}
+
+// ── learning-ai-02: Decision flowchart — Gemini learning paths ──
+function LearningAI02() {
+  return (
+    <GfxWrap dir="rtl">
+      <svg viewBox="0 0 320 230" width="100%" style={{ maxWidth: 360 }}>
+        {/* Top node */}
+        <m.g initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, duration: 0.4 }}>
+          <rect x={90} y={10} width={140} height={44} rx={12}
+            fill="rgba(255,255,255,0.05)" stroke={PURPLE} strokeWidth={1.5} />
+          <text x={160} y={37} textAnchor="middle"
+            fill="white" fontSize={13} fontWeight={600} fontFamily={LAI_FONT}>
+            מה המטרה שלך?
+          </text>
+        </m.g>
+
+        {/* Branch lines */}
+        <m.path d="M125,54 L75,100" stroke={LAI_GRAY} strokeWidth={1.5} strokeDasharray="4 4"
+          initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: 0.4, duration: 0.3 }} />
+        <m.path d="M195,54 L245,100" stroke={LAI_GRAY} strokeWidth={1.5} strokeDasharray="4 4"
+          initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: 0.4, duration: 0.3 }} />
+
+        {/* Mid nodes */}
+        <m.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}>
+          <text x={75} y={90} textAnchor="middle" fill={TEXT_DIM} fontSize={11} fontFamily={LAI_FONT}>להבין נושא</text>
+          <rect x={15} y={105} width={120} height={40} rx={10} fill="rgba(255,255,255,0.03)" stroke={BORDER} strokeWidth={1} />
+          <text x={75} y={130} textAnchor="middle" fill="white" fontSize={12} fontFamily={LAI_FONT}>למידה מודרכת</text>
+        </m.g>
+        <m.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }}>
+          <text x={245} y={90} textAnchor="middle" fill={TEXT_DIM} fontSize={11} fontFamily={LAI_FONT}>לצלול עמוק</text>
+          <rect x={185} y={105} width={120} height={40} rx={10} fill="rgba(255,255,255,0.03)" stroke={BORDER} strokeWidth={1} />
+          <text x={245} y={130} textAnchor="middle" fill="white" fontSize={12} fontFamily={LAI_FONT}>מחקר עמוק</text>
+        </m.g>
+
+        {/* Down arrows */}
+        <m.line x1={75} y1={145} x2={75} y2={165} stroke={LAI_TEAL} strokeWidth={1.5} markerEnd="url(#arrowT)"
+          initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: 0.9, duration: 0.25 }} />
+        <m.line x1={245} y1={145} x2={245} y2={165} stroke={LAI_AMBER} strokeWidth={1.5} markerEnd="url(#arrowA)"
+          initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: 1.0, duration: 0.25 }} />
+
+        {/* Endpoints */}
+        <m.g initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.2 }}>
+          <rect x={15} y={170} width={120} height={44} rx={10} fill={`${LAI_TEAL}10`} stroke={LAI_TEAL} strokeWidth={1.5} />
+          <text x={75} y={188} textAnchor="middle" fill={LAI_TEAL} fontSize={11} fontWeight={700} fontFamily={LAI_FONT}>Guided Learning</text>
+          <text x={75} y={204} textAnchor="middle" fill={LAI_TEAL} fontSize={10} fontFamily={LAI_FONT} fillOpacity={0.6}>Gemini</text>
+        </m.g>
+        <m.g initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.3 }}>
+          <rect x={185} y={170} width={120} height={44} rx={10} fill={`${LAI_AMBER}10`} stroke={LAI_AMBER} strokeWidth={1.5} />
+          <text x={245} y={188} textAnchor="middle" fill={LAI_AMBER} fontSize={11} fontWeight={700} fontFamily={LAI_FONT}>Deep Research</text>
+          <text x={245} y={204} textAnchor="middle" fill={LAI_AMBER} fontSize={10} fontFamily={LAI_FONT} fillOpacity={0.6}>Gemini</text>
+        </m.g>
+        
+        <defs>
+          <marker id="arrowT" markerWidth={6} markerHeight={6} refX={3} refY={3} orient="auto">
+            <path d="M0,0 L6,3 L0,6" fill={LAI_TEAL} />
+          </marker>
+          <marker id="arrowA" markerWidth={6} markerHeight={6} refX={3} refY={3} orient="auto">
+            <path d="M0,0 L6,3 L0,6" fill={LAI_AMBER} />
+          </marker>
+        </defs>
+      </svg>
+    </GfxWrap>
+  );
+}
+
+// ── learning-ai-03: Circular 4-step Feynman cycle ──
+function LearningAI03() {
+  const cx = 160, cy = 120, r = 70;
+  const steps = [
+    { label: "בחר נושא",        color: PURPLE,    angle: -90 },
+    { label: "הסבר בפשטות",     color: PURPLE,    angle:   0 },
+    { label: "AI מוצא פערים",  color: LAI_AMBER, angle:  90 },
+    { label: "חזור וחדד",       color: PURPLE,    angle: 180 },
+  ];
+  const nodeW = 104, nodeH = 36;
+
+  return (
+    <GfxWrap dir="rtl">
+      <svg viewBox="0 0 320 250" width="100%" style={{ maxWidth: 360 }}>
+        {/* Arcs */}
+        {steps.map((s, i) => {
+          const next = steps[(i + 1) % 4];
+          const a1 = (s.angle * Math.PI) / 180;
+          const a2 = (next.angle * Math.PI) / 180;
+          const x1 = cx + Math.cos(a1) * r;
+          const y1 = cy + Math.sin(a1) * r;
+          const x2 = cx + Math.cos(a2) * r;
+          const y2 = cy + Math.sin(a2) * r;
+          const midAngle = (a1 + a2) / 2;
+          const mx = (x1 + x2) / 2 + Math.cos(midAngle + Math.PI / 2) * 20;
+          const my = (y1 + y2) / 2 + Math.sin(midAngle + Math.PI / 2) * 20;
+          return (
+            <m.path key={`arc-${i}`}
+              d={`M${x1},${y1} Q${mx},${my} ${x2},${y2}`}
+              fill="none" stroke={LAI_GRAY} strokeWidth={1} strokeDasharray="3 3"
+              initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
+              transition={{ delay: 0.2 + i * 0.2, duration: 0.5 }}
+            />
+          );
+        })}
+
+        {/* Nodes */}
+        {steps.map((s, i) => {
+          const rad = (s.angle * Math.PI) / 180;
+          const nx = cx + Math.cos(rad) * r;
+          const ny = cy + Math.sin(rad) * r;
+          const isAmber = s.color === LAI_AMBER;
+          return (
+            <m.g key={i}
+              initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.1 + i * 0.15, duration: 0.3 }}>
+              <rect x={nx - nodeW / 2} y={ny - nodeH / 2} width={nodeW} height={nodeH} rx={10}
+                fill={isAmber ? `${LAI_AMBER}15` : "rgba(255,255,255,0.03)"}
+                stroke={s.color} strokeWidth={isAmber ? 1.5 : 1} />
+              <text x={nx} y={ny + 5} textAnchor="middle"
+                fill={isAmber ? LAI_AMBER : "white"}
+                fontSize={12} fontWeight={isAmber ? 700 : 500} fontFamily={LAI_FONT}>
+                {s.label}
+              </text>
+              {/* Step number badge */}
+              <circle cx={nx - nodeW/2} cy={ny - nodeH/2} r={8} fill={LAI_DARK} stroke={LAI_GRAY} strokeWidth={0.5} />
+              <text x={nx - nodeW/2} y={ny - nodeH/2 + 3} textAnchor="middle" fill={LAI_GRAY} fontSize={9} fontFamily={LAI_FONT}>{i+1}</text>
+            </m.g>
+          );
+        })}
+      </svg>
+    </GfxWrap>
+  );
+}
+
+// ── learning-ai-04: Hub-and-spoke — NotebookLM output types ──
+function LearningAI04() {
+  const cx = 160, cy = 115;
+  const outputs = [
+    { label: "סקירה קולית",  sub: "Audio Overview",  color: LAI_TEAL,  angle: -135 },
+    { label: "מדריך למידה",  sub: "Study Guide",     color: LAI_TEAL,  angle:  -45 },
+    { label: "כרטיסיות",    sub: "Flashcards",      color: LAI_AMBER, angle:   45 },
+    { label: "מבחן תרגול",   sub: "Mock Test",       color: LAI_AMBER, angle:  135 },
+  ];
+  const spokeLen = 85, nodeW = 100, nodeH = 46;
+
+  return (
+    <GfxWrap dir="rtl">
+      <svg viewBox="0 0 320 240" width="100%" style={{ maxWidth: 360 }}>
+        {/* Spokes */}
+        {outputs.map((o, i) => {
+          const rad = (o.angle * Math.PI) / 180;
+          return (
+            <m.line key={`spoke-${i}`}
+              x1={cx} y1={cy}
+              x2={cx + Math.cos(rad) * (spokeLen - 10)} y2={cy + Math.sin(rad) * (spokeLen - 10)}
+              stroke={o.color} strokeWidth={1} strokeOpacity={0.3} strokeDasharray="2 2"
+              initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
+              transition={{ delay: 0.3 + i * 0.1, duration: 0.4 }} />
+          );
+        })}
+
+        {/* Center hub */}
+        <m.g initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.1 }}>
+          <circle cx={cx} cy={cy} r={38} fill="rgba(255,255,255,0.05)" stroke={PURPLE} strokeWidth={1.5} />
+          <text x={cx} y={cy - 4} textAnchor="middle"
+            fill="white" fontSize={11} fontWeight={700} fontFamily={LAI_FONT}>המסמך</text>
+          <text x={cx} y={cy + 12} textAnchor="middle"
+            fill={TEXT_DIM} fontSize={11} fontFamily={LAI_FONT}>שלך</text>
+        </m.g>
+
+        {/* Output nodes */}
+        {outputs.map((o, i) => {
+          const rad = (o.angle * Math.PI) / 180;
+          const nx = cx + Math.cos(rad) * spokeLen;
+          const ny = cy + Math.sin(rad) * spokeLen;
+          return (
+            <m.g key={i} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.5 + i * 0.15 }}>
+              <rect x={nx - nodeW / 2} y={ny - nodeH / 2} width={nodeW} height={nodeH} rx={12}
+                fill={`${o.color}08`} stroke={o.color} strokeWidth={1} />
+              <text x={nx} y={ny - 3} textAnchor="middle"
+                fill="white" fontSize={12} fontWeight={600} fontFamily={LAI_FONT}>{o.label}</text>
+              <text x={nx} y={ny + 12} textAnchor="middle"
+                fill={o.color} fontSize={9} fontFamily={LAI_FONT} fillOpacity={0.8}>{o.sub}</text>
+            </m.g>
+          );
+        })}
+      </svg>
+    </GfxWrap>
+  );
+}
+
+// ── learning-ai-05: 4-node diagnostic loop ──
+function LearningAI05() {
+  const cx = 160, cy = 118, r = 70;
+  const nodes = [
+    { label: "טעית בשאלה",    color: LAI_CORAL, angle: -90 },
+    { label: "AI מסביר למה", color: PURPLE,    angle:   0 },
+    { label: "מזהה את הפער", color: PURPLE,    angle:  90 },
+    { label: "מנסה שוב",      color: LAI_TEAL,  angle: 180 },
+  ];
+  const nodeW = 104, nodeH = 36;
+
+  return (
+    <GfxWrap dir="rtl">
+      <svg viewBox="0 0 320 242" width="100%" style={{ maxWidth: 360 }}>
+        {/* Arcs */}
+        {nodes.map((n, i) => {
+          const next = nodes[(i + 1) % 4];
+          const a1 = (n.angle * Math.PI) / 180;
+          const a2 = (next.angle * Math.PI) / 180;
+          const x1 = cx + Math.cos(a1) * r;
+          const y1 = cy + Math.sin(a1) * r;
+          const x2 = cx + Math.cos(a2) * r;
+          const y2 = cy + Math.sin(a2) * r;
+          const midAngle = (a1 + a2) / 2;
+          const mx = (x1 + x2) / 2 + Math.cos(midAngle + Math.PI / 2) * 20;
+          const my = (y1 + y2) / 2 + Math.sin(midAngle + Math.PI / 2) * 20;
+          return (
+            <m.path key={`arc-${i}`}
+              d={`M${x1},${y1} Q${mx},${my} ${x2},${y2}`}
+              fill="none" stroke={n.color} strokeWidth={1.5} strokeOpacity={0.4} strokeDasharray="3 3"
+              initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
+              transition={{ delay: 0.2 + i * 0.18, duration: 0.3 }}
+            />
+          );
+        })}
+
+        {/* Nodes */}
+        {nodes.map((n, i) => {
+          const rad = (n.angle * Math.PI) / 180;
+          const nx = cx + Math.cos(rad) * r;
+          const ny = cy + Math.sin(rad) * r;
+          return (
+            <m.g key={i}
+              initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.08 + i * 0.16, duration: 0.3 }}>
+              <rect x={nx - nodeW / 2} y={ny - nodeH / 2} width={nodeW} height={nodeH} rx={10}
+                fill={`${n.color}10`} stroke={n.color} strokeWidth={1.5} />
+              <text x={nx} y={ny + 5} textAnchor="middle"
+                fill={i === 0 ? LAI_CORAL : i === 3 ? LAI_TEAL : "white"} 
+                fontSize={12} fontWeight={600} fontFamily={LAI_FONT}>
+                {n.label}
+              </text>
+            </m.g>
+          );
+        })}
+      </svg>
+    </GfxWrap>
+  );
+}
+
+// ── learning-ai-06: Linear 3-question pre-reading workflow ──
+function LearningAI06() {
+  const bh = 48, y = 50;
+  const bw = 85, gap = 12;
+  const startX = 10;
+  const questions = ["מה הטענה?", "מה הראיות?", "מה חסר?"];
+
+  return (
+    <GfxWrap dir="rtl">
+      <svg viewBox="0 0 340 160" width="100%" style={{ maxWidth: 380 }}>
+        {/* Sub-label */}
+        <m.text x={170} y={30} textAnchor="middle"
+          fill={TEXT_DIM} fontSize={11} fontFamily={LAI_FONT}
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}>
+          בנה הקשר לפני שאתה מתחיל לקרוא
+        </m.text>
+
+        {/* 3 question boxes */}
+        {questions.map((q, i) => {
+          const x = startX + i * (bw + gap);
+          return (
+            <m.g key={i}
+              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 + i * 0.15, duration: 0.4 }}>
+              <rect x={x} y={y} width={bw} height={bh} rx={12}
+                fill="rgba(255,255,255,0.03)" stroke={PURPLE} strokeWidth={1} />
+              <text x={x + bw / 2} y={y + 18} textAnchor="middle"
+                fill={TEXT_DIM} fontSize={9} fontFamily={LAI_FONT}>שאל את עצמך:</text>
+              <text x={x + bw / 2} y={y + 35} textAnchor="middle"
+                fill="white" fontSize={11} fontWeight={600} fontFamily={LAI_FONT}>{q}</text>
+              
+              {/* connector arrow */}
+              {i < 2 && (
+                <m.path d={`M${x + bw + 2},${y + bh/2} L${x + bw + gap - 2},${y + bh/2}`}
+                  stroke={LAI_GRAY} strokeWidth={1} strokeDasharray="2 2"
+                  initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: 0.6 + i * 0.15 }} />
+              )}
+            </m.g>
+          );
+        })}
+
+        {/* Final arrow (amber) */}
+        <m.path d={`M${startX + 3 * bw + 2 * gap - 2},${y + bh/2} Q${315},${y + bh/2} ${315},${y + bh + 10}`}
+          fill="none" stroke={LAI_AMBER} strokeWidth={1.5} strokeDasharray="3 3"
+          initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: 1.0 }} />
+
+        {/* Final label */}
+        <m.g initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.3 }}>
+          <rect x={265} y={115} width={70} height={30} rx={15}
+            fill={`${LAI_AMBER}15`} stroke={LAI_AMBER} strokeWidth={1.5} />
+          <text x={300} y={134} textAnchor="middle"
+            fill={LAI_AMBER} fontSize={11} fontWeight={700} fontFamily={LAI_FONT}>עכשיו קרא</text>
+        </m.g>
+      </svg>
+    </GfxWrap>
+  );
+}
+
+// ── learning-ai-08: Forgetting curve — two-line graph ──
+function LearningAI08() {
+  const axisX = 50, axisY = 20, chartW = 210, chartH = 100;
+  const bottomY = axisY + chartH;
+  const rightX = axisX + chartW;
+
+  const line1 = `M${axisX},${axisY + 10} C${axisX + 40},${axisY + 30} ${axisX + 70},${axisY + 95} ${rightX},${bottomY - 5}`;
+  const line2 = `M${axisX},${axisY + 10} C${axisX + 80},${axisY + 20} ${axisX + 150},${axisY + 45} ${rightX},${axisY + 65}`;
+
+  return (
+    <GfxWrap dir="rtl">
+      {/* Force direction LTR on SVG to avoid Hebrew character reversal/overlap in SVG coordinates */}
+      <svg viewBox="0 0 320 180" width="100%" style={{ maxWidth: 400, direction: "ltr" }}>
+        {/* Grid lines */}
+        <line x1={axisX} y1={axisY + chartH/2} x2={rightX} y2={axisY + chartH/2} stroke={BORDER} strokeWidth={0.5} strokeDasharray="2 2" />
+
+        {/* axes */}
+        <m.line x1={axisX} y1={axisY - 10} x2={axisX} y2={bottomY + 5}
+          stroke={LAI_GRAY} strokeWidth={1}
+          initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: 0.1 }} />
+        <m.line x1={axisX - 5} y1={bottomY} x2={rightX + 25} y2={bottomY}
+          stroke={LAI_GRAY} strokeWidth={1}
+          initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: 0.2 }} />
+
+        {/* labels - using middle/start/end anchors explicitly */}
+        <text x={axisX - 10} y={axisY - 5} textAnchor="end" fill={TEXT_DIM} fontSize={10} fontFamily={LAI_FONT}>ריכוז</text>
+        <text x={rightX + 15} y={bottomY + 16} textAnchor="middle" fill={TEXT_DIM} fontSize={10} fontFamily={LAI_FONT}>זמן</text>
+
+        {/* curves */}
+        <m.path d={line1} fill="none" stroke={LAI_CORAL} strokeWidth={3} strokeLinecap="round"
+          initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
+          transition={{ delay: 0.4, duration: 1, ease: "easeOut" }} />
+        <m.path d={line2} fill="none" stroke={LAI_TEAL} strokeWidth={3} strokeLinecap="round"
+          initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
+          transition={{ delay: 0.6, duration: 1, ease: "easeOut" }} />
+
+        {/* Legend - MOVED BELOW Graph and horizontal, using middle anchors to avoid reversal overlap */}
+        <m.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }}>
+          {/* Legend Coral - repositioned for no overlap */}
+          <line x1={40} y1={160} x2={60} y2={160} stroke={LAI_CORAL} strokeWidth={3} strokeLinecap="round" />
+          <text x={105} y={164} fill={TEXT} fontSize={11} fontFamily={LAI_FONT} textAnchor="middle">בלי פעולה</text>
+
+          {/* Legend Teal - repositioned for no overlap */}
+          <line x1={170} y1={160} x2={190} y2={160} stroke={LAI_TEAL} strokeWidth={3} strokeLinecap="round" />
+          <text x={235} y={164} fill={TEXT} fontSize={11} fontFamily={LAI_FONT} textAnchor="middle">עם פעולה</text>
+        </m.g>
+      </svg>
+    </GfxWrap>
+  );
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // MAIN COMPONENT
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -1085,6 +1522,14 @@ const GRAPHIC_MAP: Record<string, React.FC> = {
   "choosing-by-task": ByTask,
   "choosing-strengths-weaknesses": StrengthsWeaknesses,
   "choosing-free-vs-paid": FreeVsPaid,
+  // learning-with-ai (lesson 7 has no diagram — image will be wired via lesson.image)
+  "learning-ai-01": LearningAI01,
+  "learning-ai-02": LearningAI02,
+  "learning-ai-03": LearningAI03,
+  "learning-ai-04": LearningAI04,
+  "learning-ai-05": LearningAI05,
+  "learning-ai-06": LearningAI06,
+  "learning-ai-08": LearningAI08,
 };
 
 interface LessonGraphicProps {

@@ -6,20 +6,21 @@ import { Home, Compass, Trophy, User, Crosshair } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { m } from "framer-motion";
 
+const NAV_ROUTES = ["/", "/tracks", "/practice", "/leaderboard", "/profile"];
+
+const links = [
+    { href: "/", label: "ראשי", icon: Home },
+    { href: "/tracks", label: "מסלולים", icon: Compass },
+    { href: "/practice", label: "תרגול", icon: Crosshair },
+    { href: "/leaderboard", label: "דירוג", icon: Trophy },
+    { href: "/profile", label: "פרופיל", icon: User },
+];
+
 export function BottomNav() {
     const pathname = usePathname();
-    const NAV_ROUTES = ["/", "/tracks", "/practice", "/leaderboard", "/profile"];
     const isNavScreen = NAV_ROUTES.includes(pathname ?? "");
 
     if (!isNavScreen) return null;
-
-    const links = [
-        { href: "/", label: "ראשי", icon: Home },
-        { href: "/tracks", label: "מסלולים", icon: Compass },
-        { href: "/practice", label: "תרגול", icon: Crosshair },
-        { href: "/leaderboard", label: "דירוג", icon: Trophy },
-        { href: "/profile", label: "פרופיל", icon: User },
-    ];
 
     return (
         <div className="fixed bottom-0 left-0 right-0 z-50 px-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pointer-events-none flex justify-center">

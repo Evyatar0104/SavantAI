@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { m, AnimatePresence } from "framer-motion";
 import { CheckCircle, XCircle, Zap, Shield, Flame, Timer } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useSavantStore } from "@/store/useSavantStore";
 import { useLesson } from "@/context/LessonContext";
 import { AnimatedGradient } from "@/components/AnimatedGradient";
 import { haptics } from "@/lib/haptics";
@@ -25,29 +24,28 @@ interface Props {
     backgroundColor?: string;
 }
 
-export function QuizEngine({ questions, onComplete, accentColor = "#00C48C", icon = "⚡", backgroundColor = "#0F1A14" }: Props) {
+export function QuizEngine({ questions, onComplete, accentColor = "#00C48C", backgroundColor = "#0F1A14" }: Props) {
     const { quizMode, setQuizMode } = useLesson();
-
-    const shuffledQuestions = useMemo(() => {
+    const [shuffledQuestions] = useState<Question[]>(() => {
         return questions.map(q => {
             const optionsWithMetadata = q.options.map((opt, i) => ({
                 text: opt,
                 isCorrect: i === q.correctIndex
             }));
 
-            const shuffled = [...optionsWithMetadata];
-            for (let i = shuffled.length - 1; i > 0; i--) {
+            const opts = [...optionsWithMetadata];
+            for (let i = opts.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
-                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                [opts[i], opts[j]] = [opts[j], opts[i]];
             }
 
             return {
                 ...q,
-                options: shuffled.map(o => o.text),
-                correctIndex: shuffled.findIndex(o => o.isCorrect)
+                options: opts.map(o => o.text),
+                correctIndex: opts.findIndex(o => o.isCorrect)
             };
         });
-    }, [questions]);
+    });
 
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [selectedOption, setSelectedOption] = useState<number | null>(null);
@@ -87,7 +85,9 @@ export function QuizEngine({ questions, onComplete, accentColor = "#00C48C", ico
             const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
             return () => clearTimeout(timer);
         } else if (quizMode === "gauntlet" && !isAnswered && timeLeft === 0) {
-            handleAnswer(-1, true); // Timeout
+            // Use setTimeout to avoid synchronous state update during render phase
+            const timer = setTimeout(() => handleAnswer(-1, true), 0);
+            return () => clearTimeout(timer);
         }
     }, [timeLeft, isAnswered, quizMode, handleAnswer]);
 

@@ -4,6 +4,8 @@ import { BottomNav } from "../components/BottomNav";
 import { Sidebar } from "../components/Sidebar";
 import { Providers } from "../components/Providers";
 import { AnimatedBackground } from "../components/AnimatedBackground";
+import { ResumeToast } from "../components/ResumeToast";
+import { VaultToast } from "../components/VaultToast";
 import { Assistant as AssistantFont } from "next/font/google";
 
 const assistant = AssistantFont({
@@ -25,6 +27,9 @@ export const metadata: Metadata = {
     icon: "/icon.png",
     apple: "/icons/apple-touch-icon.png",
   },
+  other: {
+    google: "notranslate",
+  },
 };
 
 export const viewport: Viewport = {
@@ -42,7 +47,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="he" dir="rtl" className={`${assistant.variable}`}>
+    <html lang="he" dir="rtl" translate="no" className={`notranslate ${assistant.variable}`}>
       <body className="antialiased text-foreground selection:bg-blue-500/30 selection:text-blue-500 min-h-[100dvh]">
         <div className="w-full min-h-[100dvh] relative flex font-sans transition-colors duration-500 overflow-x-hidden">
           <Providers>
@@ -50,6 +55,8 @@ export default function RootLayout({
 
             {/* Persistent Sidebar for Desktop */}
             <Sidebar />
+            <ResumeToast />
+            <VaultToast />
 
             {/* Main content area */}
             <div className="flex-1 min-w-0 flex flex-col relative h-[100dvh]">

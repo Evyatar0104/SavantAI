@@ -7,10 +7,24 @@ export type SkillTag =
     | "ideation"
     | "summarization";
 
+export type AIModelType = "Claude" | "ChatGPT" | "Gemini" | "כל מודל";
+
+export type BuilderStep = {
+    id: string;
+    label: string;
+    type: "select" | "text" | "hybrid";
+    options: string[];
+    // The sub-string template. Use {{input}} as placeholder for the user's choice/text
+    template: string; 
+};
+
 export type PracticeItem = {
     id: string;
     type: "drill" | "project";
-    tool: "Claude" | "ChatGPT" | "Gemini" | "כל מודל";
+    recommendedModel: AIModelType;
+    compatibleModels: AIModelType[];
+    isExclusive: boolean;
+    builderSteps?: BuilderStep[];
     title: string;
     description: string;
     tags: string[];
@@ -43,17 +57,48 @@ export const PRACTICE_ITEMS: PracticeItem[] = [
     {
         id: "drill-system-prompt-business",
         type: "drill",
-        tool: "Claude",
-        title: "כתוב System Prompt לעסק שלך",
+        recommendedModel: "Claude",
+        compatibleModels: ["ChatGPT", "Gemini"],
+        isExclusive: false,
+        title: "משימה: בנה System Prompt עסקי (מנוע פרומפטים)",
         description:
-            "צור system prompt מקצועי שמגדיר טון, תחום ומגבלות — כדי ש-AI יענה בדיוק כמו שאתה צריך.",
+            "צור system prompt מקצועי שמגדיר טון, תחום ומגבלות — כדי ש-AI יענה בדיוק כמו שאתה צריך, ללא מאמץ.",
         tags: ["System Prompts", "עסקים"],
         timeMinutes: 10,
         xp: 75,
         steps: [
-            "פתח שיחה חדשה ב-Claude. בתחילת השיחה כתוב: 'אני עומד לתת לך system prompt — אנא פעל לפיו בכל התשובות הבאות.'",
-            "כתוב system prompt שכולל: שם ותפקיד הבוט, הטון הרצוי (רשמי/ידידותי/מקצועי), תחומי עיסוק, ומה שאסור לדון בו. לדוגמה: 'אתה עוזר תוכן לסטודיו צילום. ענה בעברית, בטון חם ומקצועי. אל תדון במחירים — הפנה ללינק ליצירת קשר.'",
-            "שלח הודעת בדיקה — שאל שאלה רגילה ושאלה שה-prompt אמור לחסום. ראה אם הבוט מחזיק את האופי. שפר את ה-prompt לפי מה שמצאת.",
+            "השתמש ב-Prompt Builder כדי להרכיב את ההנחיה המדויקת באמצעות ה-Chips.",
+            "העתק את הפרומפט והדבק אותו בתחילת העבודה מול המודל כדי לייצר סביבת עבודה 'נעולה' לתפקיד."
+        ],
+        builderSteps: [
+            {
+                id: "role",
+                label: "מה התפקיד של ה-AI?",
+                type: "hybrid",
+                options: ["מנהל שיווק סושיאל", "קופירייטר ממיר", "יועץ אסטרטגי בכיר", "מתכנת צד לקוח"],
+                template: "אתה פועל כ{{input}} מומחה."
+            },
+            {
+                id: "tone",
+                label: "באיזה טון הוא יענה?",
+                type: "hybrid",
+                options: ["מקצועי וענייני", "ידידותי, המשלב הומור קל", "ישיר, חד וללא מגילות", "מעורר השראה ומלא מוטיבציה"],
+                template: "הטון של התשובות שלך צריך להיות {{input}}."
+            },
+            {
+                id: "audience",
+                label: "מי קהל היעד העיקרי?",
+                type: "hybrid",
+                options: ["לקוחות קצה (B2C)", "מקבלי החלטות בחברות (B2B)", "בני נוער וצעירים", "משקיעים ויזמים"],
+                template: "התאם את השפה ל{{input}}."
+            },
+            {
+                id: "constraints",
+                label: "אילו מגבלות נחיל עליו?",
+                type: "hybrid",
+                options: ["שפה פשוטה נטולת מונחים מסובכים", "אסור לדבר על מחירים", "ספק תמיד תשובות קצרות - מקסימום פסקה"],
+                template: "שים לב למגבלה הקריטית הבאה במסגרת הכתיבה: {{input}}."
+            }
         ],
         // Legacy fields
         goal: "בסוף יהיה לך system prompt מוכן לשימוש יומיומי",
@@ -67,7 +112,9 @@ export const PRACTICE_ITEMS: PracticeItem[] = [
     {
         id: "drill-summarize-article",
         type: "drill",
-        tool: "כל מודל",
+        recommendedModel: "כל מודל",
+        compatibleModels: ["Claude", "ChatGPT", "Gemini"],
+        isExclusive: false,
         title: "סכם מאמר ב-3 רמות עומק",
         description:
             "קח מאמר ארוך ובקש סיכום בשורה אחת, בפסקה אחת, ובחצי עמוד. השווה את התוצאות.",
@@ -75,9 +122,31 @@ export const PRACTICE_ITEMS: PracticeItem[] = [
         timeMinutes: 8,
         xp: 75,
         steps: [
-            "בחר מאמר מעניין — כתבה, פוסט בלוג, או מסמך ארוך. העתק את הטקסט המלא.",
-            "שלח שלוש בקשות נפרדות: (1) 'סכם בשורה אחת', (2) 'סכם בפסקה אחת', (3) 'סכם בחצי עמוד עם נקודות עיקריות'. תן לכל בקשה חיים נפרדים — שיחה חדשה או הודעה חדשה.",
-            "קרא את שלוש הגרסאות ושאל את עצמך: מה כל גרסה מוסיפה? מה היא מפספסת? הבנה זו תעזור לך לבקש את רמת הפירוט הנכונה בכל פעם.",
+            "השתמש במחולל הסיכום כדי להגדיר את רמות הפירוט.",
+            "העתק את הטקסט שברצונך לסכם והדבק אותו יחד עם ההנחיה שייצרנו."
+        ],
+        builderSteps: [
+            {
+                id: "source",
+                label: "מה סוג הטקסט?",
+                type: "hybrid",
+                options: ["מאמר מדעי", "פוסט בבלוג", "דוח עסקי", "כתבה חדשותית"],
+                template: "אני רוצה שתסכם עבורי {{input}}."
+            },
+            {
+                id: "format",
+                label: "באיזה פורמט תרצה את הסיכום?",
+                type: "select",
+                options: ["שורה אחת (TL;DR)", "פסקה אחת מרוכזת", "נקודות עיקריות (Bulleted list)", "סיכום מנהלים מקיף"],
+                template: "הפורמט הנדרש הוא {{input}}."
+            },
+            {
+                id: "focus",
+                label: "על מה לשים דגש?",
+                type: "hybrid",
+                options: ["תובנות מעשיות", "נתונים ומספרים", "טיעונים מרכזיים", "סיכום ניטרלי"],
+                template: "בסיכום, שים דגש מיוחד על {{input}}."
+            }
         ],
         goal: "בסוף תדע לבקש סיכום ברמת הפירוט המדויקת שאתה צריך",
         estimatedMinutes: 8,
@@ -88,7 +157,9 @@ export const PRACTICE_ITEMS: PracticeItem[] = [
     {
         id: "drill-compare-models",
         type: "drill",
-        tool: "כל מודל",
+        recommendedModel: "כל מודל",
+        compatibleModels: ["Claude", "ChatGPT", "Gemini"],
+        isExclusive: false,
         title: "השווה תשובות בין שלושה מודלים",
         description:
             "שלח את אותו prompt ל-Claude, ChatGPT ו-Gemini. נתח הבדלים בסגנון, דיוק ומבנה.",
@@ -96,9 +167,24 @@ export const PRACTICE_ITEMS: PracticeItem[] = [
         timeMinutes: 15,
         xp: 75,
         steps: [
-            "בחר prompt מעניין — שאלה טכנית, בקשת כתיבה יצירתית, או דילמה עסקית. כתוב אותו פעם אחת ושמור אותו.",
-            "שלח את אותו הprompt המדויק לשלושת המודלים — Claude (claude.ai), ChatGPT (chat.openai.com), Gemini (gemini.google.com). אל תשנה שום מילה.",
-            "השווה: מי ענה ארוך יותר? מי השתמש בנקודות? מי נשמע יותר זהיר? מי נתן את התשובה הכי שימושית *לצורך שלך*? תרשום לך מסקנה אחת על כל מודל.",
+            "השתמש בבנייה כדי להגדיר את המשימה להשוואה.",
+            "העתק את התוצאה ל-3 מודלים שונים וראה מי המנצח שלך."
+        ],
+        builderSteps: [
+            {
+                id: "task",
+                label: "מה המשימה להשוואה?",
+                type: "hybrid",
+                options: ["כתיבת קוד פשוט", "הסבר מושג מורכב", "כתיבת פוסט יצירתי", "פתרון בעיה לוגית"],
+                template: "בצע את המשימה הבאה: {{input}}."
+            },
+            {
+                id: "criteria",
+                label: "לפי מה נשפוט את התוצאה?",
+                type: "select",
+                options: ["יצירתיות ומקוריות", "דיוק עובדתי", "קיצור ותמציתיות", "איכות הקוד ומבנה"],
+                template: "אני אשווה את התשובות שלך לפי {{input}}."
+            }
         ],
         goal: "בסוף תבין מתי כל מודל עדיף — לא מהתיאוריה, מהניסיון",
         estimatedMinutes: 15,
@@ -109,7 +195,9 @@ export const PRACTICE_ITEMS: PracticeItem[] = [
     {
         id: "drill-chain-of-thought",
         type: "drill",
-        tool: "Claude",
+        recommendedModel: "Claude",
+        compatibleModels: ["ChatGPT", "Gemini"],
+        isExclusive: false,
         title: "אלץ חשיבה שלב-אחר-שלב",
         description:
             "קח בעיה מורכבת ותרגל שימוש בטכניקת Chain of Thought כדי לקבל תשובה מדויקת יותר.",
@@ -117,9 +205,24 @@ export const PRACTICE_ITEMS: PracticeItem[] = [
         timeMinutes: 12,
         xp: 75,
         steps: [
-            "בחר בעיה שדורשת כמה שלבים — חישוב, השוואת אפשרויות, תכנון פרויקט, או ניתוח מצב. שאל אותה ראשית בצורה ישירה וקבל תשובה.",
-            "עכשיו שאל שוב — אבל הוסף בסוף: 'חשוב על זה שלב אחר שלב לפני שאתה עונה.' השווה את שתי התשובות — האם השנייה מפורטת יותר? מדויקת יותר?",
-            "נסה גרסה שלישית: 'לפני שתענה, רשום את כל ההנחות שאתה מניח ואת שלבי הפתרון.' ראה איך המודל 'חושב בקול' ומתי זה עוזר.",
+            "בנה את הבעיה ב-Builder.",
+            "השתמש בהנחיה כדי לאלץ את המודל 'לחשוב בקול רם' לפני התשובה."
+        ],
+        builderSteps: [
+            {
+                id: "problem",
+                label: "מה הבעיה המורכבת?",
+                type: "hybrid",
+                options: ["תכנון תקציב חודשי", "פתרון קונפליקט בצוות", "אופטימיזציה של תהליך עבודה", "ניתוח מקרה בוחן"],
+                template: "עזור לי לפתור את הבעיה הבאה: {{input}}."
+            },
+            {
+                id: "cot_trigger",
+                label: "איך להפעיל את החשיבה?",
+                type: "select",
+                options: ["חשוב שלב אחר שלב באופן מפורט", "פרק את הבעיה לתת-משימות לפני הפתרון", "הסבר את הלוגיקה מאחורי כל החלטה"],
+                template: "לפני שתספק תשובה סופית, {{input}}."
+            }
         ],
         goal: "בסוף תדע לזהות מתי CoT משפר תוצאות ואיך לנסח את זה",
         estimatedMinutes: 12,
@@ -131,7 +234,9 @@ export const PRACTICE_ITEMS: PracticeItem[] = [
     {
         id: "drill-email-rewrite",
         type: "drill",
-        tool: "ChatGPT",
+        recommendedModel: "ChatGPT",
+        compatibleModels: ["Claude", "Gemini"],
+        isExclusive: false,
         title: "שכתב מייל ב-3 טונים שונים",
         description:
             "קח מייל עסקי ובקש ממודל לשכתב אותו בטון רשמי, ידידותי ומשכנע. השווה את האפקט.",
@@ -139,9 +244,24 @@ export const PRACTICE_ITEMS: PracticeItem[] = [
         timeMinutes: 10,
         xp: 75,
         steps: [
-            "בחר מייל שכתבת לאחרונה — אפשר בקשה, עדכון, או מכתב פנייה. הכנס אותו ל-ChatGPT ובקש: 'שכתב את המייל הזה בטון רשמי ומקצועי.'",
-            "בהמשך אותה שיחה בקש: 'עכשיו שכתב אותו בטון ידידותי וחמים.' ואז: 'עכשיו שכתב אותו בטון משכנע שמדגיש ערך ותועלת.'",
-            "קרא את שלוש הגרסאות ובחר אחת. שים לב: מה השתנה בין הגרסאות? מה נשאר? שמור את הפרומפט הזה — הוא עובד על כל מייל.",
+            "הגדר את הטון והמטרה ב-Builder.",
+            "הדבק את המייל המקורי וראה איך הוא משתנה."
+        ],
+        builderSteps: [
+            {
+                id: "tone",
+                label: "מה הטון הרצוי?",
+                type: "select",
+                options: ["רשמי ומנומס (Corporate)", "ידידותי וחם (Casual)", "אסרטיבי ומשכנע (Sales)", "קצר ותכליתי (Urgent)"],
+                template: "שכתב את המייל הבא בטון {{input}}."
+            },
+            {
+                id: "audience",
+                label: "מי המקבל?",
+                type: "hybrid",
+                options: ["מנהל ישיר", "לקוח זועם", "קולגה לעבודה", "מועמד לעבודה"],
+                template: "המייל מיועד ל{{input}}."
+            }
         ],
         goal: "בסוף יהיה לך תבנית prompt לכל סוג תקשורת",
         estimatedMinutes: 10,
@@ -152,7 +272,9 @@ export const PRACTICE_ITEMS: PracticeItem[] = [
     {
         id: "drill-data-extraction",
         type: "drill",
-        tool: "Gemini",
+        recommendedModel: "Gemini",
+        compatibleModels: ["Claude", "ChatGPT"],
+        isExclusive: false,
         title: "חלץ נתונים מטקסט חופשי",
         description:
             "העתק טקסט לא מובנה (כתבה, דוח, פוסט) ובקש מהמודל לחלץ ישויות, תאריכים ומספרים לטבלה.",
@@ -160,9 +282,24 @@ export const PRACTICE_ITEMS: PracticeItem[] = [
         timeMinutes: 12,
         xp: 75,
         steps: [
-            "מצא טקסט לא מובנה — כתבה עיתונאית, סקירת שוק, פוסט ארוך בלינקדאין, או מסמך PDF שסרקת. העתק לפחות 3 פסקאות.",
-            "שלח ל-Gemini עם ההוראה: 'חלץ מהטקסט הבא את כל הישויות הבאות לטבלה: שמות, תאריכים, מספרים/אחוזים, ארגונים. [הדבק טקסט]'",
-            "בדוק את הטבלה שקיבלת — האם פספס משהו? האם יש שגיאות? נסה שוב עם הוראה יותר ספציפית: 'חלץ רק נתונים כספיים ואחוזים'. בנה את ה-prompt שעובד הכי טוב לסוג הטקסט שלך.",
+            "הגדר את מבנה הנתונים הנדרש.",
+            "הדבק את הטקסט המבולגן וקבל טבלה מסודרת."
+        ],
+        builderSteps: [
+            {
+                id: "schema",
+                label: "אילו נתונים לחלץ?",
+                type: "text",
+                options: [],
+                template: "עבור הטקסט שאספק, חלץ את הפרטים הבאים: {{input}}."
+            },
+            {
+                id: "output",
+                label: "מה מבנה הפלט?",
+                type: "select",
+                options: ["טבלה מסודרת (Markdown Table)", "רשימת בולטים (Bullet points)", "קובץ JSON", "רשימת CSV"],
+                template: "הצג את התוצאות בפורמט {{input}}."
+            }
         ],
         goal: "בסוף תדע לבנות prompt לחילוץ מידע מובנה מכל מקור",
         estimatedMinutes: 12,
@@ -175,7 +312,9 @@ export const PRACTICE_ITEMS: PracticeItem[] = [
     {
         id: "project-presentation",
         type: "project",
-        tool: "Claude",
+        recommendedModel: "Claude",
+        compatibleModels: ["ChatGPT"],
+        isExclusive: false,
         title: "בנה מצגת שלמה עם Claude",
         description:
             "תכנן, כתוב ועצב מצגת של 10 שקפים — מרעיון ראשוני ועד תוכן מוכן להצגה.",
@@ -183,10 +322,38 @@ export const PRACTICE_ITEMS: PracticeItem[] = [
         timeMinutes: 45,
         xp: 200,
         steps: [
-            "פתח שיחה ב-Claude ותאר את המצגת: נושא, קהל יעד, מטרה (למכור? ללמד? לעדכן?), ומספר השקפים. בקש: 'הצע לי מבנה של 10 שקפים עם כותרת וקצרה לכל שקף.'",
-            "לאחר שאישרת את המבנה, בקש: 'עכשיו כתוב את התוכן המלא לכל שקף — כולל כותרת, 3-5 נקודות עיקריות, והצעה לויזואל או דוגמה.' עבד שקף אחד בכל פעם אם צריך.",
-            "לאחר שיש לך תוכן לכל השקפים, בקש: 'עבור על כל המצגת ובדוק: האם יש זרימה הגיונית? האם הפתיחה מושכת? האם הסיכום קורא לפעולה?' השתמש בהערות לשיפור.",
-            "העתק את התוכן ל-Google Slides, Canva, או Gamma.app. Claude יכול גם לכתוב הערות דובר לכל שקף — בקש זאת בנפרד.",
+            "השתמש במחולל המבנה כדי לייצר את הבסיס למצגת.",
+            "העתק את המבנה ל-Claude ועבוד שקף-שקף לפי ההנחיות שיצרנו."
+        ],
+        builderSteps: [
+            {
+                id: "topic",
+                label: "מה נושא המצגת?",
+                type: "hybrid",
+                options: ["גיוס הון לסטארטאפ", "סיכום רבעון מכירות", "הדרכת עובדים חדשים", "הצגת מוצר ללקוח"],
+                template: "אני רוצה לבנות מצגת מקצועית בנושא {{input}}."
+            },
+            {
+                id: "audience",
+                label: "מי קהל היעד?",
+                type: "hybrid",
+                options: ["משקיעי VL/אנג'לים", "הנהלה בכירה", "צוותים טכניים", "לקוחות פוטנציאליים"],
+                template: "קהל היעד שלי הוא {{input}}."
+            },
+            {
+                id: "goal",
+                label: "מה המטרה העיקרית?",
+                type: "hybrid",
+                options: ["לשכנע להשקיע", "ללמד מיומנות חדשה", "להציג הצלחות ונתונים", "לסגור עסקה/מכירה"],
+                template: "המטרה המרכזית של המצגת היא {{input}}."
+            },
+            {
+                id: "slides",
+                label: "כמה שקפים תרצה?",
+                type: "select",
+                options: ["5 שקפים (קצר ולעניין)", "10 שקפים (סטנדרטי)", "15 שקפים (מפורט)"],
+                template: "תכנן לי מבנה של {{input}}."
+            }
         ],
         goal: "בסוף תהיה לך מצגת מקצועית מוכנה לשימוש",
         estimatedMinutes: 45,
@@ -199,7 +366,9 @@ export const PRACTICE_ITEMS: PracticeItem[] = [
     {
         id: "project-market-research",
         type: "project",
-        tool: "Gemini",
+        recommendedModel: "Gemini",
+        compatibleModels: ["Claude", "ChatGPT"],
+        isExclusive: false,
         title: "מחקר שוק מלא עם AI",
         description:
             "הגדר תחום, נתח מתחרים, זהה קהל יעד וצור דוח תובנות — הכל באמצעות שיחה מובנית.",
@@ -207,9 +376,31 @@ export const PRACTICE_ITEMS: PracticeItem[] = [
         timeMinutes: 60,
         xp: 200,
         steps: [
-            "פתח שיחה ב-Gemini ותאר את התחום: 'אני רוצה לעשות מחקר שוק ל[תאר עסק/מוצר]. מה המסגרת המומלצת לניתוח — מה לחקור ובאיזה סדר?' קבל מפת דרכים מהמודל.",
-            "עבד על כל קטגוריה בנפרד: (1) ניתוח מתחרים — 'מי הם 5 המתחרים הראשיים ב[תחום]? מה החוזקות והחולשות של כל אחד?' (2) קהל יעד — 'אפיין 3 פרסונות לקוח טיפוסיות.' (3) טרנדים — 'מה הטרנדים המרכזיים בתחום ב-2025?'",
-            "בשלב הסיכום בקש: 'על סמך כל מה שדנו, כתוב דוח תובנות קצר: מה ההזדמנויות? מה הסיכונים? מה ה-USP המומלץ?' ייצא את הכל למסמך אחד מסודר.",
+            "בנה את אסטרטגיית המחקר באמצעות ה-Builder.",
+            "בצע את השלבים מול Gemini וסכם את התובנות הכלכליות."
+        ],
+        builderSteps: [
+            {
+                id: "industry",
+                label: "מה התחום שאתה חוקר?",
+                type: "hybrid",
+                options: ["בינה מלאכותית יוצרת", "נדל\"ן להשקעה בחו\"ל", "מסחר אלקטרוני (E-com)", "בריאות ואיכות חיים"],
+                template: "אני רוצה לבצע מחקר שוק מעמיק בתחום {{input}}."
+            },
+            {
+                id: "focus",
+                label: "מה הדגש במחקר?",
+                type: "select",
+                options: ["ניתוח מתחרים ישירים", "מגמות עתידיות ב-2024", "פילוח קהלי יעד", "חסמי כניסה ורגולציה"],
+                template: "התמקד במיוחד ב{{input}}."
+            },
+            {
+                id: "region",
+                label: "מה האזור הגיאוגרפי?",
+                type: "hybrid",
+                options: ["ישראל", "ארה\"ב וקנדה", "אירופה", "גלובלי"],
+                template: "הנתונים צריכים להתייחס לאזור {{input}}."
+            }
         ],
         goal: "בסוף יהיה לך דוח מחקר שוק שאפשר להציג",
         estimatedMinutes: 60,
@@ -221,7 +412,9 @@ export const PRACTICE_ITEMS: PracticeItem[] = [
     {
         id: "project-landing-page",
         type: "project",
-        tool: "Claude",
+        recommendedModel: "Claude",
+        compatibleModels: ["ChatGPT", "Gemini"],
+        isExclusive: false,
         title: "צור דף נחיתה מאפס עם קוד",
         description:
             "תכנן מבנה דף, כתוב קופי שיווקי וקבל קוד HTML/CSS מוכן להעלאה.",
@@ -229,9 +422,31 @@ export const PRACTICE_ITEMS: PracticeItem[] = [
         timeMinutes: 40,
         xp: 200,
         steps: [
-            "תאר ל-Claude את המוצר/שירות: מה זה, למי, ומה הפעולה שאתה רוצה שהמבקר יעשה (קנייה, הרשמה, יצירת קשר). בקש: 'הצע לי מבנה לדף נחיתה — אילו סקציות, באיזה סדר, ומה המסר הראשי.'",
-            "לאחר שאישרת את המבנה, בקש: 'כתוב את הקופי לכל סקציה — כותרת ראשית, כותרות משנה, תיאורים קצרים, ו-CTA חזק. הכל בעברית.' ערוך והתאם לקול שלך.",
-            "עכשיו בקש את הקוד: 'כתוב HTML + CSS מלא לדף הנחיתה הזה. עיצוב מודרני, רספונסיבי למובייל, ללא ספריות חיצוניות.' שמור את הקובץ כ-index.html ופתח בדפדפן — זה עובד.",
+            "תכנן את מבנה הדף ב-Builder.",
+            "בקש מ-Claude לייצר את הקוד המלא לפי המבנה שבחרת."
+        ],
+        builderSteps: [
+            {
+                id: "product",
+                label: "מה המוצר/שירות?",
+                type: "text",
+                options: [],
+                template: "הדף מיועד לשיווק {{input}}."
+            },
+            {
+                id: "style",
+                label: "מה הסגנון העיצובי?",
+                type: "select",
+                options: ["מינימליסטי ונקי", "הייטק ועתידני (Dark Mode)", "צבעוני ומשחקי", "יוקרתי ואלגנטי"],
+                template: "השתמש בסגנון {{input}} בעיצוב ה-CSS."
+            },
+            {
+                id: "cta",
+                label: "מה ה-Call to Action?",
+                type: "hybrid",
+                options: ["השארת פרטים ליצירת קשר", "רכישה מיידית", "הרשמה לניוזלטר", "קביעת פגישת ייעוץ"],
+                template: "הנעה לפעולה המרכזית היא {{input}}."
+            }
         ],
         goal: "בסוף יהיה לך דף נחיתה עובד שאפשר לפרוס",
         estimatedMinutes: 40,
@@ -242,7 +457,9 @@ export const PRACTICE_ITEMS: PracticeItem[] = [
     {
         id: "project-content-calendar",
         type: "project",
-        tool: "ChatGPT",
+        recommendedModel: "ChatGPT",
+        compatibleModels: ["Claude"],
+        isExclusive: false,
         title: "בנה לוח תוכן חודשי",
         description:
             "תכנן חודש שלם של תוכן לרשתות חברתיות — נושאים, כותרות, ותזמון מותאם לקהל שלך.",
@@ -250,9 +467,31 @@ export const PRACTICE_ITEMS: PracticeItem[] = [
         timeMinutes: 35,
         xp: 200,
         steps: [
-            "פתח שיחה ב-ChatGPT ותאר: הרשת החברתית (אינסטגרם/לינקדאין/פייסבוק/טיקטוק), קהל היעד, נושא הדף, ותדירות הפרסום הרצויה. בקש: 'הצע לי 4 עמודות תוכן (pillars) לחודש הקרוב.'",
-            "לאחר אישור העמודות, בקש: 'צור לוח תוכן ל-30 יום — לכל פוסט: תאריך, עמוד תוכן, נושא ספציפי, סוג פוסט (טקסט/תמונה/וידאו/שאלה), וכותרת ראשונה מושכת.' קבל את זה בפורמט טבלה.",
-            "בחר 5-7 פוסטים מהלוח שנראים הכי טובים ובקש: 'כתוב טיוטה מלאה לכל אחד מהפוסטים האלו — כולל כיתוב, hashtags, ו-CTA.' העתק לגוגל שיטס או Notion לתזמון.",
+            "קבע את אופי החודש ב-Builder.",
+            "המשך ל-ChatGPT כדי לקבל פריסה של 30 יום."
+        ],
+        builderSteps: [
+            {
+                id: "platform",
+                label: "איזו פלטפורמה?",
+                type: "select",
+                options: ["LinkedIn", "Instagram & TikTok", "Facebook Page", "X (Twitter)"],
+                template: "צור לי לוח תוכן לחודש הקרוב עבור {{input}}."
+            },
+            {
+                id: "goal",
+                label: "מה המטרה החודשית?",
+                type: "select",
+                options: ["בניית סמכות מקצועית", "מכירות ישירות", "הגדלת חשיפה ו-Engagement", "גיוס עובדים"],
+                template: "מטרת התוכן היא {{input}}."
+            },
+            {
+                id: "pillars",
+                label: "אילו נושאים מרכזיים (Pillars)?",
+                type: "text",
+                options: [],
+                template: "התמקד ב3 עמודי התווך הבאים: {{input}}."
+            }
         ],
         goal: "בסוף יהיה לך לוח תוכן מלא ל-30 יום",
         estimatedMinutes: 35,

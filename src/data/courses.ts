@@ -114,24 +114,13 @@ export const COURSES: Course[] = [
         requiredCourseId: "how-llms-work"
     },
     {
-        id: "ai-studying",
-        categoryId: "real-life",
-        name: "AI for Studying",
-        nameHe: "AI ללמידה",
-        description: "NotebookLM, שיטת פיינמן עם AI, סיכומים חכמים והכנה למבחנים. ללמוד יותר בפחות זמן.",
-        icon: "📚",
-        order: 2,
-        isLocked: true,
-        requiredCourseId: "how-llms-work"
-    },
-    {
         id: "ai-writing",
         categoryId: "real-life",
         name: "AI for Writing & Content",
         nameHe: "AI לכתיבה",
         description: "לשמור על הקול שלך בזמן שה-AI עושה את העבודה הכבדה. כתיבת תוכן, עריכה, פוסטים, מיילים — בעברית ובאנגלית.",
         icon: "✍️",
-        order: 3,
+        order: 2,
         isLocked: true,
         requiredCourseId: "how-llms-work"
     },
@@ -142,9 +131,19 @@ export const COURSES: Course[] = [
         nameHe: "AI ליצירה",
         description: "תמונות, מוזיקה, וידיאו, עיצוב. Midjourney, Suno, Runway — איך לתת לדמיון שלך כלים אמיתיים.",
         icon: "🎨",
-        order: 4,
+        order: 3,
         isLocked: true,
         requiredCourseId: "how-llms-work"
+    },
+    {
+        id: "learning-with-ai",
+        categoryId: "real-life",
+        name: "Learning with AI",
+        nameHe: "ללמוד עם AI",
+        description: "איך להפוך את AI לכלי הלמידה החזק ביותר שיש לך",
+        icon: "🎓",
+        order: 4,
+        isLocked: false
     },
     // Professional (open)
     {

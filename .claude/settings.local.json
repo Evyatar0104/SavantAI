@@ -27,7 +27,13 @@
       "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}, Size: %{size_download} bytes\" http://localhost:3099/sw.js)",
       "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}, Size: %{size_download} bytes\" http://localhost:3099/icons/icon-192.png)",
       "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}, Size: %{size_download} bytes\" http://localhost:3099/icons/icon-512.png)",
-      "Bash(curl -s http://localhost:3099/)"
+      "Bash(curl -s http://localhost:3099/)",
+      "Bash(ls d:/savant/src/app/practice/builder/[id]/)",
+      "Bash(grep -E \"\\\\.tsx|\\\\.ts$\")",
+      "Bash(grep \"\\\\.ts$\")",
+      "Bash(xargs grep:*)",
+      "Bash(netstat -ano)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/)"
     ]
   }
 }

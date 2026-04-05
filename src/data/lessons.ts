@@ -63,6 +63,10 @@ export type Lesson = {
     };
     insight: string;
     image?: string;
+    courseCta?: {
+        text: string;
+        courseId: string;
+    };
     questions: Question[];
     reward?: LessonReward;
 };

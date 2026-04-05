@@ -37,9 +37,21 @@ const DEFAULT_THEME = { bgGlow: "#064E3B", accent: "#34D399" };
 interface Props { lessonId: string; from?: string; }
 
 // ── Confetti particles ───────────────────────────────
+interface Particle {
+    id: number;
+    left: string;
+    size: number;
+    delay: number;
+    duration: number;
+    rotate: number;
+    xDrift: number;
+    opacity: number;
+    variant: "circle" | "square";
+}
+
 function Confetti({ color }: { color: string }) {
-    const particles = useMemo(() =>
-        Array.from({ length: 24 }, (_, i) => ({
+    const [particles] = useState<Particle[]>(() => {
+        return Array.from({ length: 24 }, (_, i) => ({
             id: i,
             left: `${Math.random() * 100}%`,
             size: 4 + Math.random() * 5,
@@ -48,9 +60,9 @@ function Confetti({ color }: { color: string }) {
             rotate: Math.random() * 360,
             xDrift: (Math.random() - 0.5) * 120,
             opacity: 0.6 + Math.random() * 0.4,
-            variant: Math.random() > 0.5 ? "circle" : "square",
-        })),
-    []);
+            variant: (Math.random() > 0.5 ? "circle" : "square") as "circle" | "square",
+        }));
+    });
 
     return (
         <div className="fixed inset-0 pointer-events-none z-[300] overflow-hidden">
@@ -175,7 +187,7 @@ function LessonContent({ lesson, from }: { lesson: Lesson; from?: string }) {
         if (e.key === "ArrowLeft") handleSwipe(-1);
         else if (e.key === "ArrowRight") handleSwipe(1);
         else if (e.key === " " || e.key === "Enter") { e.preventDefault(); handleSwipe(-1); }
-    }, [step, currentPulse, maxPulses, nextPulse]);
+    }, [step, currentPulse, maxPulses, nextPulse, handleSwipe]);
 
     useEffect(() => {
         window.addEventListener("keydown", handleKeyDown);
@@ -317,12 +329,13 @@ function LessonContent({ lesson, from }: { lesson: Lesson; from?: string }) {
 
                             {/* Lesson Graphic */}
                             {lesson.image ? (
-                                <m.div 
+                                <m.div
                                     initial={{ opacity: 0, scale: 0.95 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     transition={{ duration: 0.5, delay: 0.2 }}
                                     className="my-10 flex justify-center"
                                 >
+                                    {/* LESSON_7_IMAGE */}
                                     <Image
                                         src={lesson.image}
                                         alt={lesson.title}
@@ -407,7 +420,7 @@ function LessonContent({ lesson, from }: { lesson: Lesson; from?: string }) {
                             color: `${theme.accent}15`,
                             lineHeight: 1,
                             pointerEvents: "none",
-                        }}>"</div>
+                        }}>&quot;</div>
 
                         {/* Word-by-word animated quote */}
                         <div className="w-full max-w-xl mx-auto px-4" style={{ fontSize: "clamp(20px, 3.5vw, 28px)", fontWeight: 500, lineHeight: 1.6 }}>
@@ -532,6 +545,7 @@ function LessonContent({ lesson, from }: { lesson: Lesson; from?: string }) {
                     goal={lesson.practicalCall.goal}
                     tool={lesson.practicalCall.tool}
                     accentColor={theme.accent}
+                    courseCta={lesson.courseCta}
                     onDone={() => setPracticalCallDone(true)}
                     onBack={() => prevPulse()}
                     onNext={() => handleSwipe(-1)}

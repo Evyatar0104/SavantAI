@@ -4,8 +4,9 @@ import { useSavantStore } from "@/store/useSavantStore";
 import Image from "next/image";
 import { m, Variants, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { useState, useRef, useEffect } from "react";
-import { cn } from "@/lib/utils";
+import { useState, useRef, useEffect, memo } from "react";
+import { BADGES, isBadgeEarned } from "@/data/badges";
+import { haptics } from "@/lib/haptics";
 
 const containerVariants: Variants = {
     hidden: { opacity: 0 },
@@ -30,21 +31,144 @@ const MODEL_ACCENT: Record<string, { color: string; bg: string; label: string }>
     gemini:  { color: "#4285F4", bg: "#4285F410", label: "Gemini"  },
 };
 
+const RARITY_COLORS: Record<string, { main: string; border: string; glow: string }> = {
+    Common: { 
+        main: "rgba(161, 161, 170, 0.1)", 
+        border: "rgba(161, 161, 170, 0.3)", 
+        glow: "rgba(161, 161, 170, 0.1)" 
+    },
+    Rare: { 
+        main: "rgba(59, 130, 246, 0.1)", 
+        border: "rgba(59, 130, 246, 0.4)", 
+        glow: "rgba(59, 130, 246, 0.2)" 
+    },
+    Epic: { 
+        main: "rgba(168, 85, 247, 0.15)", 
+        border: "rgba(168, 85, 247, 0.5)", 
+        glow: "rgba(168, 85, 247, 0.3)" 
+    },
+    Legendary: { 
+        main: "rgba(245, 158, 11, 0.2)", 
+        border: "rgba(245, 158, 11, 0.6)", 
+        glow: "rgba(245, 158, 11, 0.4)" 
+    },
+};
+
+const BadgeCard = memo(({ badge, earned, onClick }: { badge: any, earned: boolean, onClick: () => void }) => {
+    const tierColor = RARITY_COLORS[badge.rarity || "Common"];
+    const isCommon = badge.rarity === "Common";
+
+    return (
+        <m.div
+            whileHover={earned ? { scale: 1.05, rotateY: 8, rotateX: 8, z: 20 } : undefined}
+            whileTap={earned ? { scale: 0.95 } : undefined}
+            onClick={onClick}
+            style={{
+                aspectRatio: "3/4",
+                borderRadius: 20,
+                padding: "16px 12px",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                textAlign: "center",
+                cursor: earned ? "pointer" : "default",
+                position: "relative",
+                overflow: "hidden", // Ensures shader doesn't bleed out
+                transformStyle: "preserve-3d",
+                perspective: 1000,
+                border: earned 
+                    ? `1px solid ${tierColor.border}` 
+                    : "1px solid rgba(255,255,255,0.05)",
+                background: earned
+                    ? `linear-gradient(145deg, ${tierColor.main} 0%, rgba(10,10,15,0.4) 100%)`
+                    : "rgba(15,15,25,0.4)",
+                boxShadow: earned ? `0 12px 32px -8px ${tierColor.glow}` : "none",
+                backdropFilter: "blur(12px)",
+                WebkitBackdropFilter: "blur(12px)",
+            }}
+        >
+            {/* Smooth Shader Layer */}
+            {earned && (
+                <div 
+                    style={{
+                        position: "absolute",
+                        inset: -20, // Slightly larger to ensure it covers everything during rotation
+                        background: "linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.08) 50%, transparent 60%)",
+                        backgroundSize: "200% 200%",
+                        animation: "smoothShimmer 6s infinite ease-in-out",
+                        pointerEvents: "none",
+                        zIndex: 1,
+                        borderRadius: 20,
+                    }}
+                />
+            )}
+            
+            {/* Inner Glow Layer */}
+            {earned && (
+                <div 
+                    style={{
+                        position: "absolute",
+                        inset: 0,
+                        background: `radial-gradient(circle at 50% -20%, ${tierColor.glow}, transparent 70%)`,
+                        opacity: 0.4,
+                        pointerEvents: "none"
+                    }}
+                />
+            )}
+            
+            <div 
+                className="text-4xl sm:text-5xl mb-3 drop-shadow-xl relative z-10"
+                style={{
+                    filter: earned ? "none" : "grayscale(1) brightness(0.2) blur(1px)",
+                    opacity: earned ? 1 : 0.4
+                }}
+            >
+                {earned ? badge.icon : "🔒"}
+            </div>
+            
+            <h3 
+                className="text-[13px] sm:text-sm font-bold mb-1.5 relative z-10 leading-tight"
+                style={{ color: earned ? "white" : "rgba(255,255,255,0.3)" }}
+            >
+                {badge.name}
+            </h3>
+            
+            <p 
+                className="text-[10px] sm:text-[11px] leading-tight relative z-10 px-1"
+                style={{ color: earned ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.15)" }}
+            >
+                {badge.description}
+            </p>
+
+            {/* Rarity Indicator (except for Common) */}
+            {earned && !isCommon && (
+                <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded-full bg-white/5 border border-white/10">
+                    <span className="text-[7px] uppercase tracking-tighter font-bold opacity-60">
+                        {badge.rarity}
+                    </span>
+                </div>
+            )}
+        </m.div>
+    );
+});
+BadgeCard.displayName = "BadgeCard";
+
 export default function Profile() {
     const router = useRouter();
-
-    // Store
+    
+    // Atomic selectors to prevent unnecessary re-renders
     const xp                 = useSavantStore(s => s.xp);
     const streak             = useSavantStore(s => s.streak);
     const completedLessons   = useSavantStore(s => s.completedLessons);
-    const completedCourses   = useSavantStore(s => s.completedCourses);
     const primaryModel       = useSavantStore(s => s.primaryModel);
     const primaryModelReason = useSavantStore(s => s.primaryModelReason);
     const profileTitle       = useSavantStore(s => s.profileTitle);
-    const quizCompleted      = useSavantStore(s => s.quizCompleted);
     const resetPreferences   = useSavantStore(s => s.resetPreferences);
     const userName           = useSavantStore(s => s.userName);
     const setUserName        = useSavantStore(s => s.setUserName);
+    
+    const state = useSavantStore(); // For isBadgeEarned check below
 
     const [isEditingName, setIsEditingName]         = useState(false);
     const [nameInput, setNameInput]                 = useState("");
@@ -78,52 +202,6 @@ export default function Profile() {
         resetPreferences();
         router.push("/quiz");
     };
-
-    const badges = [
-        {
-            id: "first-lesson",
-            name: "צעד ראשון",
-            description: "השלמת שיעור ראשון",
-            icon: "🎯",
-            earned: completedLessons.length >= 1,
-        },
-        {
-            id: "three-lessons",
-            name: "מתחמם",
-            description: "השלמת 3 שיעורים",
-            icon: "🔥",
-            earned: completedLessons.length >= 3,
-        },
-        {
-            id: "first-course",
-            name: "בוגר קורס",
-            description: "השלמת קורס שלם",
-            icon: "🎓",
-            earned: completedCourses.length >= 1,
-        },
-        {
-            id: "streak-3",
-            name: "עקשן",
-            description: "3 ימים ברצף",
-            icon: "⚡",
-            earned: streak >= 3,
-        },
-        {
-            id: "quiz-done",
-            name: "מאופיין",
-            description: "השלמת את האפיון",
-            icon: "🧬",
-            earned: quizCompleted === true,
-            special: true,
-        },
-        {
-            id: "six-lessons",
-            name: "רציני",
-            description: "השלמת 6 שיעורים",
-            icon: "💎",
-            earned: completedLessons.length >= 6,
-        }
-    ];
 
     const modelAccent = primaryModel ? (MODEL_ACCENT[primaryModel] ?? MODEL_ACCENT.claude) : null;
 
@@ -372,66 +450,29 @@ export default function Profile() {
                     </m.div>
                 )}
 
-                {/* ── BADGES ────────────────────────────── */}
+                {/* ── THE VAULT DIRECT GRID ───────────────────── */}
                 <m.div variants={itemVariants} className="mb-6">
-                    <h2 className="text-lg font-medium mb-3.5 text-white">הישגים</h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        {badges.map((badge) => {
-                            const isSpecialEarned = badge.special && badge.earned;
+                    <h2 className="text-lg font-medium mb-4 text-white">אוסף ההישגים שלי</h2>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        {BADGES.map((badge) => {
+                            const earned = isBadgeEarned(badge.id, state);
+                            
                             return (
-                                <m.div
+                                <BadgeCard
                                     key={badge.id}
-                                    whileHover={{ scale: 1.03, y: -2 }}
-                                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                                    style={{
-                                        width: "100%",
-                                        borderRadius: 20,
-                                        minHeight: 96,
-                                        border: isSpecialEarned
-                                            ? "1px solid rgba(139,92,246,0.5)"
-                                            : badge.earned
-                                                ? "1px solid rgba(255,255,255,0.2)"
-                                                : "1px solid rgba(255,255,255,0.08)",
-                                        background: isSpecialEarned
-                                            ? "linear-gradient(145deg, rgba(83,74,183,0.4) 0%, rgba(83,74,183,0.15) 100%)"
-                                            : badge.earned
-                                                ? "linear-gradient(145deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%)"
-                                                : "linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%)",
-                                         padding: "16px 20px",
-                                         display: "flex",
-                                         alignItems: "center",
-                                         gap: 16,
-                                         opacity: badge.earned ? 1 : 0.6,
-                                         backdropFilter: "blur(12px)",
-                                         WebkitBackdropFilter: "blur(12px)",
-                                         cursor: "default",
-                                     }}
-                                 >
-                                     <div className="text-3xl sm:text-[34px] leading-none shrink-0" style={{
-                                         filter: badge.earned ? "none" : "grayscale(1) brightness(0.7)",
-                                     }}>
-                                         {badge.icon}
-                                     </div>
-                                     <div className="flex flex-col overflow-hidden">
-                                         <span className="text-base font-semibold whitespace-nowrap overflow-hidden text-ellipsis" style={{
-                                             color: isSpecialEarned ? "#A78BFA" : "white",
-                                         }}>
-                                             {badge.name}
-                                         </span>
-                                         <span className="text-[12px] sm:text-[13px] text-white/60 leading-normal mt-0.5 sm:mt-1">
-                                             {badge.description}
-                                         </span>
-                                     </div>
-                                 </m.div>
+                                    badge={badge}
+                                    earned={earned}
+                                    onClick={() => {
+                                        if (earned) {
+                                            haptics.tap();
+                                            router.push(`/vault/${badge.id}?from=profile`);
+                                        }
+                                    }}
+                                />
                             );
                         })}
                     </div>
-                    <div style={{ textAlign: "center", marginTop: 16 }}>
-                        <span style={{ fontSize: 13, color: "#a1a1aa", fontWeight: 500 }}>עוד הישגים יתווספו בקרוב</span>
-                    </div>
                 </m.div>
-
-
 
             </m.div>
 
@@ -511,6 +552,14 @@ export default function Profile() {
                     </m.div>
                 )}
             </AnimatePresence>
+
+            <style dangerouslySetInnerHTML={{__html: `
+                @keyframes smoothShimmer {
+                    0% { background-position: -125% -125%; }
+                    50% { background-position: 125% 125%; }
+                    100% { background-position: -125% -125%; }
+                }
+            `}} />
         </div>
     );
 }

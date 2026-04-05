@@ -190,7 +190,7 @@ export function ModelQuiz({ onTrackSelected }: { onTrackSelected: (trackId: stri
                                     <span>{resultInfo.name}</span>
                                 </div>
                                 <p className="text-lg text-white font-medium max-w-sm">
-                                    "{resultInfo.copy}"
+                                    &quot;{resultInfo.copy}&quot;
                                 </p>
                             </div>
                             <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">

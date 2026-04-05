@@ -32,6 +32,8 @@ interface SavantState {
     completedCourses: string[];
     unlockedCategories: string[];
     badges: string[];
+    // Vault notification
+    unlockedVaultCard: string | null;
     // Quiz profile
     quizCompleted: boolean;
     primaryUseCase: string | null;
@@ -51,6 +53,11 @@ interface SavantState {
     recommendedCourseId: string | null;
     // User identity
     userName: string | null;
+    // Prompt Builder State
+    activePracticeId: string | null;
+    currentStepIndex: number;
+    builderInputs: Record<string, string>;
+    hasIterated: boolean;
     // Actions
     addXp: (amount: number) => void;
     completeLesson: (lessonId: string) => void;
@@ -63,6 +70,12 @@ interface SavantState {
     setUserName: (name: string) => void;
     resetAllData: () => void;
     resetPreferences: () => void;
+    setActivePracticeId: (id: string | null) => void;
+    setCurrentStepIndex: (index: number) => void;
+    setBuilderInput: (stepId: string, value: string) => void;
+    setHasIterated: (val: boolean) => void;
+    resetBuilder: () => void;
+    clearUnlockedVaultCard: () => void;
 }
 
 export const useSavantStore = create<SavantState>()(
@@ -77,6 +90,7 @@ export const useSavantStore = create<SavantState>()(
             completedCourses: [],
             unlockedCategories: ["foundation"],
             badges: [],
+            unlockedVaultCard: null,
             // Quiz profile
             quizCompleted: false,
             primaryUseCase: null,
@@ -96,7 +110,13 @@ export const useSavantStore = create<SavantState>()(
             secondaryModel: null,
             primaryModelReason: null,
             recommendedCourseId: null,
+            // Prompt Builder State
+            activePracticeId: null,
+            currentStepIndex: 0,
+            builderInputs: {},
+            hasIterated: false,
             // Actions
+            clearUnlockedVaultCard: () => set({ unlockedVaultCard: null }),
             addXp: (amount: number) => set((state: SavantState) => ({ xp: state.xp + amount })),
             completeLesson: (lessonId: string) => {
                 const state = get();
@@ -105,6 +125,7 @@ export const useSavantStore = create<SavantState>()(
                 // Process potential rewards
                 let newXp = state.xp;
                 const newBadges = [...state.badges];
+                let newCard: string | null = null;
                 
                 const meta = LESSON_INDEX.find(l => l.id === lessonId);
                 if (meta?.reward) {
@@ -113,14 +134,21 @@ export const useSavantStore = create<SavantState>()(
                     } else if (meta.reward.type === 'badge' && typeof meta.reward.value === 'string') {
                         if (!newBadges.includes(meta.reward.value)) {
                             newBadges.push(meta.reward.value);
+                            newCard = meta.reward.value;
                         }
                     }
                 }
 
+                const newCompletedCount = state.completedLessons.length + 1;
+                if (newCompletedCount === 1 && !newBadges.includes("first-lesson")) { newBadges.push("first-lesson"); newCard = "first-lesson"; }
+                if (newCompletedCount === 3 && !newBadges.includes("three-lessons")) { newBadges.push("three-lessons"); newCard = "three-lessons"; }
+                if (newCompletedCount === 6 && !newBadges.includes("six-lessons")) { newBadges.push("six-lessons"); newCard = "six-lessons"; }
+
                 set({
                     completedLessons: [...state.completedLessons, lessonId],
                     xp: newXp,
-                    badges: newBadges
+                    badges: newBadges,
+                    ...(newCard ? { unlockedVaultCard: newCard } : {})
                 });
             },
             completePracticeItem: (itemId: string, xp: number) =>
@@ -129,10 +157,17 @@ export const useSavantStore = create<SavantState>()(
                     const updatedPractice = [...state.completedPractice, itemId];
                     const completedProjects = updatedPractice.filter(id => id.startsWith('project-'));
                     const newBadges = [...state.badges];
+                    let newCard: string | null = null;
                     if (completedProjects.length >= 3 && !newBadges.includes('hall-of-projects')) {
                         newBadges.push('hall-of-projects');
+                        newCard = 'hall-of-projects';
                     }
-                    return { completedPractice: updatedPractice, xp: state.xp + xp, badges: newBadges };
+                    return { 
+                        completedPractice: updatedPractice, 
+                        xp: state.xp + xp, 
+                        badges: newBadges,
+                        ...(newCard ? { unlockedVaultCard: newCard } : {})
+                    };
                 }),
             unlockAITrack: (trackId: string) =>
                 set((state: SavantState) => ({
@@ -145,6 +180,13 @@ export const useSavantStore = create<SavantState>()(
                 if (state.completedCourses.includes(courseId)) return;
 
                 const updatedCourses = [...state.completedCourses, courseId];
+                const newBadges = [...state.badges];
+                let newCard: string | null = null;
+                
+                if (updatedCourses.length === 1 && !newBadges.includes("first-course")) {
+                    newBadges.push("first-course");
+                    newCard = "first-course";
+                }
 
                 const course = COURSES.find(c => c.id === courseId);
                 if (course) {
@@ -154,12 +196,18 @@ export const useSavantStore = create<SavantState>()(
                         set({
                             completedCourses: updatedCourses,
                             unlockedCategories: [...state.unlockedCategories, course.categoryId],
+                            badges: newBadges,
+                            ...(newCard ? { unlockedVaultCard: newCard } : {})
                         });
                         return;
                     }
                 }
 
-                set({ completedCourses: updatedCourses });
+                set({ 
+                    completedCourses: updatedCourses, 
+                    badges: newBadges,
+                    ...(newCard ? { unlockedVaultCard: newCard } : {})
+                });
             },
             unlockCategory: (categoryId: string) =>
                 set((state: SavantState) => ({
@@ -169,20 +217,44 @@ export const useSavantStore = create<SavantState>()(
                 })),
             checkStreak: () => {
                 const today = new Date().toDateString();
-                const lastActive = get().lastActiveDate;
+                const state = get();
+                const lastActive = state.lastActiveDate;
 
                 if (lastActive !== today) {
                     const yesterday = new Date();
                     yesterday.setDate(yesterday.getDate() - 1);
 
+                    let newStreak = state.streak;
                     if (lastActive === yesterday.toDateString()) {
-                        set((state: SavantState) => ({ streak: state.streak + 1, lastActiveDate: today }));
+                        newStreak += 1;
                     } else {
-                        set({ streak: 1, lastActiveDate: today });
+                        newStreak = 1;
                     }
+                    
+                    const newBadges = [...state.badges];
+                    let newCard: string | null = null;
+                    if (newStreak >= 3 && !newBadges.includes("streak-3")) {
+                        newBadges.push("streak-3");
+                        newCard = "streak-3";
+                    }
+
+                    set({ 
+                        streak: newStreak, 
+                        lastActiveDate: today,
+                        badges: newBadges,
+                        ...(newCard ? { unlockedVaultCard: newCard } : {})
+                    });
                 }
             },
-            setQuizResult: (result: QuizResult) =>
+            setQuizResult: (result: QuizResult) => {
+                const state = get();
+                const newBadges = [...state.badges];
+                let newCard: string | null = null;
+                if (!newBadges.includes("quiz-done")) {
+                    newBadges.push("quiz-done");
+                    newCard = "quiz-done";
+                }
+                
                 set({
                     quizCompleted: true,
                     primaryUseCase: result.primaryUseCase,
@@ -199,7 +271,10 @@ export const useSavantStore = create<SavantState>()(
                     secondaryModel: result.secondaryModel,
                     primaryModelReason: result.primaryModelReason,
                     recommendedCourseId: result.recommendedCourseId,
-                }),
+                    badges: newBadges,
+                    ...(newCard ? { unlockedVaultCard: newCard } : {})
+                });
+            },
             setUserName: (name: string) => set({ userName: name.trim() || null }),
             resetPreferences: () =>
                 set({
@@ -219,6 +294,14 @@ export const useSavantStore = create<SavantState>()(
                     primaryModelReason: null,
                     recommendedCourseId: null,
                 }),
+            setActivePracticeId: (id: string | null) => set({ activePracticeId: id, currentStepIndex: 0, builderInputs: {}, hasIterated: false }),
+            setCurrentStepIndex: (index: number) => set({ currentStepIndex: index }),
+            setBuilderInput: (stepId: string, value: string) => 
+                set((state: SavantState) => ({
+                    builderInputs: { ...state.builderInputs, [stepId]: value }
+                })),
+            setHasIterated: (val: boolean) => set({ hasIterated: val }),
+            resetBuilder: () => set({ activePracticeId: null, currentStepIndex: 0, builderInputs: {}, hasIterated: false }),
             resetAllData: () =>
                 set({
                     xp: 0,
@@ -230,6 +313,7 @@ export const useSavantStore = create<SavantState>()(
                     completedCourses: [],
                     unlockedCategories: ["foundation"],
                     badges: [],
+                    unlockedVaultCard: null,
                     quizCompleted: false,
                     primaryUseCase: null,
                     profileTitle: null,
@@ -246,6 +330,10 @@ export const useSavantStore = create<SavantState>()(
                     primaryModelReason: null,
                     recommendedCourseId: null,
                     userName: null,
+                    activePracticeId: null,
+                    currentStepIndex: 0,
+                    builderInputs: {},
+                    hasIterated: false,
                 }),
         }),
         {

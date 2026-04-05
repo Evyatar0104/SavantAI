@@ -4,6 +4,7 @@ import { useState } from "react";
 import { m, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { Clock, Zap, X } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useSavantStore } from "@/store/useSavantStore";
 import { haptics } from "@/lib/haptics";
 import type { PracticeItem } from "@/data/practice";
@@ -21,13 +22,14 @@ const TOOL_LOGO: Record<string, string | null> = {
 };
 
 export function PracticeDetailSheet({ item, onClose }: Props) {
+    const router = useRouter();
     const completedPractice = useSavantStore(s => s.completedPractice);
     const completePracticeItem = useSavantStore(s => s.completePracticeItem);
     const [showToast, setShowToast] = useState(false);
     const [showCelebration, setShowCelebration] = useState(false);
 
     const isCompleted = completedPractice.includes(item.id);
-    const logo = TOOL_LOGO[item.tool];
+    const logo = TOOL_LOGO[item.recommendedModel] || TOOL_LOGO["כל מודל"];
 
     const handleComplete = () => {
         haptics.tap();
@@ -97,9 +99,9 @@ export function PracticeDetailSheet({ item, onClose }: Props) {
                             background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.55)",
                         }}>
                             {logo ? (
-                                <Image src={logo} alt={item.tool} width={14} height={14} style={{ borderRadius: 3, objectFit: "contain" }} />
+                                <Image src={logo} alt={item.recommendedModel} width={14} height={14} style={{ borderRadius: 3, objectFit: "contain" }} />
                             ) : null}
-                            <span>{item.tool}</span>
+                            <span>{item.recommendedModel}</span>
                         </div>
                     </div>
 
@@ -171,18 +173,37 @@ export function PracticeDetailSheet({ item, onClose }: Props) {
 
                 {/* CTA button */}
                 <div className="shrink-0 px-5 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))] pt-2">
-                    <m.button
-                        whileTap={{ scale: 0.97 }}
-                        onClick={handleComplete}
-                        className="w-full py-4 rounded-2xl font-bold text-base"
-                        style={{
-                            background: isCompleted ? "rgba(255,255,255,0.08)" : "#534AB7",
-                            color: isCompleted ? "rgba(255,255,255,0.5)" : "white",
-                            border: isCompleted ? "1px solid rgba(255,255,255,0.1)" : "none",
-                        }}
-                    >
-                        {isCompleted ? "✓ הושלם" : "סיימתי"}
-                    </m.button>
+                    {item.builderSteps && item.builderSteps.length > 0 ? (
+                        <m.button
+                            whileTap={{ scale: 0.97 }}
+                            onClick={() => {
+                                haptics.tap();
+                                router.push(`/practice/builder/${item.id}?from=practice`);
+                            }}
+                            className="w-full py-4 rounded-2xl font-bold text-base flex justify-center items-center gap-2"
+                            style={{
+                                background: "#534AB7",
+                                color: "white",
+                                border: "none",
+                            }}
+                        >
+                            <Zap className="w-5 h-5 fill-current" />
+                            <span>בוא נבנה (התחל משימה)</span>
+                        </m.button>
+                    ) : (
+                        <m.button
+                            whileTap={{ scale: 0.97 }}
+                            onClick={handleComplete}
+                            className="w-full py-4 rounded-2xl font-bold text-base"
+                            style={{
+                                background: isCompleted ? "rgba(255,255,255,0.08)" : "#534AB7",
+                                color: isCompleted ? "rgba(255,255,255,0.5)" : "white",
+                                border: isCompleted ? "1px solid rgba(255,255,255,0.1)" : "none",
+                            }}
+                        >
+                            {isCompleted ? "✓ הושלם" : "סיימתי ידנית"}
+                        </m.button>
+                    )}
                 </div>
 
                 {/* Toast */}

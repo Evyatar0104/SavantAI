@@ -1,24 +1,23 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { m, AnimatePresence } from "framer-motion";
 import { Clock, Zap, Sparkles, Search } from "lucide-react";
 import Image from "next/image";
-import { PRACTICE_ITEMS } from "@/data/practice";
-import type { PracticeItem } from "@/data/practice";
+import { PRACTICE_ITEMS, type PracticeItem, type AIModelType } from "@/data/practice";
 import { useSavantStore } from "@/store/useSavantStore";
-import { PracticeDetailSheet } from "@/components/PracticeDetailSheet";
 
 // ── Tool logos ───────────────────────────────────────
-const TOOL_META: Record<PracticeItem["tool"], { label: string; logo: string | null }> = {
+const TOOL_META: Record<string, { label: string; logo: string | null }> = {
     Claude: { label: "Claude", logo: "/assets/logos/claude.png" },
     ChatGPT: { label: "ChatGPT", logo: "/assets/logos/chatgpt.png" },
     Gemini: { label: "Gemini", logo: "/assets/logos/gemini.png" },
     "כל מודל": { label: "כל מודל", logo: null },
 };
 
-type TypeFilter = "all" | "drill" | "project";
-type ToolFilter = "all" | "Claude" | "ChatGPT" | "Gemini" | "כל מודל";
+type TypeFilter = "drill" | "project";
+type ToolFilter = "Claude" | "ChatGPT" | "Gemini" | "כל מודל";
 
 // ── Filter pill ──────────────────────────────────────
 function FilterPill({
@@ -63,22 +62,28 @@ function FilterPill({
 // ── Practice card ────────────────────────────────────
 function PracticeCard({
     item,
-    index,
     isCompleted,
     onClick,
+    activeTool,
 }: {
     item: PracticeItem;
-    index: number;
     isCompleted: boolean;
     onClick: () => void;
+    activeTool?: ToolFilter | null;
 }) {
-    const toolMeta = TOOL_META[item.tool];
+    // Determine which tool branding to show:
+    // 1. If an active filter tool is supported, show that
+    // 2. Otherwise show the recommended model
+    const toolToDisplay = activeTool || item.recommendedModel;
+    const toolMeta = TOOL_META[toolToDisplay] || TOOL_META[item.recommendedModel] || TOOL_META["כל מודל"];
 
     return (
         <m.div
+            layout
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, delay: index * 0.05, ease: "easeOut" }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.35, ease: "easeOut" }}
             onClick={onClick}
             style={{
                 borderRadius: 16,
@@ -94,6 +99,7 @@ function PracticeCard({
                 position: "relative",
                 overflow: "hidden",
                 cursor: "pointer",
+                willChange: "transform",
             }}
         >
             {/* Completed indicator */}
@@ -117,6 +123,16 @@ function PracticeCard({
                     borderLeft: "28px solid transparent",
                     borderTop: "28px solid #534AB7",
                 }} />
+            )}
+
+            {/* Recommended Badge */}
+            {!isCompleted && item.recommendedModel.toLowerCase() === useSavantStore.getState().primaryModel?.toLowerCase() && (
+                <div 
+                    className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-1 z-10"
+                >
+                    <Sparkles className="w-2.5 h-2.5 text-emerald-400" />
+                    <span className="text-[9px] font-black uppercase tracking-tighter text-emerald-400">REC</span>
+                </div>
             )}
 
             {/* Row 1: Type pill + Tool */}
@@ -198,36 +214,79 @@ function PracticeCard({
 
 // ── Page ─────────────────────────────────────────────
 export default function PracticePage() {
+    const router = useRouter();
     const completedPractice = useSavantStore(s => s.completedPractice);
-    const [selectedItem, setSelectedItem] = useState<PracticeItem | null>(null);
     const [searchQuery, setSearchQuery] = useState("");
-    const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
-    const [toolFilter, setToolFilter] = useState<ToolFilter>("all");
+    const [selectedTypes, setSelectedTypes] = useState<TypeFilter[]>([]);
+    const [selectedTools, setSelectedTools] = useState<ToolFilter[]>([]);
+
+    const primaryModel = useSavantStore(s => s.primaryModel);
 
     const filtered = useMemo(() => {
-        return PRACTICE_ITEMS.filter((item) => {
-            if (typeFilter !== "all" && item.type !== typeFilter) return false;
-            if (toolFilter !== "all" && item.tool !== toolFilter) return false;
+        const items = PRACTICE_ITEMS.filter((item: PracticeItem) => {
+            // 1. Type Filter (Multi-select)
+            if (selectedTypes.length > 0) {
+                if (!selectedTypes.includes(item.type as TypeFilter)) return false;
+            }
+            
+            // 2. Tool Filter (Multi-select)
+            if (selectedTools.length > 0) {
+                // If any selected tool is supported by the item
+                const isCompatible = selectedTools.some(tool => 
+                    item.recommendedModel === tool || 
+                    item.compatibleModels.includes(tool as AIModelType) ||
+                    item.recommendedModel === "כל מודל"
+                );
+                if (!isCompatible) return false;
+            }
+            
+            // 3. Search Query
             if (searchQuery.trim()) {
                 const q = searchQuery.toLowerCase();
                 const inTitle = item.title.toLowerCase().includes(q);
                 const inDesc = item.description.toLowerCase().includes(q);
-                const inTags = item.tags.some((t) => t.toLowerCase().includes(q));
-                if (!inTitle && !inDesc && !inTags) return false;
+                const inTags = item.tags.some((t: string) => t.toLowerCase().includes(q));
+                const inModels = item.recommendedModel.toLowerCase().includes(q) || 
+                               item.compatibleModels.some((m: string) => m.toLowerCase().includes(q));
+                if (!inTitle && !inDesc && !inTags && !inModels) return false;
             }
             return true;
         });
-    }, [typeFilter, toolFilter, searchQuery]);
 
-    const drills = filtered.filter((i) => i.type === "drill").sort((a, b) => (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0));
-    const projects = filtered.filter((i) => i.type === "project").sort((a, b) => (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0));
+        // Smart Relevancy Sorting
+        return items.sort((a: PracticeItem, b: PracticeItem) => {
+            // 1. Pinned always top
+            if (a.isPinned && !b.isPinned) return -1;
+            if (!a.isPinned && b.isPinned) return 1;
+
+            // Use primary model for sorting if no specific tools are selected
+            const targetModels = selectedTools.length > 0 ? selectedTools : (primaryModel ? [primaryModel as ToolFilter] : []);
+
+            if (targetModels.length > 0) {
+                const aMatches = targetModels.some(m => 
+                    a.recommendedModel.toLowerCase() === m.toLowerCase() || 
+                    a.recommendedModel === "כל מודל"
+                );
+                const bMatches = targetModels.some(m => 
+                    b.recommendedModel.toLowerCase() === m.toLowerCase() || 
+                    b.recommendedModel === "כל מודל"
+                );
+                
+                if (aMatches && !bMatches) return -1;
+                if (!aMatches && bMatches) return 1;
+            }
+
+            return 0;
+        });
+    }, [selectedTypes, selectedTools, searchQuery, primaryModel]);
+
+    const drills = filtered.filter((i: PracticeItem) => i.type === "drill");
+    const projects = filtered.filter((i: PracticeItem) => i.type === "project");
 
     const toolOptions: { value: ToolFilter; label: string; logo?: string | null }[] = [
-        { value: "all", label: "כולם" },
         { value: "Claude", label: "Claude", logo: "/assets/logos/claude.png" },
         { value: "ChatGPT", label: "ChatGPT", logo: "/assets/logos/chatgpt.png" },
         { value: "Gemini", label: "Gemini", logo: "/assets/logos/gemini.png" },
-        { value: "כל מודל", label: "כל מודל", logo: null },
     ];
 
     return (
@@ -236,12 +295,10 @@ export default function PracticePage() {
                 {/* Hero */}
                 <m.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="mb-6">
                     <h1 style={{ fontSize: 32, fontWeight: 700, marginBottom: 8, letterSpacing: "-0.02em" }}>
-                        זירת התרגול
+                        זירת המשימות
                     </h1>
                     <p style={{ fontSize: 15, color: "rgba(255,255,255,0.5)", lineHeight: 1.6 }}>
-                        תרגילים ופרויקטים מעשיים לשדרוג כישורי ה-AI שלך.
-                        <br />
-                        תבחר משימה, תפתח את הכלי ותתחיל.
+                        ברוך הבא לסדנה. בחר משימה להתאצה וניכנס לעבודה.
                     </p>
                 </m.div>
 
@@ -282,9 +339,25 @@ export default function PracticePage() {
                     transition={{ duration: 0.35, delay: 0.1 }}
                     className="flex gap-2 overflow-x-auto no-scrollbar mb-2 pb-1"
                 >
-                    <FilterPill label="הכל" active={typeFilter === "all"} onClick={() => setTypeFilter("all")} />
-                    <FilterPill label="תרגיל" active={typeFilter === "drill"} onClick={() => setTypeFilter("drill")} />
-                    <FilterPill label="פרויקט" active={typeFilter === "project"} onClick={() => setTypeFilter("project")} />
+                    <FilterPill 
+                        label="הכל" 
+                        active={selectedTypes.length === 0} 
+                        onClick={() => setSelectedTypes([])} 
+                    />
+                    <FilterPill 
+                        label="תרגול" 
+                        active={selectedTypes.includes("drill")} 
+                        onClick={() => setSelectedTypes(prev => 
+                            prev.includes("drill") ? prev.filter(t => t !== "drill") : [...prev, "drill"]
+                        )} 
+                    />
+                    <FilterPill 
+                        label="פרויקט" 
+                        active={selectedTypes.includes("project")} 
+                        onClick={() => setSelectedTypes(prev => 
+                            prev.includes("project") ? prev.filter(t => t !== "project") : [...prev, "project"]
+                        )} 
+                    />
                 </m.div>
 
                 {/* Model filters */}
@@ -294,12 +367,19 @@ export default function PracticePage() {
                     transition={{ duration: 0.35, delay: 0.15 }}
                     className="flex gap-2 overflow-x-auto no-scrollbar mb-8 pb-1"
                 >
+                    <FilterPill 
+                        label="כולם" 
+                        active={selectedTools.length === 0} 
+                        onClick={() => setSelectedTools([])} 
+                    />
                     {toolOptions.map((opt) => (
                         <FilterPill
                             key={opt.value}
                             label={opt.label}
-                            active={toolFilter === opt.value}
-                            onClick={() => setToolFilter(opt.value)}
+                            active={selectedTools.includes(opt.value)}
+                            onClick={() => setSelectedTools(prev => 
+                                prev.includes(opt.value) ? prev.filter(t => t !== opt.value) : [...prev, opt.value]
+                            )}
                             logo={opt.logo}
                         />
                     ))}
@@ -316,15 +396,19 @@ export default function PracticePage() {
                             </span>
                         </div>
                         <div className="flex flex-col gap-3">
-                            {drills.map((item, i) => (
+                            <AnimatePresence mode="popLayout" initial={false}>
+                                {drills.map((item: PracticeItem) => (
                                 <PracticeCard
-                                    key={item.id}
-                                    item={item}
-                                    index={i}
-                                    isCompleted={completedPractice.includes(item.id)}
-                                    onClick={() => setSelectedItem(item)}
-                                />
-                            ))}
+                                        key={item.id}
+                                        item={item}
+                                        activeTool={selectedTools.find(t => 
+                                            item.recommendedModel === t || item.compatibleModels.includes(t as AIModelType)
+                                        )}
+                                        isCompleted={completedPractice.includes(item.id)}
+                                        onClick={() => router.push(`/practice/builder/${item.id}?from=practice`)}
+                                    />
+                                ))}
+                            </AnimatePresence>
                         </div>
                     </m.div>
                 )}
@@ -340,15 +424,19 @@ export default function PracticePage() {
                             </span>
                         </div>
                         <div className="flex flex-col gap-3">
-                            {projects.map((item, i) => (
+                            <AnimatePresence mode="popLayout" initial={false}>
+                                {projects.map((item: PracticeItem) => (
                                 <PracticeCard
-                                    key={item.id}
-                                    item={item}
-                                    index={i}
-                                    isCompleted={completedPractice.includes(item.id)}
-                                    onClick={() => setSelectedItem(item)}
-                                />
-                            ))}
+                                        key={item.id}
+                                        item={item}
+                                        activeTool={selectedTools.find(t => 
+                                            item.recommendedModel === t || item.compatibleModels.includes(t as AIModelType)
+                                        )}
+                                        isCompleted={completedPractice.includes(item.id)}
+                                        onClick={() => router.push(`/practice/builder/${item.id}?from=practice`)}
+                                    />
+                                ))}
+                            </AnimatePresence>
                         </div>
                     </m.div>
                 )}
@@ -367,15 +455,6 @@ export default function PracticePage() {
                 )}
             </div>
 
-            {/* Detail sheet */}
-            <AnimatePresence>
-                {selectedItem && (
-                    <PracticeDetailSheet
-                        item={selectedItem}
-                        onClose={() => setSelectedItem(null)}
-                    />
-                )}
-            </AnimatePresence>
         </div>
     );
 }
