@@ -1,4 +1,4 @@
-import { LessonReward } from "./lessons";
+import { Lesson, LessonReward } from "./lessons";
 
 /**
  * Lightweight lesson index — metadata only, no heavy content fields.
@@ -134,7 +134,7 @@ export const LESSON_INDEX: LessonMeta[] = [
     { id: "agent-mastery-9", trackId: "ai", courseId: "agent-mastery", categoryId: "advanced", order: 9, title: "מפרומפט ראשון לפיצ׳ר ששוחרר: תזרים עבודה שלם עם סוכן", icon: "🚀", description: "איך מחברים את כל מה שלמדנו לתהליך עבודה אמיתי" },
 ];
 
-const COURSE_LOADERS: Record<string, () => Promise<any>> = {
+const COURSE_LOADERS: Record<string, () => Promise<Lesson[]>> = {
     "how-llms-work": () => import("./lessons/how-llms-work").then(m => m.HOW_LLMS_WORK_LESSONS),
     "prompting-mastery": () => import("./lessons/prompting-mastery").then(m => m.PROMPTING_MASTERY_LESSONS),
     "choosing-models": () => import("./lessons/choosing-models").then(m => m.CHOOSING_MODELS_LESSONS),
@@ -152,7 +152,7 @@ const COURSE_LOADERS: Record<string, () => Promise<any>> = {
  * Dynamically load full lesson data for a specific course.
  * Use this in lesson pages instead of importing the full LESSONS array.
  */
-export async function loadCourseLessons(courseId: string) {
+export async function loadCourseLessons(courseId: string): Promise<Lesson[]> {
     const loader = COURSE_LOADERS[courseId];
     if (loader) {
         return await loader();
@@ -164,7 +164,7 @@ export async function loadCourseLessons(courseId: string) {
  * Dynamically load a single full lesson by ID.
  * First finds the courseId from the index, then loads only that course's data.
  */
-export async function loadLessonById(lessonId: string) {
+export async function loadLessonById(lessonId: string): Promise<Lesson | null> {
     const meta = LESSON_INDEX.find(l => l.id === lessonId);
     if (!meta) return null;
     const courseLessons = await loadCourseLessons(meta.courseId);
