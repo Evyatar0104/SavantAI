@@ -15,6 +15,12 @@ export function getLessonTheme(icon: string, courseId?: string): LessonTheme {
   if (courseId === "course-claude") {
     return { primary: '#C15F3C', secondary: '#A14D2E', glow: 'rgba(193, 95, 60, 0.3)', text: '#FFFFFF' };
   }
+  if (courseId === "grok-mastery") {
+    return { primary: '#FFFFFF', secondary: '#333333', glow: 'rgba(255, 255, 255, 0.2)', text: '#000000' };
+  }
+  if (courseId === "course-perplexity") {
+    return { primary: '#20808D', secondary: '#165D66', glow: 'rgba(32, 128, 141, 0.3)', text: '#FFFFFF' };
+  }
 
   if (!icon) {
     return {
@@ -187,5 +193,8 @@ export const FLOATING_ICONS_MAP: Record<string, string[]> = {
   "course-vibe-coding": ["⚡", "🚀", "🛠️", "💻", "🔧", "📦", "🌐"],
   "course-image-gen": ["🎨", "🖌️", "✨", "🖼️", "🌈", "📸", "🎭"],
   "agent-mastery": ["🤖", "⚙️", "🔄", "🧠", "📄", "⚡", "🔧"],
+  "grok-mastery": ["✖️", "⚡", "🌌", "😎", "🎬", "🧠", "🚀"],
+  "course-perplexity": ["🔍", "📑", "📚", "💻", "🌐", "⚡", "⚖️"],
   DEFAULT: ["✨", "💡", "🔮", "⚡", "🎯", "🔷", "⭐"],
 };
+

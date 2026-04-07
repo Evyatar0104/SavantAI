@@ -1,8 +1,17 @@
 "use client";
 
 import { m } from "framer-motion";
+import { usePathname } from "next/navigation";
 
 export function AnimatedBackground() {
+    const pathname = usePathname();
+    const isHiddenPage =
+        pathname?.startsWith("/lesson") ||
+        pathname?.startsWith("/courses/") ||
+        pathname === "/quiz";
+
+    if (isHiddenPage) return null;
+
     return (
         <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none" style={{ background: "#06060f" }}>
 
@@ -186,3 +195,4 @@ export function AnimatedBackground() {
         </div>
     );
 }
+

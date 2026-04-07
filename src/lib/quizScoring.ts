@@ -233,3 +233,4 @@ export function generateModelCards(result: QuizResult): ModelCard[] {
         };
     });
 }
+

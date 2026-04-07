@@ -1,7 +1,7 @@
 "use client";
 
 import { useSavantStore } from "@/store/useSavantStore";
-import { BADGES } from "@/data/badges";
+import { BADGES } from "@/content";
 import { m, AnimatePresence } from "framer-motion";
 import { useRouter, usePathname } from "next/navigation";
 import { haptics } from "@/lib/haptics";
@@ -118,3 +118,4 @@ export function VaultToast() {
         </div>
     );
 }
+

@@ -1,11 +1,11 @@
 "use client";
 
 import { useSavantStore } from "@/store/useSavantStore";
-import { Badge, BADGES, isBadgeEarned, RARITY_COLORS } from "@/data/badges";
+import { type Badge, BADGES, isBadgeEarned, RARITY_COLORS } from "@/content";
 import { m, Variants, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { haptics } from "@/lib/haptics";
-import { memo, useState } from "react";
+import { memo } from "react";
 import { LayoutGrid, List } from "lucide-react";
 
 // ── View Toggle ──────────────────────────────────────
@@ -95,6 +95,14 @@ const CompactBadgeCard = memo(({ badge, earned, onClick }: { badge: Badge, earne
 });
 CompactBadgeCard.displayName = "CompactBadgeCard";
 
+// Map each rarity to a vivid shimmer highlight (matches profile page)
+const SHIMMER_COLOR: Record<string, string> = {
+    Common:    "161, 161, 170",   // silver-zinc
+    Rare:      "99, 179, 255",    // electric blue
+    Epic:      "196, 132, 255",   // violet-purple
+    Legendary: "251, 191, 36",    // amber-gold
+};
+
 const containerVariants: Variants = {
     hidden: { opacity: 0 },
     show: {
@@ -115,71 +123,101 @@ const itemVariants: Variants = {
 
 const VaultBadgeCard = memo(({ badge, earned, onClick }: { badge: Badge, earned: boolean, onClick: () => void }) => {
     const tierColor = RARITY_COLORS[badge.rarity || "Common"];
-    
+    const shimmerRgb = SHIMMER_COLOR[badge.rarity || "Common"];
+
+    // FIX: Same clip/3D separation as BadgeCard in profile.
+    // overflow:hidden on a preserve-3d parent forces the browser into a 2D
+    // compositing mode, causing jagged corners and rendering tile-split artifacts.
     return (
-        <m.div
-            variants={itemVariants}
-            whileHover={earned ? { scale: 1.05, rotateY: 5, rotateX: 5 } : undefined}
-            whileTap={earned ? { scale: 0.95 } : undefined}
+        <div
             onClick={onClick}
             style={{
                 aspectRatio: "3/4",
                 borderRadius: 16,
-                padding: "20px 16px",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                textAlign: "center",
-                cursor: earned ? "pointer" : "default",
-                position: "relative",
                 overflow: "hidden",
-                transformStyle: "preserve-3d",
                 perspective: 1000,
-                border: earned 
-                    ? `1px solid ${tierColor.border}` 
+                cursor: earned ? "pointer" : "default",
+                willChange: "transform",
+                transform: "translateZ(0)",
+                border: earned
+                    ? `1px solid ${tierColor.border}`
                     : "1px solid rgba(255,255,255,0.05)",
-                background: earned
-                    ? `linear-gradient(145deg, ${tierColor.main} 0%, rgba(255,255,255,0.02) 100%)`
-                    : "rgba(0,0,0,0.4)",
                 boxShadow: earned ? `0 8px 32px ${tierColor.glow}` : "none",
-                backdropFilter: earned ? "blur(12px)" : "none",
             }}
         >
-            {earned && (
-                <div 
-                    style={{
-                        position: "absolute",
-                        top: 0, left: 0, right: 0, bottom: 0,
-                        background: "linear-gradient(125deg, transparent 30%, rgba(255,255,255,0.08) 50%, transparent 70%)",
-                        backgroundSize: "200% 200%",
-                        animation: "shimmer 3s infinite linear",
-                        pointerEvents: "none"
-                    }}
-                />
-            )}
-            
-            <div 
-                className="text-5xl sm:text-6xl mb-4 drop-shadow-xl"
+            <m.div
+                variants={itemVariants}
+                whileHover={earned ? { scale: 1.03, rotateY: 5, rotateX: 4 } : undefined}
+                whileTap={earned ? { scale: 0.95 } : undefined}
                 style={{
-                    filter: earned ? "none" : "grayscale(1) brightness(0.2) blur(1px)",
-                    opacity: earned ? 1 : 0.4
+                    width: "100%",
+                    height: "100%",
+                    padding: "20px 16px",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    textAlign: "center",
+                    position: "relative",
+                    background: earned
+                        ? `linear-gradient(145deg, ${tierColor.main} 0%, rgba(255,255,255,0.02) 100%)`
+                        : "rgba(0,0,0,0.4)",
+                    backdropFilter: earned ? "blur(12px)" : "none",
                 }}
             >
-                {badge.icon}
-            </div>
-            <h3 
-                className="text-[15px] sm:text-base font-semibold mb-1"
-                style={{ color: earned ? "white" : "rgba(255,255,255,0.3)" }}
-            >
-                {earned ? badge.name : "????"}
-            </h3>
-            {earned && (
-                <p className="text-[11px] sm:text-xs text-white/50 leading-tight">
-                    {badge.description}
-                </p>
-            )}
-        </m.div>
+                {/* Top atmospheric bloom — soft radial, no hard stops */}
+                {earned && (
+                    <div
+                        style={{
+                            position: "absolute",
+                            inset: 0,
+                            background: `radial-gradient(ellipse 120% 80% at 50% -10%, ${tierColor.glow}, transparent 70%)`,
+                            opacity: 0.4,
+                            pointerEvents: "none",
+                        }}
+                    />
+                )}
+
+                {/* Colored shimmer blob — two-layer radial in the card's rarity color.
+                    Moved by CSS transform for zero hard edges or chopped corners. */}
+                {earned && (
+                    <div
+                        className="vault-shimmer-blob"
+                        style={{
+                            position: "absolute",
+                            width: "180%",
+                            height: "180%",
+                            top: "-40%",
+                            left: "-40%",
+                            background: `radial-gradient(ellipse 35% 25% at 50% 50%, rgba(${shimmerRgb},0.2), transparent 60%),
+                                         radial-gradient(ellipse 70% 55% at 50% 50%, rgba(${shimmerRgb},0.07), transparent 80%)`,
+                            pointerEvents: "none",
+                        }}
+                    />
+                )}
+
+                <div
+                    className="text-5xl sm:text-6xl mb-4 drop-shadow-xl relative z-10"
+                    style={{
+                        filter: earned ? "none" : "grayscale(1) brightness(0.2) blur(1px)",
+                        opacity: earned ? 1 : 0.4
+                    }}
+                >
+                    {badge.icon}
+                </div>
+                <h3
+                    className="text-[15px] sm:text-base font-semibold mb-1 relative z-10"
+                    style={{ color: earned ? "white" : "rgba(255,255,255,0.3)" }}
+                >
+                    {earned ? badge.name : "????"}
+                </h3>
+                {earned && (
+                    <p className="text-[11px] sm:text-xs text-white/50 leading-tight relative z-10">
+                        {badge.description}
+                    </p>
+                )}
+            </m.div>
+        </div>
     );
 });
 VaultBadgeCard.displayName = "VaultBadgeCard";
@@ -188,7 +226,8 @@ export default function VaultPage() {
     const router = useRouter();
     // Using select pieces of state via a selector to avoid over-renders
     const state = useSavantStore();
-    const [isCompact, setIsCompact] = useState(false);
+    const isCompact = state.isCompactView;
+    const setIsCompact = state.setCompactView;
 
     return (
         <div className="min-h-screen bg-[#0f0f1a] text-white px-4 sm:px-6 pt-8 sm:pt-12 pb-24" style={{ direction: "rtl" }}>
@@ -251,9 +290,17 @@ export default function VaultPage() {
             </div>
             
             <style dangerouslySetInnerHTML={{__html: `
-                @keyframes shimmer {
-                    0% { background-position: -100% -100%; }
-                    100% { background-position: 200% 200%; }
+                /* Shimmer blob orbits + pulses, driven by transform only —
+                   immune to tile-split, chopped edges, and corner artifacts. */
+                @keyframes vaultShimmerDrift {
+                    0%   { transform: translate(-18%, -22%) rotate(0deg);   opacity: 0.7; }
+                    25%  { transform: translate(18%, -14%) rotate(90deg);   opacity: 1;   }
+                    50%  { transform: translate(14%, 18%)  rotate(180deg);  opacity: 0.75; }
+                    75%  { transform: translate(-14%, 14%) rotate(270deg);  opacity: 1;   }
+                    100% { transform: translate(-18%, -22%) rotate(360deg); opacity: 0.7; }
+                }
+                .vault-shimmer-blob {
+                    animation: vaultShimmerDrift 6s infinite ease-in-out;
                 }
             `}} />
         </div>

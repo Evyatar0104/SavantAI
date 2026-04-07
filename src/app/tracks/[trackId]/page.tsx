@@ -2,8 +2,7 @@
 
 import { useParams, useRouter, notFound } from "next/navigation";
 import { useEffect } from "react";
-import { TRACKS } from "@/data/lessons";
-import { LESSON_INDEX } from "@/data/lessons-index";
+import { TRACKS, LESSON_INDEX } from "@/content";
 import { useSavantStore } from "@/store/useSavantStore";
 import { AILearningPath } from "./AILearningPath";
 import Link from "next/link";
@@ -20,8 +19,45 @@ export default function TrackSyllabusPage() {
     const router = useRouter();
     const unlockedAITracks = useSavantStore(state => state.unlockedAITracks);
     const completedLessons = useSavantStore(state => state.completedLessons);
+    const trackScrollPositions = useSavantStore(state => state.trackScrollPositions);
+    const setTrackScrollPosition = useSavantStore(state => state.setTrackScrollPosition);
 
     const trackId = params.trackId as string;
+
+    // Scroll Restoration
+    useEffect(() => {
+        const mainElement = document.querySelector('main');
+        if (mainElement) {
+            const pos = trackScrollPositions[trackId] || 0;
+            if (pos > 0) {
+                const timer = setTimeout(() => {
+                    mainElement.scrollTo({ top: pos });
+                }, 10);
+                return () => clearTimeout(timer);
+            }
+        }
+    }, [trackId]);
+
+    // Scroll Capture
+    useEffect(() => {
+        const mainElement = document.querySelector('main');
+        if (!mainElement) return;
+
+        let frameId: number;
+        const handleScroll = () => {
+            cancelAnimationFrame(frameId);
+            frameId = requestAnimationFrame(() => {
+                setTrackScrollPosition(trackId, mainElement.scrollTop);
+            });
+        };
+
+        mainElement.addEventListener('scroll', handleScroll, { passive: true });
+        return () => {
+            mainElement.removeEventListener('scroll', handleScroll);
+            cancelAnimationFrame(frameId);
+        };
+    }, [trackId, setTrackScrollPosition]);
+
     const track = TRACKS.find((t) => t.id === trackId);
     
     // If there's a known course mapping, redirect
@@ -32,6 +68,8 @@ export default function TrackSyllabusPage() {
             router.replace(`/courses/${courseId}`);
         }
     }, [courseId, router]);
+
+    if (courseId) return null;
 
     if (!track || trackId !== "ai") {
         return notFound();

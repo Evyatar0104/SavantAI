@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { AnimatePresence, m } from "framer-motion";
-import { TERM_DEFINITIONS } from "@/data/term-definitions";
+import { TERM_DEFINITIONS } from "@/content";
 
 function TooltipPill({ term, definition, targetRect, onClose, accentColor = "#00C48C" }: { term: string, definition: string, targetRect: DOMRect, onClose: () => void, accentColor?: string }) {
     const tooltipRef = useRef<HTMLDivElement>(null);
@@ -150,3 +150,4 @@ export function HighlightedText({ text, accentColor = "#00C48C" }: { text: strin
         </>
     );
 }
+

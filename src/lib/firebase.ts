@@ -29,3 +29,4 @@ if (isConfigValid) {
 }
 
 export { app, db, auth };
+

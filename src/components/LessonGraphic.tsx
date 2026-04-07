@@ -1808,6 +1808,484 @@ function AgentMastery09() {
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// COURSE: course-perplexity
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+// ── perplexity-mastery-1: Sources vs Black Box ──
+function PerplexityMastery01() {
+  return (
+    <GfxWrap dir="rtl">
+      <svg viewBox="0 0 380 200" width="100%" style={{ maxWidth: 380 }}>
+        <defs>
+          <marker id="arrowPx1" markerWidth={8} markerHeight={8} refX={7} refY={4} orient="auto">
+            <path d="M0,0 L8,4 L0,8" fill={TEXT_DIM} />
+          </marker>
+        </defs>
+
+        {/* LEFT: ChatGPT Black Box */}
+        <m.g initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
+          <rect x={10} y={20} width={150} height={160} rx={12} fill={CARD_BG} stroke={BORDER} strokeWidth={1} />
+          <text x={85} y={45} textAnchor="middle" fill={TEXT_DIM} fontSize={11} fontWeight={700} fontFamily="sans-serif">ChatGPT / Claude</text>
+          {/* black box icon */}
+          <rect x={50} y={60} width={70} height={50} rx={8} fill="rgba(255,255,255,0.04)" stroke={BORDER} strokeWidth={1} />
+          <text x={85} y={90} textAnchor="middle" fill={TEXT_DIM} fontSize={24} fontFamily="sans-serif">?</text>
+          {/* answer pill */}
+          <rect x={40} y={130} width={90} height={26} rx={13} fill="rgba(255,255,255,0.06)" stroke={BORDER} strokeWidth={1} />
+          <text x={85} y={148} textAnchor="middle" fill={TEXT_DIM} fontSize={11} fontFamily="sans-serif">תשובה בלבד</text>
+          <text x={85} y={192} textAnchor="middle" fill={CORAL} fontSize={10} fontFamily="sans-serif">אין מקורות</text>
+        </m.g>
+
+        {/* Center arrow divider */}
+        <m.line x1={190} y1={20} x2={190} y2={180} stroke={BORDER} strokeWidth={1} strokeDasharray="4 4"
+          initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: 0.5, duration: 0.5 }} />
+
+        {/* RIGHT: Perplexity Open */}
+        <m.g initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5, delay: 0.3 }}>
+          <rect x={210} y={20} width={160} height={160} rx={12} fill="rgba(45,212,191,0.05)" stroke={TEAL} strokeWidth={1} strokeOpacity={0.5} />
+          <text x={290} y={45} textAnchor="middle" fill={TEAL} fontSize={11} fontWeight={700} fontFamily="sans-serif">Perplexity</text>
+          {/* source lines */}
+          {["[1] Reuters", "[2] Bloomberg", "[3] BBC"].map((src, i) => (
+            <m.g key={i} initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.7 + i * 0.2 }}>
+              <rect x={220} y={58 + i * 32} width={120} height={22} rx={6} fill={`${TEAL}12`} stroke={TEAL} strokeWidth={0.7} strokeOpacity={0.5} />
+              <text x={280} y={73 + i * 32} textAnchor="middle" fill={TEAL} fontSize={10} fontFamily="sans-serif">{src}</text>
+            </m.g>
+          ))}
+          {/* verified tick */}
+          <m.text x={290} y={168} textAnchor="middle" fill={GREEN} fontSize={11} fontFamily="sans-serif" fontWeight={700}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.4 }}>
+            ✓ ניתן לאימות
+          </m.text>
+        </m.g>
+      </svg>
+    </GfxWrap>
+  );
+}
+
+// ── perplexity-mastery-2: Google vs Perplexity Search Loop ──
+function PerplexityMastery02() {
+  return (
+    <GfxWrap dir="rtl">
+      <svg viewBox="0 0 380 210" width="100%" style={{ maxWidth: 380 }}>
+        <defs>
+          <marker id="arrowPx2g" markerWidth={8} markerHeight={8} refX={7} refY={4} orient="auto">
+            <path d="M0,0 L8,4 L0,8" fill={CORAL} fillOpacity={0.7} />
+          </marker>
+          <marker id="arrowPx2p" markerWidth={8} markerHeight={8} refX={7} refY={4} orient="auto">
+            <path d="M0,0 L8,4 L0,8" fill={TEAL} fillOpacity={0.7} />
+          </marker>
+        </defs>
+
+        {/* Google column */}
+        <m.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
+          <text x={80} y={22} textAnchor="middle" fill={CORAL} fontSize={12} fontWeight={700} fontFamily="sans-serif">Google</text>
+          {["קישור 1", "קישור 2", "קישור 3", "קישור 4"].map((l, i) => (
+            <m.g key={i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 + i * 0.15 }}>
+              <rect x={20} y={34 + i * 36} width={120} height={26} rx={6} fill="rgba(248,113,113,0.06)" stroke={CORAL} strokeWidth={0.7} strokeOpacity={0.5} />
+              <text x={80} y={51 + i * 36} textAnchor="middle" fill={TEXT_DIM} fontSize={11} fontFamily="sans-serif">{l}</text>
+            </m.g>
+          ))}
+          <m.text x={80} y={192} textAnchor="middle" fill={CORAL} fontSize={10} fontFamily="sans-serif"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }}>
+            סנן בעצמך ⟶ זמן רב
+          </m.text>
+        </m.g>
+
+        {/* Divider */}
+        <line x1={190} y1={15} x2={190} y2={195} stroke={BORDER} strokeWidth={1} strokeDasharray="4 4" />
+
+        {/* Perplexity column – converging funnel */}
+        <m.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4, delay: 0.3 }}>
+          <text x={295} y={22} textAnchor="middle" fill={TEAL} fontSize={12} fontWeight={700} fontFamily="sans-serif">Perplexity</text>
+          {/* sources funnel -> single answer */}
+          {[0, 1, 2].map(i => (
+            <m.line key={i} x1={220} y1={50 + i * 40} x2={283} y2={108}
+              stroke={TEAL} strokeWidth={1} strokeOpacity={0.4}
+              initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: 0.5 + i * 0.2 }} />
+          ))}
+          {["מקור A", "מקור B", "מקור C"].map((s, i) => (
+            <m.g key={i} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 + i * 0.15 }}>
+              <rect x={205} y={38 + i * 40} width={58} height={22} rx={6} fill={`${TEAL}10`} stroke={TEAL} strokeWidth={0.7} strokeOpacity={0.5} />
+              <text x={234} y={53 + i * 40} textAnchor="middle" fill={TEAL} fontSize={10} fontFamily="sans-serif">{s}</text>
+            </m.g>
+          ))}
+          {/* synthesis node */}
+          <m.g initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.1, duration: 0.4 }}>
+            <rect x={270} y={94} width={88} height={30} rx={10} fill={`${TEAL}20`} stroke={TEAL} strokeWidth={1.5} />
+            <text x={314} y={114} textAnchor="middle" fill="white" fontSize={11} fontWeight={600} fontFamily="sans-serif">תשובה מוכנה</text>
+          </m.g>
+          <m.text x={295} y={192} textAnchor="middle" fill={GREEN} fontSize={10} fontFamily="sans-serif"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.4 }}>
+            חוסך 20 דק׳ ⟶ מיידי
+          </m.text>
+        </m.g>
+      </svg>
+    </GfxWrap>
+  );
+}
+
+// ── perplexity-mastery-3: Deep Research Pipeline ──
+function PerplexityMastery03() {
+  const steps = ["הגדרה", "חיפוש", "קריאה", "סינון", "סינתזה", "דו״ח"];
+  const colors = [PURPLE, TEAL, TEAL, AMBER, AMBER, GREEN];
+  return (
+    <GfxWrap dir="rtl">
+      <svg viewBox="0 0 380 140" width="100%" style={{ maxWidth: 380 }}>
+        <defs>
+          <marker id="arrowPx3" markerWidth={7} markerHeight={7} refX={6} refY={3.5} orient="auto">
+            <path d="M0,0 L7,3.5 L0,7" fill={TEXT_DIM} fillOpacity={0.6} />
+          </marker>
+        </defs>
+        {steps.map((s, i) => {
+          const x = 14 + i * 60;
+          const color = colors[i];
+          return (
+            <m.g key={i}>
+              {i > 0 && (
+                <m.line x1={x - 4} y1={60} x2={x + 2} y2={60}
+                  stroke={TEXT_DIM} strokeWidth={1.5} markerEnd="url(#arrowPx3)"
+                  initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: 0.3 + i * 0.2 }} />
+              )}
+              <m.g initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.2, duration: 0.35 }}>
+                <rect x={x + 2} y={44} width={50} height={32} rx={8} fill={`${color}18`} stroke={color} strokeWidth={1} />
+                <text x={x + 27} y={65} textAnchor="middle" fill={color} fontSize={i === 4 ? 9.5 : 11} fontWeight={600} fontFamily="sans-serif">{s}</text>
+                {/* step number */}
+                <circle cx={x + 27} cy={28} r={10} fill={`${color}22`} stroke={color} strokeWidth={1} />
+                <text x={x + 27} y={32} textAnchor="middle" fill={color} fontSize={10} fontWeight={700} fontFamily="sans-serif">{i + 1}</text>
+              </m.g>
+            </m.g>
+          );
+        })}
+        <m.text x={190} y={120} textAnchor="middle" fill={TEXT_DIM} fontSize={11} fontFamily="sans-serif"
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5 }}>
+          Deep Research: research pipeline שלם תוך דקות
+        </m.text>
+      </svg>
+    </GfxWrap>
+  );
+}
+
+// ── perplexity-mastery-4: Model Council Consensus ──
+function PerplexityMastery04() {
+  const models = ["Claude Opus", "GPT-4o", "Gemini"];
+  const mColors = [TEAL, PURPLE, AMBER];
+  // positions: fan out from top centre
+  const fanPoints = [
+    { x: 60, y: 130 },
+    { x: 190, y: 90 },
+    { x: 320, y: 130 },
+  ];
+  return (
+    <GfxWrap dir="rtl">
+      <svg viewBox="0 0 380 220" width="100%" style={{ maxWidth: 380 }}>
+        <defs>
+          <marker id="arrowPx4up" markerWidth={7} markerHeight={7} refX={3.5} refY={6} orient="auto">
+            <path d="M0,7 L3.5,0 L7,7" fill={TEXT_DIM} fillOpacity={0.5} />
+          </marker>
+        </defs>
+
+        {/* Query node at top */}
+        <m.g initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.4 }}>
+          <rect x={145} y={10} width={90} height={28} rx={10} fill={CARD_BG} stroke={BORDER} strokeWidth={1.5} />
+          <text x={190} y={28} textAnchor="middle" fill={TEXT} fontSize={12} fontWeight={600} fontFamily="sans-serif">השאלה שלך</text>
+        </m.g>
+
+        {/* Lines from query down to 3 models */}
+        {fanPoints.map((p, i) => (
+          <m.line key={i} x1={190} y1={38} x2={p.x} y2={p.y - 16}
+            stroke={mColors[i]} strokeWidth={1} strokeOpacity={0.5}
+            initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: 0.4 + i * 0.1, duration: 0.4 }} />
+        ))}
+
+        {/* 3 model nodes */}
+        {models.map((m2, i) => (
+          <m.g key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 + i * 0.15, duration: 0.35 }}>
+            <rect x={fanPoints[i].x - 50} y={fanPoints[i].y} width={100} height={30} rx={8}
+              fill={`${mColors[i]}12`} stroke={mColors[i]} strokeWidth={1} />
+            <text x={fanPoints[i].x} y={fanPoints[i].y + 19} textAnchor="middle" fill={mColors[i]} fontSize={11} fontWeight={600} fontFamily="sans-serif">{m2}</text>
+          </m.g>
+        ))}
+
+        {/* Lines from 3 models converging to synthesis */}
+        {fanPoints.map((p, i) => (
+          <m.line key={i} x1={p.x} y1={p.y + 30} x2={190} y2={182}
+            stroke={mColors[i]} strokeWidth={1} strokeOpacity={0.5}
+            initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: 0.85 + i * 0.1, duration: 0.4 }} />
+        ))}
+
+        {/* Synthesis node */}
+        <m.g initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.3, duration: 0.4 }}>
+          <rect x={130} y={182} width={120} height={30} rx={14} fill={`${GREEN}18`} stroke={GREEN} strokeWidth={1.5} />
+          <text x={190} y={202} textAnchor="middle" fill={GREEN} fontSize={12} fontWeight={700} fontFamily="sans-serif">מודל סינתזה ✓</text>
+        </m.g>
+      </svg>
+    </GfxWrap>
+  );
+}
+
+// ── perplexity-mastery-5: Perplexity Computer Agentic Loop ──
+function PerplexityMastery05() {
+  const nodes = ["מטרה", "תכנון", "Sub-agents", "ביצוע", "תוצאה"];
+  const nColors = [PURPLE, TEAL, AMBER, TEAL, GREEN];
+  const cx = 190, cy = 100, r = 72;
+  const angleOffset = -Math.PI / 2;
+  const positions = nodes.map((_, i) => ({
+    x: cx + r * Math.cos(angleOffset + (2 * Math.PI * i) / nodes.length),
+    y: cy + r * Math.sin(angleOffset + (2 * Math.PI * i) / nodes.length),
+  }));
+  return (
+    <GfxWrap dir="rtl">
+      <svg viewBox="0 0 380 210" width="100%" style={{ maxWidth: 380 }}>
+        {/* Orbit circle */}
+        <m.circle cx={cx} cy={cy} r={r} fill="none" stroke={BORDER} strokeWidth={1} strokeDasharray="4 4"
+          initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1 }} />
+        {/* Arrows between nodes */}
+        {positions.map((from, i) => {
+          const to = positions[(i + 1) % nodes.length];
+          const col = nColors[i];
+          return (
+            <m.line key={i} x1={from.x} y1={from.y} x2={to.x} y2={to.y}
+              stroke={col} strokeWidth={1} strokeOpacity={0.4}
+              strokeDasharray="3 3"
+              initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: 0.5 + i * 0.2 }} />
+          );
+        })}
+        {/* Nodes */}
+        {nodes.map((label, i) => {
+          const { x, y } = positions[i];
+          const col = nColors[i];
+          return (
+            <m.g key={i} initial={{ opacity: 0, scale: 0.7 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.18, duration: 0.35 }}>
+              <rect x={x - 38} y={y - 14} width={76} height={28} rx={9}
+                fill={`${col}15`} stroke={col} strokeWidth={1} />
+              <text x={x} y={y + 5} textAnchor="middle" fill={col} fontSize={11} fontWeight={600} fontFamily="sans-serif">{label}</text>
+            </m.g>
+          );
+        })}
+        {/* Center label */}
+        <m.text x={cx} y={cy + 5} textAnchor="middle" fill={TEXT_DIM} fontSize={10} fontFamily="sans-serif"
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }}>
+          Computer
+        </m.text>
+        <m.text x={cx} y={190} textAnchor="middle" fill={TEXT_DIM} fontSize={10} fontFamily="sans-serif"
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5 }}>
+          ה-agent עובד לבד מ-A ועד ז
+        </m.text>
+      </svg>
+    </GfxWrap>
+  );
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// COURSE: grok-mastery
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+// ── grok-mastery-1: Truth-Seeking vs PC Filters ──
+function GrokMastery01() {
+  const cols = [
+    { label: "AI רגיל", icon: "🛡️", filters: ["PC Layer", "Safety Layer", "Nice-Mode"], color: CORAL, output: "תשובה 'בטוחה'" },
+    { label: "Grok", icon: "🎯", filters: ["Maximum Truth"], color: GREEN, output: "תשובה ישירה" },
+  ];
+  return (
+    <GfxWrap dir="rtl">
+      <svg viewBox="0 0 380 200" width="100%" style={{ maxWidth: 380 }}>
+        {cols.map((col, ci) => {
+          const baseX = ci === 0 ? 20 : 210;
+          return (
+            <m.g key={ci} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: ci * 0.3, duration: 0.4 }}>
+              <text x={baseX + 75} y={18} textAnchor="middle" fill={col.color} fontSize={12} fontWeight={700} fontFamily="sans-serif">{col.label}</text>
+              {/* Input */}
+              <rect x={baseX + 30} y={25} width={90} height={22} rx={8} fill={CARD_BG} stroke={BORDER} strokeWidth={1} />
+              <text x={baseX + 75} y={40} textAnchor="middle" fill={TEXT_DIM} fontSize={10} fontFamily="sans-serif">שאלה קשה</text>
+              {/* Filters/layers */}
+              {col.filters.map((f, fi) => (
+                <m.g key={fi} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: ci * 0.3 + 0.2 + fi * 0.15 }}>
+                  <rect x={baseX + 20} y={55 + fi * 30} width={110} height={22} rx={6}
+                    fill={`${col.color}12`} stroke={col.color} strokeWidth={0.8} strokeOpacity={0.6} />
+                  <text x={baseX + 75} y={70 + fi * 30} textAnchor="middle" fill={col.color} fontSize={10} fontFamily="sans-serif">{f}</text>
+                </m.g>
+              ))}
+              {/* Output */}
+              <m.g initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: ci * 0.3 + 0.7 }}>
+                <rect x={baseX + 15} y={ci === 0 ? 148 : 100} width={120} height={26} rx={10}
+                  fill={`${col.color}20`} stroke={col.color} strokeWidth={1.5} />
+                <text x={baseX + 75} y={ci === 0 ? 165 : 117} textAnchor="middle" fill={col.color} fontSize={11} fontWeight={600} fontFamily="sans-serif">{col.output}</text>
+              </m.g>
+            </m.g>
+          );
+        })}
+        {/* vs divider */}
+        <line x1={192} y1={20} x2={192} y2={180} stroke={BORDER} strokeWidth={1} strokeDasharray="4 4" />
+        <text x={192} y={108} textAnchor="middle" fill={TEXT_DIM} fontSize={10} fontFamily="sans-serif" transform="rotate(-90,192,108)">vs</text>
+      </svg>
+    </GfxWrap>
+  );
+}
+
+// ── grok-mastery-2: Real-time X Firehose ──
+function GrokMastery02() {
+  const tweets = ["📊 TSLA -8%", "🔥 Breaking: ...", "💡 Expert: ...", "🌍 Live: ...", "⚡ UPDATE: ..."];
+  return (
+    <GfxWrap dir="rtl">
+      <svg viewBox="0 0 380 180" width="100%" style={{ maxWidth: 380 }}>
+        <defs>
+          <marker id="arrowPxFire" markerWidth={8} markerHeight={8} refX={7} refY={4} orient="auto">
+            <path d="M0,0 L8,4 L0,8" fill={PURPLE} fillOpacity={0.8} />
+          </marker>
+        </defs>
+
+        {/* X Platform block */}
+        <m.g initial={{ opacity: 0, x: -15 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
+          <rect x={8} y={20} width={130} height={140} rx={12} fill={CARD_BG} stroke={BORDER} strokeWidth={1} />
+          <text x={73} y={42} textAnchor="middle" fill={TEXT} fontSize={13} fontWeight={800} fontFamily="sans-serif">𝕏 Platform</text>
+          {tweets.map((t, i) => (
+            <m.g key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 + i * 0.12 }}>
+              <rect x={18} y={52 + i * 20} width={110} height={14} rx={4} fill="rgba(255,255,255,0.04)" stroke={BORDER} strokeWidth={0.5} />
+              <text x={73} y={63 + i * 20} textAnchor="middle" fill={TEXT_DIM} fontSize={9} fontFamily="sans-serif">{t}</text>
+            </m.g>
+          ))}
+        </m.g>
+
+        {/* Firehose arrow */}
+        <m.path d="M140,90 C165,90 165,90 195,90" stroke={PURPLE} strokeWidth={2.5} fill="none" markerEnd="url(#arrowPxFire)"
+          initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: 0.8, duration: 0.5 }} />
+        <m.text x={167} y={83} textAnchor="middle" fill={PURPLE} fontSize={9} fontFamily="sans-serif"
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.1 }}>
+          Zero Latency
+        </m.text>
+
+        {/* Grok block */}
+        <m.g initial={{ opacity: 0, x: 15 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5, delay: 0.6 }}>
+          <rect x={200} y={30} width={170} height={120} rx={12} fill="rgba(83,74,183,0.08)" stroke={PURPLE} strokeWidth={1} />
+          <text x={285} y={55} textAnchor="middle" fill={PURPLE} fontSize={13} fontWeight={700} fontFamily="sans-serif">Grok</text>
+          <m.text x={285} y={82} textAnchor="middle" fill={TEXT} fontSize={11} fontFamily="sans-serif"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }}>
+            מסנתז מיליוני פוסטים
+          </m.text>
+          <m.rect x={225} y={92} width={120} height={24} rx={8} fill={`${PURPLE}20`} stroke={PURPLE} strokeWidth={1}
+            initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ delay: 1.4, duration: 0.4 }} style={{ transformOrigin: "center" }} />
+          <m.text x={285} y={108} textAnchor="middle" fill="white" fontSize={11} fontWeight={600} fontFamily="sans-serif"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.6 }}>
+            תובנה בזמן אמת
+          </m.text>
+        </m.g>
+      </svg>
+    </GfxWrap>
+  );
+}
+
+// ── grok-mastery-3: Multimodal Imagine Engine ──
+function GrokMastery03() {
+  const outputs = [
+    { label: "וידאו 720p", icon: "🎬", color: CORAL, angle: -45 },
+    { label: "תמונה", icon: "🖼️", color: PURPLE, angle: 0 },
+    { label: "אודיו", icon: "🎵", color: TEAL, angle: 45 },
+  ];
+  return (
+    <GfxWrap dir="rtl">
+      <svg viewBox="0 0 380 200" width="100%" style={{ maxWidth: 380 }}>
+        <defs>
+          <marker id="arrowImagine" markerWidth={8} markerHeight={8} refX={7} refY={4} orient="auto">
+            <path d="M0,0 L8,4 L0,8" fill={AMBER} fillOpacity={0.7} />
+          </marker>
+        </defs>
+
+        {/* Text prompt input */}
+        <m.g initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+          <rect x={10} y={20} width={130} height={36} rx={10} fill={CARD_BG} stroke={BORDER} strokeWidth={1} />
+          <text x={75} y={33} textAnchor="middle" fill={TEXT_DIM} fontSize={10} fontFamily="sans-serif">&ldquo;סרטון של חללית</text>
+          <text x={75} y={47} textAnchor="middle" fill={TEXT_DIM} fontSize={10} fontFamily="sans-serif">נוחתת על מאדים&rdquo;</text>
+        </m.g>
+
+        {/* Arrow to Grok Imagine center */}
+        <m.line x1={140} y1={38} x2={165} y2={100} stroke={AMBER} strokeWidth={1.5} markerEnd="url(#arrowImagine)"
+          initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: 0.4, duration: 0.4 }} />
+
+        {/* Grok Imagine central node */}
+        <m.g initial={{ opacity: 0, scale: 0.7 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.7, duration: 0.4 }}>
+          <circle cx={190} cy={100} r={36} fill={`${AMBER}15`} stroke={AMBER} strokeWidth={1.5} />
+          <text x={190} y={95} textAnchor="middle" fill={AMBER} fontSize={11} fontWeight={700} fontFamily="sans-serif">Grok</text>
+          <text x={190} y={110} textAnchor="middle" fill={AMBER} fontSize={10} fontFamily="sans-serif">Imagine</text>
+        </m.g>
+
+        {/* Output lines and nodes */}
+        {outputs.map((out, i) => {
+          const angleRad = (out.angle * Math.PI) / 180;
+          const endX = 190 + 100 * Math.cos(angleRad);
+          const endY = 100 + 100 * Math.sin(angleRad);
+          return (
+            <m.g key={i}>
+              <m.line x1={190 + 36 * Math.cos(angleRad)} y1={100 + 36 * Math.sin(angleRad)} x2={endX - 40 * Math.cos(angleRad)} y2={endY - 16 * Math.sin(angleRad)}
+                stroke={out.color} strokeWidth={1} strokeOpacity={0.6}
+                initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: 1 + i * 0.15 }} />
+              <m.g initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.1 + i * 0.2 }}>
+                <rect x={endX - 45} y={endY - 14} width={90} height={28} rx={8}
+                  fill={`${out.color}12`} stroke={out.color} strokeWidth={1} />
+                <text x={endX} y={endY + 5} textAnchor="middle" fill={out.color} fontSize={11} fontWeight={600} fontFamily="sans-serif">{out.icon} {out.label}</text>
+              </m.g>
+            </m.g>
+          );
+        })}
+      </svg>
+    </GfxWrap>
+  );
+}
+
+// ── grok-mastery-5: Think Mode Reasoning Chain ──
+function GrokMastery05() {
+  const steps = [
+    { label: "שאלה", color: TEXT_DIM, bg: CARD_BG },
+    { label: "תכנון", color: PURPLE, bg: `${PURPLE}18` },
+    { label: "בדיקה", color: AMBER, bg: `${AMBER}18` },
+    { label: "סתירות?", color: CORAL, bg: `${CORAL}10` },
+    { label: "תיקון", color: TEAL, bg: `${TEAL}18` },
+    { label: "תשובה ✓", color: GREEN, bg: `${GREEN}18` },
+  ];
+  return (
+    <GfxWrap dir="rtl">
+      <svg viewBox="0 0 380 160" width="100%" style={{ maxWidth: 380 }}>
+        <defs>
+          <marker id="arrowThink" markerWidth={7} markerHeight={7} refX={6} refY={3.5} orient="auto">
+            <path d="M0,0 L7,3.5 L0,7" fill={TEXT_DIM} fillOpacity={0.6} />
+          </marker>
+        </defs>
+        {steps.map((s, i) => {
+          const x = 10 + i * 62;
+          const isLast = i === steps.length - 1;
+          return (
+            <m.g key={i}>
+              {i > 0 && (
+                <m.line x1={x - 3} y1={74} x2={x + 3} y2={74}
+                  stroke={TEXT_DIM} strokeWidth={1.5} markerEnd="url(#arrowThink)"
+                  initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: 0.2 + i * 0.2 }} />
+              )}
+              <m.g initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.2, duration: 0.3 }}>
+                <rect x={x + 2} y={58} width={54} height={32} rx={8} fill={s.bg} stroke={s.color} strokeWidth={isLast ? 1.5 : 0.8} />
+                <text x={x + 29} y={79} textAnchor="middle" fill={s.color} fontSize={s.label.length > 5 ? 8.5 : 10} fontWeight={600} fontFamily="sans-serif">{s.label}</text>
+                {/* internal voice label above */}
+                {i > 0 && i < steps.length - 1 && (
+                  <text x={x + 29} y={50} textAnchor="middle" fill={s.color} fontSize={8} fontFamily="sans-serif" fillOpacity={0.7}>Think</text>
+                )}
+              </m.g>
+            </m.g>
+          );
+        })}
+        {/* Loop back arrow from step 4 to step 2 for self-correction */}
+        <m.path d="M254,58 Q254,30 190,30 Q126,30 126,58" stroke={CORAL} strokeWidth={1} fill="none" strokeDasharray="3 3"
+          initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: 1.5, duration: 0.6 }} />
+        <m.text x={190} y={22} textAnchor="middle" fill={CORAL} fontSize={9} fontFamily="sans-serif" fillOpacity={0.8}
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2.1 }}>
+          לולאת תיקון עצמי
+        </m.text>
+        <m.text x={190} y={140} textAnchor="middle" fill={TEXT_DIM} fontSize={10} fontFamily="sans-serif"
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2.3 }}>
+          Think Mode: הפחתת Hallucinations ב-90%
+        </m.text>
+      </svg>
+    </GfxWrap>
+  );
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // MAIN COMPONENT
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -1847,6 +2325,17 @@ const GRAPHIC_MAP: Record<string, React.FC> = {
   "agent-mastery-7": AgentMastery07,
   "agent-mastery-8": AgentMastery08,
   "agent-mastery-9": AgentMastery09,
+  // course-perplexity
+  "perplexity-mastery-1": PerplexityMastery01,
+  "perplexity-mastery-2": PerplexityMastery02,
+  "perplexity-mastery-3": PerplexityMastery03,
+  "perplexity-mastery-4": PerplexityMastery04,
+  "perplexity-mastery-5": PerplexityMastery05,
+  // grok-mastery
+  "grok-mastery-1": GrokMastery01,
+  "grok-mastery-2": GrokMastery02,
+  "grok-mastery-3": GrokMastery03,
+  "grok-mastery-5": GrokMastery05,
 };
 
 interface LessonGraphicProps {
@@ -1858,3 +2347,4 @@ export default function LessonGraphic({ lessonId }: LessonGraphicProps) {
   if (!Graphic) return null;
   return <Graphic />;
 }
+

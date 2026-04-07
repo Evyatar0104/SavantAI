@@ -19,7 +19,7 @@ const PRESTIGE_BADGES = [
     { id: "savant", name: "AI Savant", desc: "3 tracks", req: 3 }
 ];
 
-import { LessonMeta } from "@/data/lessons-index";
+import { type LessonMeta } from "@/content";
 
 export function AILearningPath({ 
     trackLessons, 
@@ -223,7 +223,7 @@ export function AILearningPath({
                                         const completed = completedLessons.includes(lesson.id);
                                         
                                         return (
-                                            <Link href={locked ? "#" : `/lesson/${lesson.id}`} key={lesson.id} className={cn("block group", locked && "pointer-events-none")}>
+                                            <Link href={locked ? "#" : `/lesson/${lesson.id}?from=track`} key={lesson.id} className={cn("block group", locked && "pointer-events-none")}>
                                                 <div className="flex items-center p-3 rounded-xl hover:bg-[#1E1E2E] transition-colors border border-transparent hover:border-white/5">
                                                     <div className={cn("w-6 h-6 rounded-full flex items-center justify-center shrink-0 ml-3", 
                                                         completed ? track.bgClass : "bg-[#1E1E2E]"

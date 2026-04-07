@@ -1,11 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { m, AnimatePresence } from "framer-motion";
 import { Clock, Zap, Sparkles, Search, LayoutGrid, List } from "lucide-react";
 import Image from "next/image";
-import { PRACTICE_ITEMS, type PracticeItem, type AIModelType } from "@/data/practice";
+import { PRACTICE_ITEMS, type PracticeItem, type AIModelType } from "@/content";
 import { useSavantStore } from "@/store/useSavantStore";
 
 // ── Tool logos ───────────────────────────────────────
@@ -352,14 +352,76 @@ function PracticeCard({
 export default function PracticePage() {
     const router = useRouter();
     const completedPractice = useSavantStore(s => s.completedPractice);
+    const isCompact = useSavantStore(s => s.isCompactView);
+    const setIsCompact = useSavantStore(s => s.setCompactView);
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedTypes, setSelectedTypes] = useState<TypeFilter[]>([]);
     const [selectedTools, setSelectedTools] = useState<ToolFilter[]>([]);
-    const [isCompact, setIsCompact] = useState(false);
 
     const isSearching = searchQuery.trim().length > 0;
 
     const primaryModel = useSavantStore(s => s.primaryModel);
+
+    const practiceScrollPosition = useSavantStore(s => s.practiceScrollPosition);
+    const setPracticeScrollPosition = useSavantStore(s => s.setPracticeScrollPosition);
+    const hasHydrated = useSavantStore(s => s._hasHydrated);
+    const [isRestored, setIsRestored] = useState(() => {
+        if (typeof window !== 'undefined') {
+            const pos = useSavantStore.getState().practiceScrollPosition || 0;
+            return pos === 0;
+        }
+        return false;
+    });
+
+    // Scroll Restoration
+    useEffect(() => {
+        if (!hasHydrated || isRestored) return;
+
+        const mainElement = document.querySelector('main');
+        if (mainElement) {
+            if (practiceScrollPosition > 0) {
+                const restore = () => {
+                    mainElement.scrollTo({ top: practiceScrollPosition });
+                    setIsRestored(true);
+                };
+
+                restore();
+                const timers = [
+                    setTimeout(restore, 20),
+                    setTimeout(restore, 100),
+                    setTimeout(restore, 300),
+                ];
+                return () => timers.forEach(clearTimeout);
+            } else {
+                setIsRestored(true);
+            }
+        }
+    }, [hasHydrated, practiceScrollPosition, isRestored]);
+
+    // Scroll Capture
+    useEffect(() => {
+        const mainElement = document.querySelector('main');
+        if (!mainElement) return;
+
+        let frameId: number;
+        const handleScroll = () => {
+            if (!isRestored) return;
+
+            cancelAnimationFrame(frameId);
+            frameId = requestAnimationFrame(() => {
+                const currentPos = mainElement.scrollTop;
+                if (currentPos > 0 || (currentPos === 0 && practiceScrollPosition < 100)) {
+                    setPracticeScrollPosition(currentPos);
+                }
+            });
+        };
+
+        mainElement.addEventListener('scroll', handleScroll, { passive: true });
+        return () => {
+            mainElement.removeEventListener('scroll', handleScroll);
+            cancelAnimationFrame(frameId);
+        };
+    }, [setPracticeScrollPosition, isRestored, practiceScrollPosition]);
 
     const filtered = useMemo(() => {
         const items = PRACTICE_ITEMS.filter((item: PracticeItem) => {
@@ -685,3 +747,4 @@ export default function PracticePage() {
         </div>
     );
 }
+

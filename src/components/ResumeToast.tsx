@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSavantStore } from "@/store/useSavantStore";
-import { PRACTICE_ITEMS } from "@/data/practice";
+import { PRACTICE_ITEMS } from "@/content";
 import { m, AnimatePresence } from "framer-motion";
 import { useRouter, usePathname } from "next/navigation";
 import { haptics } from "@/lib/haptics";
@@ -164,3 +164,4 @@ export function ResumeToast() {
         </div>
     );
 }
+

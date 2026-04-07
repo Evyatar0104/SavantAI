@@ -1,7 +1,7 @@
 "use client";
 
 import { useSavantStore } from "@/store/useSavantStore";
-import { BADGES, isBadgeEarned } from "@/data/badges";
+import { BADGES, isBadgeEarned } from "@/content";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";

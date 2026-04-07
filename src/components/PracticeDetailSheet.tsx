@@ -7,7 +7,7 @@ import { Clock, Zap, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useSavantStore } from "@/store/useSavantStore";
 import { haptics } from "@/lib/haptics";
-import type { PracticeItem } from "@/data/practice";
+import type { PracticeItem } from "@/content";
 
 interface Props {
     item: PracticeItem;
@@ -255,3 +255,4 @@ export function PracticeDetailSheet({ item, onClose }: Props) {
         </AnimatePresence>
     );
 }
+

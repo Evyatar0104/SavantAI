@@ -52,12 +52,24 @@ interface SavantState {
     recommendedCourseId: string | null;
     // User identity
     userName: string | null;
+    userColor: string | null;
     // Prompt Builder State
     activePracticeId: string | null;
     currentStepIndex: number;
     builderInputs: Record<string, string>;
     hasIterated: boolean;
+    // UI Preference
+    isCompactView: boolean;
+    tracksScrollPosition: number;
+    homeScrollPosition: number;
+    practiceScrollPosition: number;
+    courseScrollPositions: Record<string, number>;
+    trackScrollPositions: Record<string, number>;
+    _hasHydrated: boolean;
+    hasSeenQuizPrompt: boolean;
     // Actions
+    setHasHydrated: (state: boolean) => void;
+    setHasSeenQuizPrompt: (val: boolean) => void;
     addXp: (amount: number) => void;
     completeLesson: (lessonId: string) => void;
     completePracticeItem: (itemId: string, xp: number) => void;
@@ -67,6 +79,7 @@ interface SavantState {
     checkStreak: () => void;
     setQuizResult: (result: QuizResult) => void;
     setUserName: (name: string) => void;
+    setUserColor: (color: string) => void;
     resetAllData: () => void;
     resetPreferences: () => void;
     setActivePracticeId: (id: string | null) => void;
@@ -75,11 +88,17 @@ interface SavantState {
     setHasIterated: (val: boolean) => void;
     resetBuilder: () => void;
     clearUnlockedVaultCard: () => void;
+    setCompactView: (isCompact: boolean) => void;
+    setTracksScrollPosition: (pos: number) => void;
+    setHomeScrollPosition: (pos: number) => void;
+    setPracticeScrollPosition: (pos: number) => void;
+    setCourseScrollPosition: (courseId: string, pos: number) => void;
+    setTrackScrollPosition: (trackId: string, pos: number) => void;
 }
 
 export const useSavantStore = create<SavantState>()(
     persist(
-        (set, get) => ({
+        (set, get): SavantState => ({
             xp: 0,
             streak: 0,
             lastActiveDate: null,
@@ -104,6 +123,7 @@ export const useSavantStore = create<SavantState>()(
             experienceLevel: null,
             // User identity
             userName: null,
+            userColor: null,
             // Recommendations
             primaryModel: null,
             secondaryModel: null,
@@ -114,9 +134,32 @@ export const useSavantStore = create<SavantState>()(
             currentStepIndex: 0,
             builderInputs: {},
             hasIterated: false,
+            // UI Preference
+            isCompactView: false,
+            tracksScrollPosition: 0,
+            homeScrollPosition: 0,
+            practiceScrollPosition: 0,
+            courseScrollPositions: {},
+            trackScrollPositions: {},
+            _hasHydrated: false,
+            hasSeenQuizPrompt: false,
             // Actions
-            clearUnlockedVaultCard: () => set({ unlockedVaultCard: null }),
+            setHasHydrated: (state: boolean) => set({ _hasHydrated: state }),
+            setHasSeenQuizPrompt: (val: boolean) => set({ hasSeenQuizPrompt: val }),
+            setCompactView: (isCompact: boolean) => set({ isCompactView: isCompact }),
+            setTracksScrollPosition: (pos: number) => set({ tracksScrollPosition: pos }),
+            setHomeScrollPosition: (pos: number) => set({ homeScrollPosition: pos }),
+            setPracticeScrollPosition: (pos: number) => set({ practiceScrollPosition: pos }),
+            setCourseScrollPosition: (courseId: string, pos: number) => 
+                set((state: SavantState) => ({
+                    courseScrollPositions: { ...state.courseScrollPositions, [courseId]: pos }
+                })),
+            setTrackScrollPosition: (trackId: string, pos: number) =>
+                set((state: SavantState) => ({
+                    trackScrollPositions: { ...state.trackScrollPositions, [trackId]: pos }
+                })),
             addXp: (amount: number) => set((state: SavantState) => ({ xp: state.xp + amount })),
+            clearUnlockedVaultCard: () => set({ unlockedVaultCard: null }),
             completeLesson: (lessonId: string) => {
                 const state = get();
                 if (state.completedLessons.includes(lessonId)) return;
@@ -243,6 +286,7 @@ export const useSavantStore = create<SavantState>()(
                 });
             },
             setUserName: (name: string) => set({ userName: name.trim() || null }),
+            setUserColor: (color: string) => set({ userColor: color }),
             resetPreferences: () =>
                 set({
                     quizCompleted: false,
@@ -297,14 +341,27 @@ export const useSavantStore = create<SavantState>()(
                     primaryModelReason: null,
                     recommendedCourseId: null,
                     userName: null,
+                    userColor: null,
                     activePracticeId: null,
                     currentStepIndex: 0,
                     builderInputs: {},
                     hasIterated: false,
+                    isCompactView: false,
+                    tracksScrollPosition: 0,
+                    homeScrollPosition: 0,
+                    practiceScrollPosition: 0,
+                    courseScrollPositions: {},
+                    trackScrollPositions: {},
+                    _hasHydrated: true,
+                    hasSeenQuizPrompt: false,
                 }),
         }),
         {
             name: 'savant-storage',
+            onRehydrateStorage: () => (state) => {
+                state?.setHasHydrated(true);
+            }
         }
     )
 );
+

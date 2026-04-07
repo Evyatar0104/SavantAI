@@ -365,3 +365,4 @@ export function QuizEngine({ questions, onComplete, accentColor = "#00C48C", bac
         </div>
     );
 }
+

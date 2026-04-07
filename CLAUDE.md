@@ -21,7 +21,7 @@ After all changes, run `next build` and fix every error and warning before finis
 
 1. **RTL always** — every new component needs `dir="rtl"`. No exceptions.
 2. **Hebrew first** — all UI text in Hebrew. Proper nouns stay in English: Claude, ChatGPT, Gemini, NotebookLM, Google, OpenAI.
-3. **Never touch `ai-lessons.ts` or any lesson data file** unless the task explicitly requires it. Production content lives there.
+3. **Never touch src/content/lessons/ or any lesson data file** unless the task explicitly requires it. Production content lives there.
 4. **Zustand additions:** any new field must be added to (a) `SavantState` interface, (b) initial state, (c) `resetAllData()`, (d) the persist config. All four. Every time.
 5. **No new npm dependencies** without a clear reason stated in a comment.
 6. **Never use `router.back()`** — always push an explicit route.
@@ -37,7 +37,7 @@ After all changes, run `next build` and fix every error and warning before finis
 src/
   app/           → Next.js pages (/, /courses, /courses/[courseId], /lesson/[lessonId], /quiz, /profile, /practice, /leaderboard)
   components/    → Shared UI components
-  data/          → Content files — lesson data, courses, categories, practice items
+  content/       → Content files — lesson data, courses, categories, practice items, registry
   lib/           → Pure utilities (no React, no side effects)
   store/         → useSavantStore.ts — single Zustand store
   context/       → LessonContext.tsx

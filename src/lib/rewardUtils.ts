@@ -1,5 +1,4 @@
-import { LESSON_INDEX } from "@/data/lessons-index";
-import { COURSES } from "@/data/lessons";
+import { LESSON_INDEX, COURSES } from "@/content";
 
 export interface RewardResult {
     newXp: number;
@@ -83,3 +82,4 @@ export const calculateCourseRewards = (
 
     return { newBadges, newCard, categoryUnlocked };
 };
+

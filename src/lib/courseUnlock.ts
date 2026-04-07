@@ -1,4 +1,4 @@
-import { COURSES } from "@/data/lessons";
+import { COURSES } from "@/content";
 
 // Returns true if the course is accessible to the user
 export function isCourseUnlocked(courseId: string, completedCourses: string[]): boolean {
@@ -15,3 +15,4 @@ export function getCoursePrerequisiteName(courseId: string): string | null {
     const prerequisite = COURSES.find(c => c.id === course.requiredCourseId);
     return prerequisite ? prerequisite.nameHe : null;
 }
+

@@ -4,9 +4,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { m, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import { LESSON_INDEX, loadLessonById } from "@/data/lessons-index";
-import { COURSES } from "@/data/lessons";
-import type { Lesson } from "@/data/lessons";
+import { LESSON_INDEX, loadLessonById, COURSES, type Lesson } from "@/content";
 import { useSavantStore } from "@/store/useSavantStore";
 import { X, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -16,6 +14,9 @@ import { QuizEngine } from "@/components/QuizEngine";
 import { HighlightedText } from "@/components/HighlightedText";
 import { PracticalCall } from "@/components/PracticalCall";
 import { haptics } from "@/lib/haptics";
+import { useLessonPulses } from "@/hooks/useLessonPulses";
+import { Confetti } from "@/components/feedback/Confetti";
+import { XPCounter } from "@/components/feedback/XPCounter";
 
 // ── Icon → Theme map ─────────────────────────────────
 const ICON_THEMES: Record<string, { bgGlow: string; accent: string }> = {
@@ -36,107 +37,46 @@ const DEFAULT_THEME = { bgGlow: "#064E3B", accent: "#34D399" };
 
 interface Props { lessonId: string; from?: string; }
 
-// ── Confetti particles ───────────────────────────────
-interface Particle {
-    id: number;
-    left: string;
-    size: number;
-    delay: number;
-    duration: number;
-    rotate: number;
-    xDrift: number;
-    opacity: number;
-    variant: "circle" | "square";
-}
-
-function Confetti({ color }: { color: string }) {
-    const [particles] = useState<Particle[]>(() => {
-        return Array.from({ length: 24 }, (_, i) => ({
-            id: i,
-            left: `${Math.random() * 100}%`,
-            size: 4 + Math.random() * 5,
-            delay: Math.random() * 0.8,
-            duration: 1.5 + Math.random() * 1,
-            rotate: Math.random() * 360,
-            xDrift: (Math.random() - 0.5) * 120,
-            opacity: 0.6 + Math.random() * 0.4,
-            variant: (Math.random() > 0.5 ? "circle" : "square") as "circle" | "square",
-        }));
-    });
-
-    return (
-        <div className="fixed inset-0 pointer-events-none z-[300] overflow-hidden">
-            {particles.map(p => (
-                <m.div
-                    key={p.id}
-                    initial={{ y: -20, x: 0, opacity: p.opacity, rotate: 0, scale: 1 }}
-                    animate={{ y: "110vh", x: p.xDrift, opacity: 0, rotate: p.rotate + 360, scale: 0.5 }}
-                    transition={{ duration: p.duration, delay: p.delay, ease: "easeIn" }}
-                    style={{ willChange: 'transform',
-                        position: "absolute",
-                        top: 0,
-                        left: p.left,
-                        width: p.size,
-                        height: p.size,
-                        borderRadius: p.variant === "circle" ? "50%" : 2,
-                        background: color,
-                        boxShadow: `0 0 6px ${color}60`,
-                    }}
-                />
-            ))}
-        </div>
-    );
-}
-
-// ── XP Counter ───────────────────────────────────────
-function XPCounter({ target }: { target: number }) {
-    const [display, setDisplay] = useState(0);
-    const started = useRef(false);
-
-    useEffect(() => {
-        if (started.current) return;
-        started.current = true;
-        const start = Date.now();
-        const duration = 1000;
-        const tick = () => {
-            const elapsed = Date.now() - start;
-            const progress = Math.min(elapsed / duration, 1);
-            const eased = 1 - Math.pow(1 - progress, 3);
-            setDisplay(Math.round(eased * target));
-            if (progress < 1) requestAnimationFrame(tick);
-        };
-        requestAnimationFrame(tick);
-    }, [target]);
-
-    return <span>+{display}</span>;
-}
-
 // ── Main content ─────────────────────────────────────
 function LessonContent({ lesson, from }: { lesson: Lesson; from?: string }) {
     const router = useRouter();
-    const { currentPulse, maxPulses, nextPulse, prevPulse } = useLesson();
+    const { maxPulses } = useLesson();
+
+    const hasPracticalCall = !!lesson.practicalCall;
+    
+    const {
+        currentPulse,
+        step,
+        setStep,
+        readProgress,
+        practicalCallDone,
+        setPracticalCallDone,
+        nextPulse,
+        prevPulse,
+        handleSwipe,
+        handleReadScroll,
+    } = useLessonPulses({
+        maxPulses,
+        hasPracticalCall,
+        onQuizStart: () => haptics.tap(),
+    });
 
     const exitLesson = () => {
         haptics.tap();
-        if (from === 'course') router.push(`/courses/${lesson.courseId}`);
-        else router.push('/');
+        if (from === 'course') router.replace(`/courses/${lesson.courseId}`);
+        else if (from === 'track') router.replace(`/tracks/${lesson.trackId ?? 'ai'}`);
+        else router.replace('/');
     };
 
     const addXp = useSavantStore(s => s.addXp);
     const completeLesson = useSavantStore(s => s.completeLesson);
     const checkStreak = useSavantStore(s => s.checkStreak);
-    const recommendedCourseId = useSavantStore(s => s.recommendedCourseId);
 
-    const [step, setStep] = useState<"story" | "quiz" | "complete">("story");
     const [earnedXp, setEarnedXp] = useState(0);
     const [correctCount, setCorrectCount] = useState(0);
-    const [practicalCallDone, setPracticalCallDone] = useState(false);
     const [showConfetti, setShowConfetti] = useState(false);
-    const [readProgress, setReadProgress] = useState(0);
     const completedRef = useRef(false);
     const readContainerRef = useRef<HTMLDivElement>(null);
-
-    const hasPracticalCall = !!lesson.practicalCall;
 
     // Derive theme from icon
     const theme = useMemo(() => {
@@ -148,17 +88,6 @@ function LessonContent({ lesson, from }: { lesson: Lesson; from?: string }) {
     const courseLessons = LESSON_INDEX.filter(l => l.courseId === lesson.courseId).sort((a, b) => a.order - b.order);
     const currentIndex = courseLessons.findIndex(l => l.id === lesson.id);
     const nextLesson = currentIndex !== -1 && currentIndex < courseLessons.length - 1 ? courseLessons[currentIndex + 1] : null;
-
-    // Swipe handler
-    const handleSwipe = (direction: number) => {
-        if (step !== "story") return;
-        if (direction < 0) {
-            if (currentPulse < maxPulses - 1) nextPulse();
-            else if (!hasPracticalCall || practicalCallDone) setStep("quiz");
-        } else if (direction > 0) {
-            prevPulse();
-        }
-    };
 
     // Quiz complete
     const handleQuizComplete = (finalXp: number, correct: number) => {
@@ -180,29 +109,6 @@ function LessonContent({ lesson, from }: { lesson: Lesson; from?: string }) {
         setTimeout(() => setShowConfetti(false), 3000);
     };
 
-    // Keyboard nav
-    const handleKeyDown = useCallback((e: KeyboardEvent) => {
-        if (step !== "story") return;
-        if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-        if (e.key === "ArrowLeft") handleSwipe(-1);
-        else if (e.key === "ArrowRight") handleSwipe(1);
-        else if (e.key === " " || e.key === "Enter") { e.preventDefault(); handleSwipe(-1); }
-    }, [step, currentPulse, maxPulses, nextPulse, handleSwipe]);
-
-    useEffect(() => {
-        window.addEventListener("keydown", handleKeyDown);
-        return () => window.removeEventListener("keydown", handleKeyDown);
-    }, [handleKeyDown]);
-
-    // Reading scroll progress
-    const handleReadScroll = (e: React.UIEvent<HTMLDivElement>) => {
-        const el = e.currentTarget;
-        const progress = el.scrollTop / (el.scrollHeight - el.clientHeight || 1);
-        setReadProgress(Math.min(progress, 1));
-    };
-
-    // ── PULSE DEFINITIONS ────────────────────────────
-
     const pulses = [
         // ─── PULSE 0: HOOK ───────────────────────────
         {
@@ -218,8 +124,20 @@ function LessonContent({ lesson, from }: { lesson: Lesson; from?: string }) {
                             animate={{ scale: 1, opacity: 1 }}
                             transition={{ duration: 0.5, ease: "backOut" }}
                             style={{ fontSize: 64, marginBottom: 24, filter: `drop-shadow(0 0 20px ${theme.accent}60)` }}
+                            className="flex items-center justify-center"
                         >
-                            {lesson.icon || "⚡"}
+                            {lesson.icon?.startsWith("@") ? (
+                                <div className="w-16 h-16 relative">
+                                    <Image 
+                                        src={`/assets/logos/${lesson.icon.substring(1)}`} 
+                                        alt="" 
+                                        fill 
+                                        className="object-contain"
+                                    />
+                                </div>
+                            ) : (
+                                lesson.icon || "⚡"
+                            )}
                         </m.div>
 
                         {/* Hook text — line-by-line stagger */}
@@ -678,8 +596,20 @@ function LessonContent({ lesson, from }: { lesson: Lesson; from?: string }) {
                                         animate={{ scale: [0, 1.2, 1], opacity: 1 }}
                                         transition={{ duration: 0.6, ease: "easeOut" }}
                                         style={{ fontSize: 72, marginBottom: 20, filter: `drop-shadow(0 0 30px ${theme.accent})` }}
+                                        className="flex items-center justify-center"
                                     >
-                                        {lesson.icon || "⚡"}
+                                        {lesson.icon?.startsWith("@") ? (
+                                            <div className="w-20 h-20 relative">
+                                                <Image 
+                                                    src={`/assets/logos/${lesson.icon.substring(1)}`} 
+                                                    alt="" 
+                                                    fill 
+                                                    className="object-contain"
+                                                />
+                                            </div>
+                                        ) : (
+                                            lesson.icon || "⚡"
+                                        )}
                                     </m.div>
 
                                     {/* Step 2: Title */}
@@ -737,7 +667,7 @@ function LessonContent({ lesson, from }: { lesson: Lesson; from?: string }) {
                                         {nextLesson ? (
                                             <m.button
                                                 whileTap={{ scale: 0.95 }}
-                                                onClick={() => router.push(`/lesson/${nextLesson.id}?from=${from ?? 'home'}`)}
+                                                onClick={() => router.replace(`/lesson/${nextLesson.id}?from=${from ?? 'home'}`)}
                                                 className="w-full py-4 rounded-full bg-white text-black font-medium text-base"
                                                 style={{ height: 52 }}
                                             >
@@ -824,3 +754,4 @@ export function LessonRunner({ lessonId, from }: Props) {
         </LessonProvider>
     );
 }
+

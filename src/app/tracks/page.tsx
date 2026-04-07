@@ -1,10 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { CATEGORIES, COURSES } from "@/data/lessons";
-import { LESSON_INDEX } from "@/data/lessons-index";
+import { CATEGORIES, COURSES, LESSON_INDEX, type Course } from "@/content";
 import { useSavantStore } from "@/store/useSavantStore";
 import { m, Variants, AnimatePresence } from "framer-motion";
 import { Lock, Search, LayoutGrid, List } from "lucide-react";
@@ -58,7 +57,7 @@ function CompactCourseCard({
     completedCount, 
     categoryColor 
 }: { 
-    course: any, 
+    course: Course, 
     unlocked: boolean, 
     hasLessons: boolean, 
     lessonsCount: number, 
@@ -77,25 +76,43 @@ function CompactCourseCard({
             )}
         >
             <Link 
-                href={hasLessons && unlocked ? `/courses/${course.id}` : "#"}
+                href={hasLessons && unlocked ? `/courses/${course.id}?from=tracks` : "#"}
                 onClick={(e) => { if (!unlocked || !hasLessons) e.preventDefault(); }}
                 className="absolute inset-0 z-10"
             />
             
             <div className={cn(
-                "w-12 h-12 rounded-xl flex items-center justify-center text-xl shrink-0 bg-gradient-to-br shadow-lg group-hover:scale-110 transition-transform duration-300",
+                "w-12 h-12 flex items-center justify-center text-xl shrink-0 bg-gradient-to-br shadow-lg group-hover:scale-110 transition-transform duration-300 squarcle",
                 categoryColor
             )}>
                 {course.image ? (
-                    <Image src={course.image} alt={course.nameHe} width={32} height={32} className="object-contain" />
+                    <div className="w-full h-full p-2 flex items-center justify-center">
+                        {course.id === "course-notebooklm" ? (
+                            <div className="w-full h-full squarcle bg-white overflow-hidden flex items-center justify-center">
+                                <Image src={course.image} alt={course.nameHe} width={32} height={32} className="w-full h-full object-contain p-1" style={{ width: 'auto', height: 'auto' }} />
+                            </div>
+                        ) : (
+                            <Image 
+                                src={course.image} 
+                                alt={course.nameHe} 
+                                width={32} 
+                                height={32} 
+                                className={cn(
+                                    "w-full h-full object-contain",
+                                    (course.id === "grok-mastery" || course.id === "course-perplexity") && "brightness-0 invert"
+                                )} 
+                                style={{ width: 'auto', height: 'auto' }} 
+                            />
+                        )}
+                    </div>
                 ) : (
                     course.icon
                 )}
             </div>
 
             <div className="flex-1 min-w-0">
-                <h3 className="font-bold text-lg text-foreground truncate">{course.nameHe}</h3>
-                <p className="text-xs text-zinc-500 font-medium truncate">
+                <h3 className="font-bold text-lg text-foreground">{course.nameHe}</h3>
+                <p className="text-xs text-zinc-500 font-medium">
                     {unlocked ? `${lessonsCount} שיעורים (${completedCount} הושלמו)` : "נעול"}
                 </p>
             </div>
@@ -168,11 +185,76 @@ type StatusFilter = "all" | "unlocked" | "completed";
 export default function Tracks() {
     const completedLessons = useSavantStore(state => state.completedLessons);
     const completedCourses = useSavantStore(state => state.completedCourses);
+    const isCompact = useSavantStore(state => state.isCompactView);
+    const setIsCompact = useSavantStore(state => state.setCompactView);
+    const tracksScrollPosition = useSavantStore(state => state.tracksScrollPosition);
+    const setTracksScrollPosition = useSavantStore(state => state.setTracksScrollPosition);
     
+    const hasHydrated = useSavantStore(state => state._hasHydrated);
+    const [isRestored, setIsRestored] = useState(() => {
+        if (typeof window !== 'undefined') {
+            const pos = useSavantStore.getState().tracksScrollPosition || 0;
+            return pos === 0;
+        }
+        return false;
+    });
+
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
     const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
-    const [isCompact, setIsCompact] = useState(false);
+
+    // Scroll Restoration
+    useEffect(() => {
+        if (!hasHydrated || isRestored) return;
+
+        const mainElement = document.querySelector('main');
+        if (mainElement) {
+            if (tracksScrollPosition > 0) {
+                const restore = () => {
+                    mainElement.scrollTo({ top: tracksScrollPosition });
+                    setIsRestored(true);
+                };
+
+                // Try multiple times as content might be rendering
+                restore();
+                const timers = [
+                    setTimeout(restore, 20),
+                    setTimeout(restore, 100),
+                    setTimeout(restore, 300),
+                ];
+                return () => timers.forEach(clearTimeout);
+            } else {
+                setIsRestored(true);
+            }
+        }
+    }, [hasHydrated, tracksScrollPosition, isRestored]);
+
+    // Scroll Capture
+    useEffect(() => {
+        const mainElement = document.querySelector('main');
+        if (!mainElement) return;
+
+        let frameId: number;
+        const handleScroll = () => {
+            if (!isRestored) return; // Don't capture while restoring
+
+            cancelAnimationFrame(frameId);
+            frameId = requestAnimationFrame(() => {
+                const currentPos = mainElement.scrollTop;
+                // Only save if it's a valid scroll position and we're not at 0 
+                // while the content might be unmounting/re-rendering
+                if (currentPos > 0 || (currentPos === 0 && tracksScrollPosition < 100)) {
+                    setTracksScrollPosition(currentPos);
+                }
+            });
+        };
+
+        mainElement.addEventListener('scroll', handleScroll, { passive: true });
+        return () => {
+            mainElement.removeEventListener('scroll', handleScroll);
+            cancelAnimationFrame(frameId);
+        };
+    }, [setTracksScrollPosition, isRestored, tracksScrollPosition]);
 
     const filteredCourses = useMemo(() => {
         return COURSES.filter(course => {
@@ -354,7 +436,7 @@ export default function Tracks() {
                                             return (
                                                 <m.div key={course.id} variants={itemVariants} layout className="h-full">
                                                     <Link
-                                                        href={hasLessons && unlocked ? `/courses/${course.id}` : "#"}
+                                                        href={hasLessons && unlocked ? `/courses/${course.id}?from=tracks` : "#"}
                                                         onClick={(e) => { if (!unlocked || !hasLessons) e.preventDefault(); }}
                                                         className={cn(
                                                             "group h-full p-8 rounded-[32px] flex flex-col items-start space-y-6 transition-all duration-300 relative overflow-hidden",
@@ -381,10 +463,21 @@ export default function Tracks() {
                                                                     <div className="w-full h-full p-4 flex items-center justify-center">
                                                                          {course.id === "course-notebooklm" ? (
                                                                              <div className="w-full h-full squarcle bg-white overflow-hidden flex items-center justify-center">
-                                                                                 <Image src={course.image} alt={course.nameHe} width={96} height={96} className="w-full h-full object-contain p-2" loading="lazy" />
+                                                                                 <Image src={course.image} alt={course.nameHe} width={96} height={96} className="w-full h-full object-contain p-2" loading="lazy" style={{ width: 'auto', height: 'auto' }} />
                                                                              </div>
                                                                          ) : (
-                                                                             <Image src={course.image} alt={course.nameHe} width={96} height={96} className="w-full h-full object-contain" loading="lazy" />
+                                                                             <Image 
+                                                                                src={course.image} 
+                                                                                alt={course.nameHe} 
+                                                                                width={96} 
+                                                                                height={96} 
+                                                                                className={cn(
+                                                                                    "w-full h-full object-contain",
+                                                                                    (course.id === "grok-mastery" || course.id === "course-perplexity") && "brightness-0 invert"
+                                                                                )} 
+                                                                                loading="lazy" 
+                                                                                style={{ width: 'auto', height: 'auto' }} 
+                                                                             />
                                                                          )}
                                                                     </div>
                                                                 ) : (
@@ -489,3 +582,4 @@ export default function Tracks() {
         </div>
     );
 }
+

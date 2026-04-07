@@ -232,3 +232,4 @@ export function PracticalCall({ task, goal, tool, accentColor, courseCta, onDone
         </div>
     );
 }
+

@@ -86,3 +86,4 @@ export function AnimatedGradient({ color = "#00C48C", backgroundColor = "#050510
         </div>
     );
 }
+

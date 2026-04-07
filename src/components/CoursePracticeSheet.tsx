@@ -5,11 +5,11 @@ import { X, Zap, Target, ChevronLeft, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { loadCourseLessons } from "@/data/lessons-index";
+import { loadCourseLessons } from "@/content";
 import { useSavantStore } from "@/store/useSavantStore";
 import { haptics } from "@/lib/haptics";
 import { cn } from "@/lib/utils";
-import type { Lesson } from "@/data/lessons";
+import type { Lesson } from "@/content";
 
 interface Props {
     courseId: string;
@@ -32,7 +32,7 @@ export function CoursePracticeSheet({ courseId, courseName, isOpen, onClose }: P
 
     useEffect(() => {
         if (isOpen) {
-            setIsLoading(true);
+            if (!isLoading) setIsLoading(true);
             loadCourseLessons(courseId).then(data => {
                 if (Array.isArray(data)) {
                     setLessons(data);
@@ -210,3 +210,4 @@ export function CoursePracticeSheet({ courseId, courseName, isOpen, onClose }: P
         </AnimatePresence>
     );
 }
+
