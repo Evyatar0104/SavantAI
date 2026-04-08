@@ -31,9 +31,7 @@ const nextConfig = {
   compiler: {
     removeConsole: process.env.NODE_ENV === "production" ? { exclude: ["error"] } : false,
   },
-  experimental: {
-    turbo: {},
-  },
+  turbopack: {},
 };
 
 export default withPWA(nextConfig);

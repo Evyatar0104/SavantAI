@@ -17,7 +17,6 @@ export function VaultToast() {
     // Sync state and trigger haptics when a new card is unlocked
     useEffect(() => {
         if (unlockedVaultCard && unlockedVaultCard !== visibleCard) {
-            // eslint-disable-next-line react-hooks/set-state-in-effect
             setVisibleCard(unlockedVaultCard);
             haptics.success();
             // Automatically clear from store so it doesn't persist across sessions, but keep visible in local state until dismissed
@@ -28,7 +27,6 @@ export function VaultToast() {
     // Hide if navigating to the vault or profile
     useEffect(() => {
         if (pathname?.includes("/vault") || pathname === "/profile") {
-            // eslint-disable-next-line react-hooks/set-state-in-effect
             setVisibleCard(null);
         }
     }, [pathname]);

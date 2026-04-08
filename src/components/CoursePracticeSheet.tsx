@@ -32,7 +32,6 @@ export function CoursePracticeSheet({ courseId, courseName, isOpen, onClose }: P
 
     useEffect(() => {
         if (isOpen) {
-            // eslint-disable-next-line react-hooks/set-state-in-effect
             setIsLoading(true);
             loadCourseLessons(courseId).then(data => {
                 if (Array.isArray(data)) {

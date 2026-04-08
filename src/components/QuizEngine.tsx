@@ -134,7 +134,7 @@ export function QuizEngine({ questions, onComplete, accentColor = "#00C48C", bac
 
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
-    }, [quizMode, isAnswered, handleAnswer, handleNext, currentQuestionIndex, shuffledQuestions]);
+    }, [quizMode, isAnswered, handleAnswer, handleNext, currentQuestionIndex, shuffledQuestions, setQuizMode]);
 
     // Initial Choice Screen
     if (!quizMode) {
