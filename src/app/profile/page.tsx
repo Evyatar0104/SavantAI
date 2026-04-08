@@ -5,10 +5,16 @@ import Image from "next/image";
 import { m, Variants, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useState, useRef, useEffect, memo, useMemo } from "react";
-import { type Badge, BADGES, isBadgeEarned, RARITY_COLORS } from "@/content";
+import { BADGES, isBadgeEarned, type RarityTier, RARITY_COLORS } from "@/content/badges";
 import { haptics } from "@/lib/haptics";
 import { cn } from "@/lib/utils";
-import { Sparkles, Flame, ChevronLeft, Edit2, Check, X, Info, BookOpen, Palette } from "lucide-react";
+import { Sparkles, Flame, ChevronLeft, Edit2, Check, X, Info, BookOpen, Palette, Medal, Trophy } from "lucide-react";
+import { learningPaths } from "@/data/learningPaths";
+import { MODEL_THEMES, getLevelInfo } from "@/lib/userTheme";
+import { AchievementCard } from "@/components/AchievementCard";
+import { BadgeCard } from "@/components/BadgeCard";
+
+const RARITY_ORDER: RarityTier[] = ["Legendary", "Epic", "Super Rare", "Rare", "Common"];
 
 const containerVariants: Variants = {
     hidden: { opacity: 0 },
@@ -27,48 +33,6 @@ const itemVariants: Variants = {
     }
 };
 
-const MODEL_THEMES: Record<string, { 
-    primary: string; 
-    secondary: string; 
-    glow: string; 
-    label: string;
-    icon: string;
-    description: string;
-}> = {
-    claude:  { 
-        primary: "#EF6C00", 
-        secondary: "#FF9800", 
-        glow: "rgba(239, 108, 0, 0.4)", 
-        label: "Claude",
-        icon: "/assets/logos/claude.png",
-        description: "המומחה לכתיבה יצירתית, ניתוח טקסטים מורכבים וחשיבה אנושית ומעמיקה."
-    },
-    chatgpt: { 
-        primary: "#10A37F", 
-        secondary: "#19C37D", 
-        glow: "rgba(16, 163, 127, 0.4)", 
-        label: "ChatGPT",
-        icon: "/assets/logos/chatgpt.png",
-        description: "הכלי הרב-תכליתי ביותר בעולם. מצטיין בפתרון בעיות, כתיבת קוד וניהול שיחות זורמות."
-    },
-    gemini:  { 
-        primary: "#4285F4", 
-        secondary: "#8AB4F8", 
-        glow: "rgba(66, 133, 244, 0.4)", 
-        label: "Gemini",
-        icon: "/assets/logos/gemini.png",
-        description: "העוזר החכם של גוגל. מחובר למידע בזמן אמת ומצטיין בעיבוד מידע רב-ערוצי (תמונות, וידאו וטקסט)."
-    },
-    default: {
-        primary: "#6366F1",
-        secondary: "#A855F7",
-        glow: "rgba(99, 102, 241, 0.4)",
-        label: "Savant",
-        icon: "/assets/savant-logo.png",
-        description: "המדריך האישי שלך לעולם הבינה המלאכותית."
-    }
-};
-
 const USER_COLORS = [
     { label: "אינדיגו", value: "#6366F1" },
     { label: "טורקיז", value: "#14B8A6" },
@@ -79,127 +43,6 @@ const USER_COLORS = [
     { label: "אמרלד", value: "#10B981" },
     { label: "רויאל", value: "#3B82F6" },
 ];
-
-// Map each rarity to a vivid shimmer highlight color (used for the blob glow)
-const SHIMMER_COLOR: Record<string, string> = {
-    Common:    "161, 161, 170",   // silver-zinc
-    Rare:      "99, 179, 255",    // electric blue
-    Epic:      "196, 132, 255",   // violet-purple
-    Legendary: "251, 191, 36",    // amber-gold
-};
-
-// Level calculation constants
-const XP_PER_LEVEL = 500;
-
-const getLevelInfo = (xp: number) => {
-    const level = Math.floor(xp / XP_PER_LEVEL) + 1;
-    const currentLevelXp = xp % XP_PER_LEVEL;
-    const progress = (currentLevelXp / XP_PER_LEVEL) * 100;
-    const xpToNext = XP_PER_LEVEL - currentLevelXp;
-    
-    return { level, progress, xpToNext };
-};
-
-const BadgeCard = memo(({ badge, earned, onClick }: { badge: Badge, earned: boolean, onClick: () => void }) => {
-    const tierColor = RARITY_COLORS[badge.rarity || "Common"];
-    const shimmerRgb = SHIMMER_COLOR[badge.rarity || "Common"];
-
-    return (
-        <div
-            onClick={onClick}
-            style={{
-                aspectRatio: "3/4",
-                borderRadius: 20,
-                overflow: "hidden",
-                perspective: 1000,
-                cursor: earned ? "pointer" : "default",
-                willChange: "transform",
-                transform: "translateZ(0)",
-                border: earned
-                    ? `1px solid ${tierColor.border}`
-                    : "1px solid rgba(255,255,255,0.05)",
-                boxShadow: earned ? `0 12px 32px -8px ${tierColor.glow}` : "none",
-            }}
-        >
-            <m.div
-                whileHover={earned ? { scale: 1.03, rotateY: 8, rotateX: 6 } : undefined}
-                whileTap={earned ? { scale: 0.95 } : undefined}
-                style={{
-                    width: "100%",
-                    height: "100%",
-                    padding: "16px 12px",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    textAlign: "center",
-                    position: "relative",
-                    background: earned
-                        ? `linear-gradient(145deg, ${tierColor.main} 0%, rgba(10,10,15,0.4) 100%)`
-                        : "rgba(15,15,25,0.4)",
-                    backdropFilter: "blur(12px)",
-                    WebkitBackdropFilter: "blur(12px)",
-                }}
-            >
-                {/* Atmospheric Glow */}
-                {earned && (
-                    <div
-                        style={{
-                            position: "absolute",
-                            inset: 0,
-                            background: `radial-gradient(ellipse 120% 80% at 50% -10%, ${tierColor.glow}, transparent 70%)`,
-                            opacity: 0.45,
-                            pointerEvents: "none",
-                        }}
-                    />
-                )}
-
-                {/* Colored shimmer blob */}
-                {earned && (
-                    <div
-                        className="card-shimmer-blob"
-                        style={{
-                            position: "absolute",
-                            width: "180%",
-                            height: "180%",
-                            top: "-40%",
-                            left: "-40%",
-                            background: `radial-gradient(ellipse 35% 25% at 50% 50%, rgba(${shimmerRgb},0.22), transparent 60%),
-                                         radial-gradient(ellipse 70% 55% at 50% 50%, rgba(${shimmerRgb},0.07), transparent 80%)`,
-                            pointerEvents: "none",
-                            zIndex: 1,
-                        }}
-                    />
-                )}
-
-                <div
-                    className="text-4xl sm:text-5xl mb-3 drop-shadow-xl relative z-10"
-                    style={{
-                        filter: earned ? "none" : "grayscale(1) brightness(0.2) blur(1px)",
-                        opacity: earned ? 1 : 0.4
-                    }}
-                >
-                    {earned ? badge.icon : "🔒"}
-                </div>
-
-                <h3
-                    className="text-[13px] sm:text-sm font-bold mb-1.5 relative z-10 leading-tight"
-                    style={{ color: earned ? "white" : "rgba(255,255,255,0.3)" }}
-                >
-                    {badge.name}
-                </h3>
-
-                <p
-                    className="text-[10px] sm:text-[11px] leading-tight relative z-10 px-1"
-                    style={{ color: earned ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.15)" }}
-                >
-                    {badge.description}
-                </p>
-            </m.div>
-        </div>
-    );
-});
-BadgeCard.displayName = "BadgeCard";
 
 export default function Profile() {
     const router = useRouter();
@@ -234,6 +77,28 @@ export default function Profile() {
     const { level, progress, xpToNext } = useMemo(() => getLevelInfo(xp), [xp]);
     const theme = MODEL_THEMES[primaryModel || "default"] || MODEL_THEMES.default;
     const activeUserColor = userColor || theme.primary;
+
+    // Combine and group all cards by rarity
+    const groupedCards = useMemo(() => {
+        const allItems: { type: 'achievement' | 'badge', data: any, rarity: RarityTier }[] = [
+            ...learningPaths.map(p => ({ type: 'achievement' as const, data: p, rarity: p.rarity as RarityTier })),
+            ...BADGES.map(b => ({ type: 'badge' as const, data: b, rarity: b.rarity as RarityTier }))
+        ];
+
+        const groups: Record<RarityTier, typeof allItems> = {
+            Legendary: [],
+            Epic: [],
+            "Super Rare": [],
+            Rare: [],
+            Common: []
+        };
+
+        allItems.forEach(item => {
+            groups[item.rarity].push(item);
+        });
+
+        return groups;
+    }, []);
 
     // Enter edit mode
     const startEdit = () => {
@@ -474,148 +339,79 @@ export default function Profile() {
                     ))}
                 </div>
 
-                {/* ── AI PARTNER SECTION ─────────────────── */}
-                {!quizCompleted ? (
-                    <m.div variants={itemVariants} className="space-y-4">
-                        <div className="flex items-center justify-between px-1">
-                            <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                                <Sparkles size={18} className="text-purple-400" />
-                                התאמה אישית
-                            </h2>
-                        </div>
-
-                        <m.div 
-                            whileHover={{ scale: 1.01 }}
-                            onClick={() => {
-                                haptics.impact("medium");
-                                router.push("/quiz");
-                            }}
-                            className="relative group rounded-[32px] overflow-hidden shadow-2xl cursor-pointer border border-white/5 hover:border-purple-500/30 transition-all duration-500"
-                        >
-                            <div className="absolute inset-0 transition-opacity duration-700 opacity-20 group-hover:opacity-40"
-                                 style={{ 
-                                    background: `linear-gradient(135deg, #A855F7 0%, #6366F1 100%)`,
-                                    boxShadow: `inset 0 0 100px rgba(168, 85, 247, 0.4)`
-                                 }} />
-                            
-                            <div className="glass-panel p-8 flex flex-col items-center text-center relative z-10 border-white/5">
-                                <div className="w-20 h-20 rounded-[24px] bg-purple-500/10 flex items-center justify-center mb-6 border border-purple-500/20 shadow-lg group-hover:scale-110 transition-transform duration-500">
-                                    <Sparkles className="w-10 h-10 text-purple-400" />
-                                </div>
-                                
-                                <h3 className="text-2xl font-black text-white mb-2 tracking-tight">גלה את הסטאק שלך</h3>
-                                <p className="text-sm text-zinc-400 leading-relaxed font-medium mb-6 max-w-sm">
-                                    ענה על כמה שאלות קצרות ונתאים לך את כלי ה-AI המדויקים ביותר לצרכים שלך.
-                                </p>
-                                
-                                <div className="w-full h-14 bg-white text-black font-black text-sm rounded-2xl flex items-center justify-center gap-2 group-hover:bg-zinc-200 transition-colors shadow-xl">
-                                    התחל אפיון עכשיו
-                                    <ChevronLeft size={18} className="rotate-180" />
-                                </div>
-                            </div>
-                        </m.div>
-                    </m.div>
-                ) : primaryModel && (
-                    <m.div variants={itemVariants} className="space-y-4">
-                        <div className="flex items-center justify-between px-1">
-                            <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                                <Sparkles size={18} className="text-indigo-400" />
-                                השותף שלך לבינה מלאכותית
-                            </h2>
-                            <button
-                                onClick={() => {
-                                    haptics.impact("light");
-                                    setShowResetModal(true);
-                                }}
-                                className="text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors flex items-center gap-1"
-                            >
-                                התאמה מחדש
-                                <ChevronLeft size={14} />
-                            </button>
-                        </div>
-
-                        <m.div 
-                            whileHover={{ scale: 1.01 }}
-                            className="relative group rounded-[32px] overflow-hidden shadow-2xl"
-                        >
-                            <div className="absolute inset-0 transition-opacity duration-700 opacity-40 group-hover:opacity-60"
-                                 style={{ 
-                                    background: `linear-gradient(135deg, ${theme.primary}55 0%, ${theme.secondary}33 100%)`,
-                                    boxShadow: `inset 0 0 100px ${theme.glow}`
-                                 }} />
-                            
-                            <div className="glass-panel p-6 md:p-8 flex items-center gap-6 relative z-10 border-white/10">
-                                <div className="relative shrink-0">
-                                    <div className="absolute -inset-4 blur-3xl opacity-40 group-hover:opacity-80 transition-opacity duration-500" 
-                                         style={{ backgroundColor: theme.primary }} />
-                                    <div className="w-20 h-20 md:w-24 md:h-24 rounded-3xl bg-zinc-950/60 backdrop-blur-2xl border border-white/10 flex items-center justify-center p-4 relative z-10 overflow-hidden shadow-2xl transition-all duration-700 group-hover:scale-105 group-hover:-rotate-3 group-hover:border-white/20">
-                                        <Image
-                                            src={theme.icon}
-                                            alt={theme.label}
-                                            width={80}
-                                            height={80}
-                                            className="w-full h-full object-contain drop-shadow-2xl"
-                                            priority
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="flex flex-col flex-1">
-                                    <div className="flex items-center gap-2 mb-1.5">
-                                        <span className="text-xs font-black text-indigo-400 uppercase tracking-widest bg-indigo-500/10 px-2 py-0.5 rounded-md border border-indigo-500/10">מומלץ עבורך</span>
-                                        <div className="h-px flex-1 bg-white/10" />
-                                    </div>
-                                    <h3 className="text-2xl md:text-3xl font-black text-white mb-2 tracking-tight">
-                                        {theme.label}
-                                    </h3>
-                                    <p className="text-sm text-zinc-200 leading-relaxed font-medium">
-                                        {theme.description}
-                                    </p>
-                                    {primaryModelReason && (
-                                        <p className="text-[11px] text-zinc-500 mt-3 italic bg-black/30 p-2.5 rounded-xl border border-white/5 backdrop-blur-sm">
-                                            "{primaryModelReason}"
-                                        </p>
-                                    )}
-                                </div>
-                            </div>
-                        </m.div>
-                    </m.div>
-                )}
-
-                {/* ── THE VAULT DIRECT GRID ───────────────────── */}
-                <m.div variants={itemVariants} className="space-y-4">
+                {/* ── CARD COLLECTION ───────────────────── */}
+                <m.div variants={itemVariants} className="space-y-12">
                     <div className="flex items-center justify-between px-1">
                         <h2 className="text-lg font-bold text-white flex items-center gap-3">
                             <BookOpen size={18} className="text-indigo-400" />
-                            אוסף קלפים
-                            <span className="bg-indigo-500/20 text-indigo-400 text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-wider border border-indigo-500/20 shadow-lg">
-                                BETA
-                            </span>
+                            אוסף הקלפים וההישגים
                         </h2>
                         <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
-                            {state.badges.length} / {BADGES.length} קלפים
+                            {state.achievements.length + state.badges.length} / {learningPaths.length + BADGES.length} קלפים
                         </div>
                     </div>
                     
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4">
-                        {BADGES.map((badge) => {
-                            const earned = isBadgeEarned(badge.id, state);
-                            
-                            return (
-                                <BadgeCard
-                                    key={badge.id}
-                                    badge={badge}
-                                    earned={earned}
-                                    onClick={() => {
-                                        if (earned) {
-                                            haptics.tap();
-                                            router.push(`/vault/${badge.id}?from=profile`);
+                    {RARITY_ORDER.map(rarity => {
+                        const items = groupedCards[rarity];
+                        if (items.length === 0) return null;
+                        const tierColor = RARITY_COLORS[rarity];
+
+                        return (
+                            <div key={rarity} className="space-y-6">
+                                {/* Rarity Divider Header */}
+                                <div className="flex items-center gap-4 px-1">
+                                    <div 
+                                        className="h-px flex-1" 
+                                        style={{ background: `linear-gradient(to left, ${tierColor.border}, transparent)` }} 
+                                    />
+                                    <h3 
+                                        className="text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-2"
+                                        style={{ color: tierColor.border.replace('0.4', '1').replace('0.5', '1').replace('0.6', '1') }}
+                                    >
+                                        <Trophy size={12} />
+                                        {rarity === "Super Rare" ? "SUPER RARE" : rarity}
+                                    </h3>
+                                    <div 
+                                        className="h-px flex-1" 
+                                        style={{ background: `linear-gradient(to right, ${tierColor.border}, transparent)` }} 
+                                    />
+                                </div>
+
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4">
+                                    {items.map(item => {
+                                        if (item.type === 'achievement') {
+                                            const earned = state.achievements.includes(item.data.id);
+                                            return (
+                                                <AchievementCard 
+                                                    key={item.data.id}
+                                                    path={item.data}
+                                                    earned={earned}
+                                                    onClick={() => {
+                                                        if (earned) haptics.tap();
+                                                    }}
+                                                />
+                                            );
+                                        } else {
+                                            const earned = isBadgeEarned(item.data.id, state);
+                                            return (
+                                                <BadgeCard
+                                                    key={item.data.id}
+                                                    badge={item.data}
+                                                    earned={earned}
+                                                    onClick={() => {
+                                                        if (earned) {
+                                                            haptics.tap();
+                                                            router.push(`/vault/${item.data.id}?from=profile`);
+                                                        }
+                                                    }}
+                                                />
+                                            );
                                         }
-                                    }}
-                                />
-                            );
-                        })}
-                    </div>
+                                    })}
+                                </div>
+                            </div>
+                        );
+                    })}
                 </m.div>
             </m.div>
 
@@ -667,25 +463,6 @@ export default function Profile() {
                     </m.div>
                 )}
             </AnimatePresence>
-
-            <style jsx global>{`
-                @keyframes shimmer {
-                    0% { transform: translateX(-100%); }
-                    100% { transform: translateX(100%); }
-                }
-                
-                @keyframes cardShimmerDrift {
-                    0%   { transform: translate(-18%, -22%) rotate(0deg);   opacity: 0.7; }
-                    25%  { transform: translate(18%, -14%) rotate(90deg);   opacity: 1;   }
-                    50%  { transform: translate(14%, 18%)  rotate(180deg);  opacity: 0.75; }
-                    75%  { transform: translate(-14%, 14%) rotate(270deg);  opacity: 1;   }
-                    100% { transform: translate(-18%, -22%) rotate(360deg); opacity: 0.7; }
-                }
-                .card-shimmer-blob {
-                    animation: cardShimmerDrift 7s infinite ease-in-out;
-                }
-            `}</style>
         </div>
     );
 }
-

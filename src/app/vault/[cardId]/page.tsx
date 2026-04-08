@@ -3,7 +3,7 @@
 import { useSavantStore } from "@/store/useSavantStore";
 import { BADGES, isBadgeEarned } from "@/content";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import dynamic from "next/dynamic";
 
 const CardScene = dynamic(() => import("@/components/vault/CardScene"), { 
@@ -11,7 +11,7 @@ const CardScene = dynamic(() => import("@/components/vault/CardScene"), {
     loading: () => <div className="w-full h-full bg-[#050508] animate-pulse" />
 });
 
-export default function CardViewPage() {
+function CardView() {
     const router = useRouter();
     const params = useParams();
     const searchParams = useSearchParams();
@@ -84,5 +84,13 @@ export default function CardViewPage() {
                 </span>
             </div>
         </div>
+    );
+}
+
+export default function CardViewPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-[#050508]" />}>
+            <CardView />
+        </Suspense>
     );
 }

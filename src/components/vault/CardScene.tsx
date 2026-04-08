@@ -2,21 +2,31 @@
 
 import { Canvas, useThree } from "@react-three/fiber";
 import { Environment, Text, PresentationControls, Float, RoundedBox, useTexture } from "@react-three/drei";
-import { Badge } from "@/content";
-import { useRef, useEffect, useState, useMemo } from "react";
+import { Badge, RARITY_COLORS } from "@/content/badges";
+import { useRef, useEffect, useState, useMemo, Suspense } from "react";
 import * as THREE from "three";
 import { haptics } from "@/lib/haptics";
 
-const THEMES = {
-    claude: { color: "#EF6C00", emissive: "#EF6C00" }, // Copper
-    chatgpt: { color: "#10A37F", emissive: "#10A37F" }, // Teal
-    gemini: { color: "#4285F4", emissive: "#4285F4" }, // Blue
-};
-
 function CardModel({ badge, userName }: { badge: Badge; userName: string }) {
-    const theme = THEMES[badge.modelTheme || "claude"];
+    const rarity = badge.rarity || "Common";
+    const tierColor = RARITY_COLORS[rarity];
+    
+    // Extract hex color from rgba string
+    const getHexFromRgba = (rgba: string) => {
+        const match = rgba.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+        if (match) {
+            return `#${((1 << 24) + (parseInt(match[1]) << 16) + (parseInt(match[2]) << 8) + parseInt(match[3])).toString(16).slice(1)}`;
+        }
+        return "#ffffff";
+    };
+
+    const cardColor = getHexFromRgba(tierColor.border);
+    const glowColor = getHexFromRgba(tierColor.glow);
+
     const groupRef = useRef<THREE.Group>(null);
     const { viewport } = useThree();
+    
+    // Move useTexture inside Suspense-friendly structure
     const backTexture = useTexture("/backofcard.png");
 
     useMemo(() => {
@@ -65,10 +75,6 @@ function CardModel({ badge, userName }: { badge: Badge; userName: string }) {
         }
     }, [cardShape]);
 
-    useEffect(() => {
-        // Init logic if needed
-    }, []);
-
     // Scale down the card if the viewport is narrower than the card's width + margin
     const responsiveScale = Math.min(1, (viewport.width * 0.85) / 3);
 
@@ -84,13 +90,17 @@ function CardModel({ badge, userName }: { badge: Badge; userName: string }) {
                     receiveShadow
                 >
                     <meshPhysicalMaterial 
-                        color={0xffffff}
-                        transmission={0.95}
+                        color={cardColor}
+                        emissive={glowColor}
+                        emissiveIntensity={0.2}
+                        transmission={0.8}
                         opacity={1}
                         transparent={true}
-                        roughness={0.15}
+                        roughness={0.1}
                         ior={1.5}
                         thickness={0.5}
+                        attenuationColor={cardColor}
+                        attenuationDistance={2}
                         iridescence={1.0}
                         iridescenceIOR={1.3}
                         clearcoat={1.0}
@@ -107,17 +117,17 @@ function CardModel({ badge, userName }: { badge: Badge; userName: string }) {
 
                 {/* Internal Glow / Accent Layer */}
                 <RoundedBox 
-                    args={[2.1, 3.85, 0.02]} 
+                    args={[2.15, 3.9, 0.01]} 
                     radius={0.04} 
                     smoothness={12}
                     position={[0, 0, 0]}
                 >
                     <meshStandardMaterial 
-                        color={theme.color} 
-                        emissive={theme.emissive}
-                        emissiveIntensity={0.2}
+                        color={cardColor} 
+                        emissive={glowColor}
+                        emissiveIntensity={1.5}
                         transparent
-                        opacity={0.15}
+                        opacity={0.85}
                     />
                 </RoundedBox>
 
@@ -176,6 +186,17 @@ function CardModel({ badge, userName }: { badge: Badge; userName: string }) {
 export default function CardScene({ badge, userName }: { badge: Badge; userName: string }) {
     const [hapticTriggered, setHapticTriggered] = useState(false);
 
+    const rarity = badge.rarity || "Common";
+    const tierColor = RARITY_COLORS[rarity];
+    const getHexFromRgba = (rgba: string) => {
+        const match = rgba.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+        if (match) {
+            return `#${((1 << 24) + (parseInt(match[1]) << 16) + (parseInt(match[2]) << 8) + parseInt(match[3])).toString(16).slice(1)}`;
+        }
+        return "#ffffff";
+    };
+    const spotLightColor = getHexFromRgba(tierColor.glow);
+
     // This haptic will only trigger ONCE upon user interaction
     const triggerHaptic = () => {
         if (!hapticTriggered) {
@@ -187,27 +208,45 @@ export default function CardScene({ badge, userName }: { badge: Badge; userName:
     return (
         <div 
             onPointerDown={triggerHaptic}
-            style={{ width: "100%", height: "100%", background: "#050508", touchAction: "none" }}
+            style={{ 
+                width: "100%", 
+                height: "100%", 
+                background: "#050508", 
+                touchAction: "none",
+                userSelect: "none"
+            }}
         >
             <Canvas 
                 style={{ touchAction: "none" }} 
                 camera={{ position: [0, 0, 6], fov: 45 }}
+                dpr={[1, 2]} // Optimizes pixel ratio for performance/stability
+                gl={{ 
+                    antialias: true, 
+                    alpha: false, 
+                    powerPreference: "high-performance",
+                    preserveDrawingBuffer: false
+                }}
+                onCreated={({ gl }) => {
+                    gl.setClearColor("#050508");
+                }}
             >
                 <color attach="background" args={["#050508"]} />
                 
                 <ambientLight intensity={0.5} />
                 <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={2} castShadow />
-                <spotLight position={[-10, -10, -10]} angle={0.15} penumbra={1} intensity={1} color="#4285F4" />
+                <spotLight position={[-10, -10, -10]} angle={0.15} penumbra={1} intensity={1} color={spotLightColor} />
 
-                <PresentationControls 
-                    global 
-                    rotation={[0, 0, 0]} 
-                    polar={[-Math.PI / 4, Math.PI / 4]} 
-                    azimuth={[-Math.PI, Math.PI]} 
-                    snap={true}
-                >
-                    <CardModel badge={badge} userName={userName} />
-                </PresentationControls>
+                <Suspense fallback={null}>
+                    <PresentationControls 
+                        global 
+                        rotation={[0, 0, 0]} 
+                        polar={[-Math.PI / 4, Math.PI / 4]} 
+                        azimuth={[-Math.PI, Math.PI]} 
+                        snap={true}
+                    >
+                        <CardModel badge={badge} userName={userName} />
+                    </PresentationControls>
+                </Suspense>
 
                 <Environment preset="studio" />
             </Canvas>

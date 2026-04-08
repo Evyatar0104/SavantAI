@@ -6,6 +6,7 @@ import { Providers } from "../components/Providers";
 import { AnimatedBackground } from "../components/AnimatedBackground";
 import { ResumeToast } from "../components/ResumeToast";
 import { VaultToast } from "../components/VaultToast";
+import { PathCompletionModal } from "../components/PathCompletionModal";
 import { Assistant as AssistantFont } from "next/font/google";
 
 const assistant = AssistantFont({
@@ -57,6 +58,7 @@ export default function RootLayout({
             <Sidebar />
             <ResumeToast />
             <VaultToast />
+            <PathCompletionModal />
 
             {/* Main content area */}
             <div className="flex-1 min-w-0 flex flex-col relative h-[100dvh]">

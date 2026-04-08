@@ -3,7 +3,7 @@ import { defineCourse } from "../types";
 export const HOW_LLMS_WORK_LESSONS = defineCourse([
     {
         id: "ai-p0-01",
-        trackId: "ai",
+        trackIds: ["writer", "analyst", "visual", "builder", "student"],
         courseId: "how-llms-work",
         categoryId: "foundation",
         order: 1,
@@ -63,7 +63,7 @@ export const HOW_LLMS_WORK_LESSONS = defineCourse([
     },
     {
         id: "llm-tokens",
-        trackId: "ai",
+        trackIds: ["writer", "analyst", "visual", "builder", "student"],
         courseId: "how-llms-work",
         categoryId: "foundation",
         order: 2,
@@ -124,7 +124,7 @@ export const HOW_LLMS_WORK_LESSONS = defineCourse([
     },
     {
         id: "llm-probability",
-        trackId: "ai",
+        trackIds: ["writer", "analyst", "visual", "builder", "student"],
         courseId: "how-llms-work",
         categoryId: "foundation",
         order: 3,
@@ -160,7 +160,7 @@ export const HOW_LLMS_WORK_LESSONS = defineCourse([
     },
     {
         id: "llm-training",
-        trackId: "ai",
+        trackIds: ["writer", "analyst", "visual", "builder", "student"],
         courseId: "how-llms-work",
         categoryId: "foundation",
         order: 5,
@@ -221,7 +221,7 @@ export const HOW_LLMS_WORK_LESSONS = defineCourse([
     },
     {
         id: "llm-limits",
-        trackId: "ai",
+        trackIds: ["writer", "analyst", "visual", "builder", "student"],
         courseId: "how-llms-work",
         categoryId: "foundation",
         order: 6,
@@ -281,7 +281,7 @@ export const HOW_LLMS_WORK_LESSONS = defineCourse([
     },
     {
         id: "ai-p0-06",
-        trackId: "ai",
+        trackIds: ["writer", "analyst", "visual", "builder", "student"],
         courseId: "how-llms-work",
         categoryId: "foundation",
         order: 7,
@@ -342,7 +342,7 @@ export const HOW_LLMS_WORK_LESSONS = defineCourse([
     },
     {
         id: "llm-context-window",
-        trackId: "ai",
+        trackIds: ["writer", "analyst", "visual", "builder", "student"],
         courseId: "how-llms-work",
         categoryId: "foundation",
         order: 4,

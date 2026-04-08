@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo, useRef } from "react";
+import { useEffect, useState, useMemo, useRef, Suspense } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { m, AnimatePresence } from "framer-motion";
 import Image from "next/image";
@@ -506,7 +506,7 @@ function StepInputArea({
 }
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
-export default function PromptBuilderPage() {
+function PromptBuilderContent() {
     const params       = useParams();
     const router       = useRouter();
     const searchParams = useSearchParams();
@@ -862,5 +862,17 @@ export default function PromptBuilderPage() {
                 </div>
             </main>
         </div>
+    );
+}
+
+export default function PromptBuilderPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-[#0d0f1a] flex items-center justify-center">
+                <div className="w-8 h-8 border-2 border-blue-500/20 border-t-blue-500 rounded-full animate-spin" />
+            </div>
+        }>
+            <PromptBuilderContent />
+        </Suspense>
     );
 }

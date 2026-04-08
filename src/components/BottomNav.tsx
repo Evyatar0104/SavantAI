@@ -2,15 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Compass, Trophy, User, Crosshair } from "lucide-react";
+import { Home, Compass, Trophy, User, Crosshair, GraduationCap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { m } from "framer-motion";
 
-const NAV_ROUTES = ["/", "/tracks", "/practice", "/leaderboard", "/profile"];
+const NAV_ROUTES = ["/", "/courses", "/practice", "/leaderboard", "/profile"];
 
 const links = [
     { href: "/", label: "ראשי", icon: Home },
-    { href: "/tracks", label: "מסלולים", icon: Compass },
+    { href: "/courses", label: "למידה", icon: GraduationCap },
     { href: "/practice", label: "תרגול", icon: Crosshair },
     { href: "/leaderboard", label: "דירוג", icon: Trophy },
     { href: "/profile", label: "פרופיל", icon: User },
@@ -59,8 +59,8 @@ export function BottomNav() {
                                         : "text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
                                 )}
                             >
-                                <Icon className="w-5 h-5 mb-[1px]" strokeWidth={isActive ? 2.5 : 2} />
-                                <span className="text-[10px] font-medium tracking-wide leading-none">{link.label}</span>
+                                <Icon className="w-6 h-6 mb-1" strokeWidth={isActive ? 2.5 : 2} />
+                                <span className="text-[11px] font-medium tracking-wide leading-none">{link.label}</span>
                             </m.div>
                         </Link>
                     );

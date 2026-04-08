@@ -3,7 +3,7 @@ import { defineCourse } from "../types";
 export const PROMPTING_MASTERY_LESSONS = defineCourse([
     {
         id: "prompting-why-prompts-fail",
-        trackId: "ai",
+        trackIds: ["writer", "analyst", "visual", "builder", "student"],
         courseId: "prompting-mastery",
         categoryId: "foundation",
         order: 1,
@@ -31,7 +31,7 @@ export const PROMPTING_MASTERY_LESSONS = defineCourse([
     },
     {
         id: "prompting-give-it-a-role",
-        trackId: "ai",
+        trackIds: ["writer", "analyst", "visual", "builder", "student"],
         courseId: "prompting-mastery",
         categoryId: "foundation",
         order: 2,
@@ -59,7 +59,7 @@ export const PROMPTING_MASTERY_LESSONS = defineCourse([
     },
     {
         id: "prompting-context-is-everything",
-        trackId: "ai",
+        trackIds: ["writer", "analyst", "visual", "builder", "student"],
         courseId: "prompting-mastery",
         categoryId: "foundation",
         order: 3,
@@ -87,7 +87,7 @@ export const PROMPTING_MASTERY_LESSONS = defineCourse([
     },
     {
         id: "prompting-say-what-you-dont-want",
-        trackId: "ai",
+        trackIds: ["writer", "analyst", "visual", "builder", "student"],
         courseId: "prompting-mastery",
         categoryId: "foundation",
         order: 4,
@@ -115,7 +115,7 @@ export const PROMPTING_MASTERY_LESSONS = defineCourse([
     },
     {
         id: "prompting-chain-of-thought",
-        trackId: "ai",
+        trackIds: ["writer", "analyst", "visual", "builder", "student"],
         courseId: "prompting-mastery",
         categoryId: "foundation",
         order: 5,
@@ -143,7 +143,7 @@ export const PROMPTING_MASTERY_LESSONS = defineCourse([
     },
     {
         id: "prompting-few-shot",
-        trackId: "ai",
+        trackIds: ["writer", "analyst", "visual", "builder", "student"],
         courseId: "prompting-mastery",
         categoryId: "foundation",
         order: 6,
@@ -171,7 +171,7 @@ export const PROMPTING_MASTERY_LESSONS = defineCourse([
     },
     {
         id: "prompting-format-control",
-        trackId: "ai",
+        trackIds: ["writer", "analyst", "visual", "builder", "student"],
         courseId: "prompting-mastery",
         categoryId: "foundation",
         order: 7,
@@ -199,7 +199,7 @@ export const PROMPTING_MASTERY_LESSONS = defineCourse([
     },
     {
         id: "prompting-system-prompt-mindset",
-        trackId: "ai",
+        trackIds: ["writer", "analyst", "visual", "builder", "student"],
         courseId: "prompting-mastery",
         categoryId: "foundation",
         order: 8,
@@ -227,7 +227,7 @@ export const PROMPTING_MASTERY_LESSONS = defineCourse([
     },
     {
         id: "prompting-chaining-tasks",
-        trackId: "ai",
+        trackIds: ["writer", "analyst", "visual", "builder", "student"],
         courseId: "prompting-mastery",
         categoryId: "foundation",
         order: 9,
@@ -255,7 +255,7 @@ export const PROMPTING_MASTERY_LESSONS = defineCourse([
     },
     {
         id: "prompting-meta-prompt",
-        trackId: "ai",
+        trackIds: ["writer", "analyst", "visual", "builder", "student"],
         courseId: "prompting-mastery",
         categoryId: "foundation",
         order: 10,

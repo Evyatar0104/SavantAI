@@ -116,7 +116,7 @@ function CoursePageContent() {
     const handleBack = () => {
         haptics.tap();
         if (from === 'home') router.push('/');
-        else if (from === 'tracks') router.push('/tracks');
+        else if (from === 'tracks') router.push('/courses');
         else router.back();
     };
 
@@ -389,7 +389,7 @@ function CoursePageContent() {
                                             {group.title}
                                         </h3>
                                         <span className="text-[10px] font-black text-zinc-600 uppercase tracking-widest">
-                                            {groupCompletedCount} מתוך {group.lessons.length} הושלמו
+                                            {group.lessons.length - groupCompletedCount} / {groupCompletedCount}
                                         </span>
                                     </div>
                                     <div className="flex-1 h-px bg-gradient-to-l from-white/10 to-transparent mr-6" />

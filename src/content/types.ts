@@ -58,7 +58,7 @@ export interface Track {
 
 export interface Lesson {
     id: string;
-    trackId?: string;
+    trackIds?: string[];
     courseId: string;
     categoryId: string;
     order: number;
@@ -82,7 +82,7 @@ export interface Lesson {
 
 export interface LessonMeta {
     id: string;
-    trackId?: string;
+    trackIds?: string[];
     courseId: string;
     categoryId: string;
     order: number;

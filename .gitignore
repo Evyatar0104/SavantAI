@@ -50,3 +50,6 @@ next-env.d.ts
 
 # old config backup
 next.config.ts.bak
+
+# agent activation automation
+tasks.json

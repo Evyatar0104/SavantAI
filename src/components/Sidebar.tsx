@@ -3,10 +3,11 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { Home, Compass, Trophy, User, Crosshair } from "lucide-react";
+import { Home, Compass, Trophy, User, Crosshair, GraduationCap, Flame } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { m } from "framer-motion";
 import { useSavantStore } from "@/store/useSavantStore";
+import { MODEL_THEMES, getLevelInfo } from "@/lib/userTheme";
 
 export function Sidebar() {
     const pathname = usePathname();
@@ -16,18 +17,28 @@ export function Sidebar() {
         pathname?.startsWith("/lesson") ||
         pathname === "/quiz" ||
         pathname?.includes("/practice/builder/") ||
+        pathname?.startsWith("/paths/") ||
         (pathname?.startsWith("/courses/") ?? false);
 
     const userName = useSavantStore(state => state.userName);
+    const userColor = useSavantStore(state => state.userColor);
+    const primaryModel = useSavantStore(state => state.primaryModel);
+    const profileTitle = useSavantStore(state => state.profileTitle);
+    
     const name = userName || "לומד/ת";
     const xp = useSavantStore(state => state.xp);
     const streak = useSavantStore(state => state.streak);
 
     if (isHiddenPage) return null;
 
+    const { level, progress, xpToNext } = getLevelInfo(xp);
+    const theme = MODEL_THEMES[primaryModel || "default"] || MODEL_THEMES.default;
+    const activeUserColor = userColor || theme.primary;
+    const titlePill = profileTitle || "מתחיל/ה";
+
     const navItems = [
         { section: "primary", href: "/",           label: "ראשי",       icon: Home    },
-        { section: "primary", href: "/tracks",      label: "מסלולים",    icon: Compass },
+        { section: "primary", href: "/courses",     label: "למידה",      icon: GraduationCap },
         { section: "primary", href: "/practice",    label: "תרגול",      icon: Crosshair },
         { section: "secondary", href: "/leaderboard", label: "דירוג עולמי", icon: Trophy  },
         { section: "secondary", href: "/profile",     label: "פרופיל",     icon: User    },
@@ -38,8 +49,6 @@ export function Sidebar() {
         { emoji: "🎯", label: "האפיון שלי",  onClick: () => router.push("/quiz")                  },
     ];
 
-    const level = Math.floor(xp / 100) + 1;
-    const progressPercent = Math.max(xp % 100, 0);
     const firstLetter = (userName ? userName.charAt(0) : "ל").toUpperCase();
 
     return (
@@ -48,38 +57,76 @@ export function Sidebar() {
             style={{ direction: "rtl" }}
         >
             {/* ── USER CARD ─────────────────────────── */}
-            <div className="m-3 rounded-2xl bg-white/[0.07] border border-white/[0.12] backdrop-blur-md p-3.5">
-                {/* Row 1 — Avatar + name + level */}
-                <div className="flex items-center gap-2.5 mb-3">
-                    <div className="w-[38px] h-[38px] rounded-full bg-gradient-to-br from-[#534AB7] to-[#818CF8] flex items-center justify-center text-sm font-semibold text-white shrink-0">
-                        {firstLetter}
-                    </div>
-                    <div className="flex flex-col leading-tight">
-                        <span className="text-[13px] font-medium text-white">{name}</span>
-                        <span className="inline-block text-[10px] bg-[#534AB7]/30 text-[#A78BFA] px-1.5 py-0.5 rounded-full mt-0.5">
-                            רמה {level}
-                        </span>
-                    </div>
-                </div>
+            <div 
+                className="m-3 rounded-[24px] p-[1px] relative overflow-hidden cursor-pointer group shadow-xl"
+                style={{ 
+                    background: `linear-gradient(135deg, ${activeUserColor}40, ${theme.secondary}20)`,
+                }}
+                onClick={() => router.push("/profile")}
+            >
+                <div className="glass-panel rounded-[23px] p-4 relative overflow-hidden">
+                    {/* Background mesh gradient */}
+                    <div className="absolute inset-0 opacity-20 pointer-events-none" 
+                         style={{ 
+                            background: `radial-gradient(circle at 20% 30%, ${activeUserColor}, transparent 70%), 
+                                         radial-gradient(circle at 80% 70%, ${theme.secondary}, transparent 70%)`,
+                            filter: "blur(30px)"
+                         }} 
+                    />
 
-                {/* Row 2 — XP bar */}
-                <div className="mb-2.5">
-                    <div className="flex justify-between mb-1">
-                        <span className="text-[10px] opacity-50">התקדמות לרמה {level + 1}</span>
-                        <span className="text-[10px] opacity-50">100 / {progressPercent} XP</span>
-                    </div>
-                    <div className="h-1 bg-white/10 rounded-full">
-                        <div 
-                            className="h-1 bg-gradient-to-r from-[#534AB7] to-[#818CF8] rounded-full transition-all duration-700 min-w-[4px]"
-                            style={{ width: `${progressPercent}%` }}
-                        />
-                    </div>
-                </div>
+                    <div className="relative z-10 flex flex-col gap-4">
+                        <div className="flex items-center gap-3">
+                            {/* Squarcle Avatar */}
+                            <div className="relative shrink-0">
+                                <div 
+                                    className="w-12 h-12 squarcle bg-gradient-to-br p-[1.5px] shadow-lg transition-transform group-hover:scale-105 duration-500 relative"
+                                    style={{ backgroundImage: `linear-gradient(135deg, ${activeUserColor}, ${theme.secondary})` }}
+                                >
+                                    <div className="w-full h-full squarcle bg-zinc-950 flex items-center justify-center">
+                                        <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-br"
+                                              style={{ backgroundImage: `linear-gradient(135deg, ${activeUserColor}, ${theme.secondary})` }}>
+                                            {firstLetter}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-white text-black flex items-center justify-center font-black text-[9px] shadow-xl border-2 border-zinc-950">
+                                    {level}
+                                </div>
+                            </div>
 
-                {/* Row 3 — Streak */}
-                <div className="flex items-center gap-1.5 text-[11px] opacity-60">
-                    <span>🔥</span>
-                    <span>{streak} ימים ברצף</span>
+                            <div className="flex flex-col min-w-0">
+                                <span className="text-sm font-bold text-white truncate leading-tight">{name}</span>
+                                <div className="flex items-center gap-1.5 mt-1">
+                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-white/10 text-white/90 border border-white/10 backdrop-blur-md">
+                                        {titlePill}
+                                    </span>
+                                    <div className="flex items-center gap-1 text-[9px] text-emerald-400 font-bold">
+                                        <Flame size={10} fill="currentColor" />
+                                        {streak}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Progress section */}
+                        <div className="space-y-1.5">
+                            <div className="flex justify-between items-end text-[9px] font-bold">
+                                <span className="text-white/40">התקדמות</span>
+                                <span className="text-white/80">{xpToNext} XP לרמה הבאה</span>
+                            </div>
+                            <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden border border-white/5 p-[1px]">
+                                <m.div 
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${progress}%` }}
+                                    transition={{ duration: 1, ease: "easeOut" }}
+                                    className="h-full rounded-full relative"
+                                    style={{ background: `linear-gradient(to left, ${activeUserColor}, ${theme.secondary})` }}
+                                >
+                                    <div className="absolute inset-0 bg-white/20 mix-blend-overlay animate-[shimmer_2s_infinite]" />
+                                </m.div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 

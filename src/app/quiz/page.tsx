@@ -9,6 +9,7 @@ import { useSavantStore } from "@/store/useSavantStore";
 import { calculateQuizResult, generateModelCards } from "@/lib/quizScoring";
 import { Check, ArrowLeft, Sparkles, Zap, Brain, Rocket, Target, MousePointer2 } from "lucide-react";
 import { haptics } from "@/lib/haptics";
+import { PathSelectionModal } from "@/components/PathSelectionModal";
 
 // ── Data ──────────────────────────────────────────────
 
@@ -192,10 +193,10 @@ function OptionCard({
                 </div>
                 <div className="flex flex-col flex-1 min-w-0">
                     <span className={cn(
-                        "text-base md:text-lg font-bold leading-tight transition-colors truncate",
+                        "text-base md:text-lg font-bold leading-tight transition-colors",
                         selected ? "text-white" : "text-zinc-300 group-hover:text-purple-400"
                     )}>{label}</span>
-                    {subtitle && <span className="text-[10px] md:text-xs text-zinc-500 mt-0.5 font-medium line-clamp-1">{subtitle}</span>}
+                    {subtitle && <span className="text-[10px] md:text-xs text-zinc-500 mt-0.5 font-medium">{subtitle}</span>}
                 </div>
                 
                 <div className="shrink-0">
@@ -306,6 +307,7 @@ export default function QuizPage() {
     const [selectedTools, setSelectedTools] = useState<string[]>([]);
     const [noneSelected, setNoneSelected] = useState(false);
     const [result, setResult] = useState<ReturnType<typeof calculateQuizResult> | null>(null);
+    const [isPathModalOpen, setIsPathModalOpen] = useState(false);
 
     // If quiz already done, redirect
     useEffect(() => {
@@ -318,6 +320,10 @@ export default function QuizPage() {
     useEffect(() => {
         if (step === 7) {
             const timer = setTimeout(() => setStep(8), 1500);
+            return () => clearTimeout(timer);
+        }
+        if (step === 8) {
+            const timer = setTimeout(() => setIsPathModalOpen(true), 2500);
             return () => clearTimeout(timer);
         }
     }, [step]);
@@ -651,7 +657,7 @@ export default function QuizPage() {
                             animate="center"
                             exit="exit"
                             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                            className="w-full max-w-2xl"
+                            className="w-full max-w-4xl"
                         >
                             <div className="text-center mb-10">
                                 <m.div 
@@ -981,6 +987,14 @@ export default function QuizPage() {
                     )}
                 </div>
             )}
+
+            <PathSelectionModal 
+                isOpen={isPathModalOpen} 
+                onClose={() => {
+                    setIsPathModalOpen(false);
+                    handleFinish();
+                }} 
+            />
         </div>
     );
 }

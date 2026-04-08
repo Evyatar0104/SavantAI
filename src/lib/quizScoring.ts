@@ -91,7 +91,7 @@ export function calculateQuizResult(answers: QuizAnswers): QuizResult {
     // Profile title logic
     let profileTitle = "משתמש כללי";
     if (answers.outputTypes.includes("code")) {
-        profileTitle = "מפתח";
+        profileTitle = "מתכנת";
     } else if (answers.outputTypes.includes("data")) {
         profileTitle = "אנליסט";
     } else if (answers.outputTypes.includes("research") && answers.outputDepth === "deep") {
@@ -191,7 +191,7 @@ export function generateModelCards(result: QuizResult): ModelCard[] {
         if (model === "claude") {
             if (profileTitle === "חוקר") {
                 profileExplanation = "Claude הוא חוקר בעצמו. הוא יקרא מסמך ארוך, יבין את הטיעונים, ויסביר לך מה חשוב — בלי לפספס פרטים קריטיים.";
-            } else if (profileTitle === "מפתח") {
+            } else if (profileTitle === "מתכנת") {
                 profileExplanation = "Claude מבין קוד ברמה עמוקה. הוא לא רק כותב — הוא מסביר למה, מה יכול להישבר, ואיפה הלוגיקה עלולה להתפרק.";
             } else if (profileTitle === "כותב") {
                 profileExplanation = "Claude כותב כמו בן אדם, לא כמו מכונה. הוא שומר על הקול שלך, מציע שיפורים בלי להרוס את הסגנון.";
@@ -213,8 +213,8 @@ export function generateModelCards(result: QuizResult): ModelCard[] {
             pros = ["חינמי ומהיר", "אינטגרציה ל-Google"];
             cons = ["מכסות חינמיות מוגבלות בשעות עומס"];
         } else if (model === "chatgpt") {
-            if (profileTitle === "מפתח") {
-                profileExplanation = "ChatGPT הוא הכלי הכי גמיש למפתחים — כותב קוד, מסביר שגיאות, ויוצר תמונות לפרויקט, הכל בלי לצאת מהממשק.";
+            if (profileTitle === "מתכנת") {
+                profileExplanation = "ChatGPT הוא הכלי הכי גמיש למתכנתים — כותב קוד, מסביר שגיאות, ויוצר תמונות לפרויקט, הכל בלי לצאת מהממשק.";
             } else if (profileTitle === "יוצר ויזואלי") {
                 profileExplanation = "ChatGPT הוא הסטודיו הדיגיטלי שלך — תמונות, תסריטים, רעיונות ועריכה, הכל מממשק אחד.";
             } else {
@@ -233,4 +233,3 @@ export function generateModelCards(result: QuizResult): ModelCard[] {
         };
     });
 }
-

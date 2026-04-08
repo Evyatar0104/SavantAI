@@ -1,5 +1,5 @@
 export type ModelTheme = "claude" | "chatgpt" | "gemini";
-export type RarityTier = "Common" | "Rare" | "Epic" | "Legendary";
+export type RarityTier = "Common" | "Rare" | "Super Rare" | "Epic" | "Legendary";
 
 export interface Badge {
     id: string;
@@ -12,26 +12,36 @@ export interface Badge {
     rarity?: RarityTier;
 }
 
-export const RARITY_COLORS: Record<RarityTier, { main: string; border: string; glow: string }> = {
+export const RARITY_COLORS: Record<RarityTier, { main: string; border: string; glow: string; shimmer: string }> = {
     Common: { 
-        main: "rgba(161, 161, 170, 0.1)", 
-        border: "rgba(161, 161, 170, 0.3)", 
-        glow: "rgba(161, 161, 170, 0.1)" 
+        main: "rgba(161, 161, 170, 0.1)", // Gray/Zinc
+        border: "rgba(161, 161, 170, 0.4)", 
+        glow: "rgba(161, 161, 170, 0.2)",
+        shimmer: "161, 161, 170"
     },
     Rare: { 
-        main: "rgba(59, 130, 246, 0.1)", 
+        main: "rgba(34, 197, 94, 0.1)", // Green
+        border: "rgba(34, 197, 94, 0.4)", 
+        glow: "rgba(34, 197, 94, 0.2)",
+        shimmer: "34, 197, 94"
+    },
+    "Super Rare": { 
+        main: "rgba(59, 130, 246, 0.1)", // Blue
         border: "rgba(59, 130, 246, 0.4)", 
-        glow: "rgba(59, 130, 246, 0.2)" 
+        glow: "rgba(59, 130, 246, 0.2)",
+        shimmer: "59, 130, 246"
     },
     Epic: { 
-        main: "rgba(168, 85, 247, 0.15)", 
+        main: "rgba(168, 85, 247, 0.15)", // Purple
         border: "rgba(168, 85, 247, 0.5)", 
-        glow: "rgba(168, 85, 247, 0.3)" 
+        glow: "rgba(168, 85, 247, 0.3)",
+        shimmer: "168, 85, 247"
     },
     Legendary: { 
-        main: "rgba(245, 158, 11, 0.2)", 
+        main: "rgba(245, 158, 11, 0.2)", // Yellow/Gold
         border: "rgba(245, 158, 11, 0.6)", 
-        glow: "rgba(245, 158, 11, 0.4)" 
+        glow: "rgba(245, 158, 11, 0.4)",
+        shimmer: "245, 158, 11"
     },
 };
 
@@ -64,15 +74,6 @@ export const BADGES: Badge[] = [
         xpReward: 60,
     },
     {
-        id: "first-course",
-        name: "בוגר קורס",
-        description: "השלמת קורס שלם",
-        icon: "🎓",
-        modelTheme: "claude",
-        rarity: "Rare",
-        xpReward: 100,
-    },
-    {
         id: "streak-3",
         name: "עקשן",
         description: "3 ימים ברצף",
@@ -80,6 +81,15 @@ export const BADGES: Badge[] = [
         modelTheme: "chatgpt",
         rarity: "Rare",
         xpReward: 50,
+    },
+    {
+        id: "first-course",
+        name: "בוגר קורס",
+        description: "השלמת קורס שלם",
+        icon: "🎓",
+        modelTheme: "claude",
+        rarity: "Super Rare",
+        xpReward: 100,
     },
     {
         id: "quiz-done",
@@ -93,9 +103,9 @@ export const BADGES: Badge[] = [
     },
     {
         id: "hall-of-projects",
-        name: "בונה פרוייקטים",
+        name: "מפתח פרוייקטים",
         description: "השלמת 3 פרוייקטים מעשיים",
-        icon: "🏗️",
+        icon: "💻",
         modelTheme: "claude",
         rarity: "Epic",
         xpReward: 200,

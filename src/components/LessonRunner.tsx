@@ -64,7 +64,7 @@ function LessonContent({ lesson, from }: { lesson: Lesson; from?: string }) {
     const exitLesson = () => {
         haptics.tap();
         if (from === 'course') router.replace(`/courses/${lesson.courseId}`);
-        else if (from === 'track') router.replace(`/tracks/${lesson.trackId ?? 'ai'}`);
+        else if (from === 'track') router.replace(`/courses`);
         else router.replace('/');
     };
 

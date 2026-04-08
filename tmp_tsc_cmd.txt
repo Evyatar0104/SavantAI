@@ -1,0 +1,19 @@
+.next/types/app/courses/[courseId]/page.ts(5,15): error TS2305: Module '"next/dist/build/segment-config/app/app-segment-config.js"' has no exported member 'PrefetchForTypeCheckInternal'.
+.next/types/app/courses/page.ts(5,15): error TS2305: Module '"next/dist/build/segment-config/app/app-segment-config.js"' has no exported member 'PrefetchForTypeCheckInternal'.
+.next/types/app/leaderboard/page.ts(5,15): error TS2305: Module '"next/dist/build/segment-config/app/app-segment-config.js"' has no exported member 'PrefetchForTypeCheckInternal'.
+.next/types/app/lesson/[lessonId]/page.ts(5,15): error TS2305: Module '"next/dist/build/segment-config/app/app-segment-config.js"' has no exported member 'PrefetchForTypeCheckInternal'.
+.next/types/app/page.ts(5,15): error TS2305: Module '"next/dist/build/segment-config/app/app-segment-config.js"' has no exported member 'PrefetchForTypeCheckInternal'.
+.next/types/app/paths/[pathId]/page.ts(5,15): error TS2305: Module '"next/dist/build/segment-config/app/app-segment-config.js"' has no exported member 'PrefetchForTypeCheckInternal'.
+.next/types/app/practice/builder/[id]/page.ts(5,15): error TS2305: Module '"next/dist/build/segment-config/app/app-segment-config.js"' has no exported member 'PrefetchForTypeCheckInternal'.
+.next/types/app/practice/page.ts(5,15): error TS2305: Module '"next/dist/build/segment-config/app/app-segment-config.js"' has no exported member 'PrefetchForTypeCheckInternal'.
+.next/types/app/profile/page.ts(5,15): error TS2305: Module '"next/dist/build/segment-config/app/app-segment-config.js"' has no exported member 'PrefetchForTypeCheckInternal'.
+.next/types/app/quiz/page.ts(5,15): error TS2305: Module '"next/dist/build/segment-config/app/app-segment-config.js"' has no exported member 'PrefetchForTypeCheckInternal'.
+.next/types/app/tracks/[trackId]/page.ts(5,15): error TS2305: Module '"next/dist/build/segment-config/app/app-segment-config.js"' has no exported member 'PrefetchForTypeCheckInternal'.
+.next/types/app/tracks/page.ts(5,15): error TS2305: Module '"next/dist/build/segment-config/app/app-segment-config.js"' has no exported member 'PrefetchForTypeCheckInternal'.
+.next/types/app/vault/[cardId]/page.ts(5,15): error TS2305: Module '"next/dist/build/segment-config/app/app-segment-config.js"' has no exported member 'PrefetchForTypeCheckInternal'.
+.next/types/app/vault/page.ts(5,15): error TS2305: Module '"next/dist/build/segment-config/app/app-segment-config.js"' has no exported member 'PrefetchForTypeCheckInternal'.
+src/components/AchievementCard.tsx(9,23): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type 'Record<RarityTier, { main: string; border: string; glow: string; shimmer: string; }>'.
+src/components/TrackRoadmap.tsx(49,33): error TS2322: Type 'LessonReward | undefined' is not assignable to type 'Badge'.
+  Type 'undefined' is not assignable to type 'Badge'.
+src/components/TrackRoadmap.tsx(255,29): error TS2322: Type 'Course | undefined' is not assignable to type 'Course'.
+  Type 'undefined' is not assignable to type 'Course'.

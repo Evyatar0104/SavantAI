@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { calculateLessonRewards, calculateStreakRewards, calculateCourseRewards } from '@/lib/rewardUtils';
+import { learningPaths } from '@/data/learningPaths';
 
 type ModelName = "claude" | "chatgpt" | "gemini";
 
@@ -33,6 +34,7 @@ interface SavantState {
     badges: string[];
     // Vault notification
     unlockedVaultCard: string | null;
+    newlyCompletedPathId: string | null;
     // Quiz profile
     quizCompleted: boolean;
     primaryUseCase: string | null;
@@ -53,6 +55,10 @@ interface SavantState {
     // User identity
     userName: string | null;
     userColor: string | null;
+    // Path Tracking
+    activePathId: string | null;
+    pathProgress: Record<string, { completedCourses: string[]; percent: number }>;
+    achievements: string[];
     // Prompt Builder State
     activePracticeId: string | null;
     currentStepIndex: number;
@@ -88,12 +94,15 @@ interface SavantState {
     setHasIterated: (val: boolean) => void;
     resetBuilder: () => void;
     clearUnlockedVaultCard: () => void;
+    clearNewlyCompletedPath: () => void;
     setCompactView: (isCompact: boolean) => void;
     setTracksScrollPosition: (pos: number) => void;
     setHomeScrollPosition: (pos: number) => void;
     setPracticeScrollPosition: (pos: number) => void;
     setCourseScrollPosition: (courseId: string, pos: number) => void;
     setTrackScrollPosition: (trackId: string, pos: number) => void;
+    selectPath: (pathId: string) => void;
+    updatePathProgress: (pathId: string, courseId: string) => void;
 }
 
 export const useSavantStore = create<SavantState>()(
@@ -109,6 +118,7 @@ export const useSavantStore = create<SavantState>()(
             unlockedCategories: ["foundation"],
             badges: [],
             unlockedVaultCard: null,
+            newlyCompletedPathId: null,
             // Quiz profile
             quizCompleted: false,
             primaryUseCase: null,
@@ -124,6 +134,10 @@ export const useSavantStore = create<SavantState>()(
             // User identity
             userName: null,
             userColor: null,
+            // Path Tracking
+            activePathId: null,
+            pathProgress: {},
+            achievements: [],
             // Recommendations
             primaryModel: null,
             secondaryModel: null,
@@ -159,7 +173,28 @@ export const useSavantStore = create<SavantState>()(
                     trackScrollPositions: { ...state.trackScrollPositions, [trackId]: pos }
                 })),
             addXp: (amount: number) => set((state: SavantState) => ({ xp: state.xp + amount })),
+            selectPath: (pathId: string) => set((state: SavantState) => {
+                const isNew = state.activePathId === null;
+                return {
+                    activePathId: pathId,
+                    xp: isNew ? state.xp + 100 : state.xp
+                };
+            }),
+            updatePathProgress: (pathId: string, courseId: string) => set((state: SavantState) => {
+                const current = state.pathProgress[pathId] || { completedCourses: [], percent: 0 };
+                if (current.completedCourses.includes(courseId)) return {};
+                
+                const updatedCourses = [...current.completedCourses, courseId];
+                const percent = Math.round((updatedCourses.length / (learningPaths.find(p => p.id === pathId)?.courses.length || 1)) * 100);
+                return {
+                    pathProgress: {
+                        ...state.pathProgress,
+                        [pathId]: { ...current, completedCourses: updatedCourses, percent }
+                    }
+                };
+            }),
             clearUnlockedVaultCard: () => set({ unlockedVaultCard: null }),
+            clearNewlyCompletedPath: () => set({ newlyCompletedPathId: null }),
             completeLesson: (lessonId: string) => {
                 const state = get();
                 if (state.completedLessons.includes(lessonId)) return;
@@ -217,10 +252,40 @@ export const useSavantStore = create<SavantState>()(
                     ? [...state.unlockedCategories, categoryUnlocked]
                     : state.unlockedCategories;
 
+                // Path Completion Logic
+                const newAchievements = [...state.achievements];
+                let pathBonusXp = 0;
+                let newlyCompletedId: string | null = null;
+                const newPathProgress = { ...state.pathProgress };
+
+                learningPaths.forEach(path => {
+                    if (path.courses.includes(courseId)) {
+                        const current = newPathProgress[path.id] || { completedCourses: [], percent: 0 };
+                        if (!current.completedCourses.includes(courseId)) {
+                            const updatedPathCourses = [...current.completedCourses, courseId];
+                            const percent = Math.round((updatedPathCourses.length / path.courses.length) * 100);
+                            newPathProgress[path.id] = { completedCourses: updatedPathCourses, percent };
+                        }
+                    }
+
+                    if (!newAchievements.includes(path.id)) {
+                        const allCompleted = path.courses.every(id => updatedCourses.includes(id));
+                        if (allCompleted) {
+                            newAchievements.push(path.id);
+                            pathBonusXp += 500;
+                            newlyCompletedId = path.id;
+                        }
+                    }
+                });
+
                 set({ 
                     completedCourses: updatedCourses, 
                     unlockedCategories: newUnlockedCategories,
                     badges: newBadges,
+                    achievements: newAchievements,
+                    xp: state.xp + pathBonusXp,
+                    pathProgress: newPathProgress,
+                    newlyCompletedPathId: newlyCompletedId,
                     ...(newCard ? { unlockedVaultCard: newCard } : {})
                 });
             },
@@ -342,6 +407,9 @@ export const useSavantStore = create<SavantState>()(
                     recommendedCourseId: null,
                     userName: null,
                     userColor: null,
+                    activePathId: null,
+                    pathProgress: {},
+                    achievements: [],
                     activePracticeId: null,
                     currentStepIndex: 0,
                     builderInputs: {},

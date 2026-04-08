@@ -3,7 +3,7 @@ import { defineCourse } from "../types";
 export const CHOOSING_MODELS_LESSONS = defineCourse([
     {
         id: "choosing-what-are-llms-really",
-        trackId: "ai",
+        trackIds: ["writer", "analyst", "visual", "builder", "student"],
         courseId: "choosing-models",
         categoryId: "foundation",
         order: 1,
@@ -58,7 +58,7 @@ export const CHOOSING_MODELS_LESSONS = defineCourse([
     },
     {
         id: "choosing-chatgpt-profile",
-        trackId: "ai",
+        trackIds: ["writer", "analyst", "visual", "builder", "student"],
         courseId: "choosing-models",
         categoryId: "foundation",
         order: 2,
@@ -119,7 +119,7 @@ export const CHOOSING_MODELS_LESSONS = defineCourse([
     },
     {
         id: "choosing-claude-profile",
-        trackId: "ai",
+        trackIds: ["writer", "analyst", "visual", "builder", "student"],
         courseId: "choosing-models",
         categoryId: "foundation",
         order: 3,
@@ -180,7 +180,7 @@ export const CHOOSING_MODELS_LESSONS = defineCourse([
     },
     {
         id: "choosing-gemini-profile",
-        trackId: "ai",
+        trackIds: ["writer", "analyst", "visual", "builder", "student"],
         courseId: "choosing-models",
         categoryId: "foundation",
         order: 4,
@@ -241,7 +241,7 @@ export const CHOOSING_MODELS_LESSONS = defineCourse([
     },
     {
         id: "choosing-by-task",
-        trackId: "ai",
+        trackIds: ["writer", "analyst", "visual", "builder", "student"],
         courseId: "choosing-models",
         categoryId: "foundation",
         order: 5,
@@ -301,7 +301,7 @@ export const CHOOSING_MODELS_LESSONS = defineCourse([
     },
     {
         id: "choosing-strengths-weaknesses",
-        trackId: "ai",
+        trackIds: ["writer", "analyst", "visual", "builder", "student"],
         courseId: "choosing-models",
         categoryId: "foundation",
         order: 6,
@@ -361,7 +361,7 @@ export const CHOOSING_MODELS_LESSONS = defineCourse([
     },
     {
         id: "choosing-free-vs-paid",
-        trackId: "ai",
+        trackIds: ["writer", "analyst", "visual", "builder", "student"],
         courseId: "choosing-models",
         categoryId: "foundation",
         order: 7,
@@ -421,7 +421,7 @@ export const CHOOSING_MODELS_LESSONS = defineCourse([
     },
     {
         id: "choosing-build-your-stack",
-        trackId: "ai",
+        trackIds: ["writer", "analyst", "visual", "builder", "student"],
         courseId: "choosing-models",
         categoryId: "foundation",
         order: 8,

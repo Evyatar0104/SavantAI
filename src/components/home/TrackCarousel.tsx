@@ -71,7 +71,7 @@ export function TrackCarousel({ coursesList, completedLessons, completedCourses 
               <h3 className="text-xl md:text-3xl font-bold font-serif">מסלולי למידה</h3>
               <p className="text-xs md:text-lg text-zinc-500 font-medium tracking-tight">העמק בתחומי ידע ספציפיים</p>
             </div>
-            <Link href="/tracks" className="text-blue-500 text-xs md:text-base font-bold flex items-center hover:underline">
+            <Link href="/courses" className="text-blue-500 text-xs md:text-base font-bold flex items-center hover:underline">
               צפה בהכל <ChevronRight className="w-4 h-4 mr-1 rotate-180" />
             </Link>
           </div>
@@ -83,7 +83,7 @@ export function TrackCarousel({ coursesList, completedLessons, completedCourses 
             onMouseUp={handleMouseUpOrLeave}
             onMouseLeave={handleMouseUpOrLeave}
             className={cn(
-              "flex space-x-6 overflow-x-auto no-scrollbar pt-4 pb-8 px-8",
+              "flex space-x-6 overflow-x-auto overflow-y-hidden touch-pan-x no-scrollbar pt-10 pb-20 px-8 -my-6",
               isDragging ? "cursor-grabbing select-none" : "cursor-grab",
               !scrollState.isAtStart && !scrollState.isAtEnd ? "mask-horizontal-fade" :
                 scrollState.isAtStart ? "mask-linear-fade-left" : "mask-linear-fade-right"
