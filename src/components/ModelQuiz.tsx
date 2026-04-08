@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { m, AnimatePresence } from "framer-motion";
-import { ChevronDown, CheckCircle } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const QUESTIONS = [
@@ -83,13 +83,12 @@ export function ModelQuiz({ onTrackSelected }: { onTrackSelected: (trackId: stri
 
     const getWinner = () => {
         let max = -1;
-        let winner = "claude"; // default
-        if (scores.claude > max) { max = scores.claude; winner = "ta"; }
-        if (scores.chatgpt > max) { max = scores.chatgpt; winner = "tb"; }
-        if (scores.gemini > max) { max = scores.gemini; winner = "tc"; }
-        // Handling ties prioritizing Claude: already default structure handled it if Claude evaluated first 
-        // Actually to ensure Claude tiebreak: check if any is strictly greater than Claude
         let finalWinner = "ta";
+        if (scores.claude > max) { max = scores.claude; finalWinner = "ta"; }
+        if (scores.chatgpt > max) { max = scores.chatgpt; finalWinner = "tb"; }
+        if (scores.gemini > max) { max = scores.gemini; finalWinner = "tc"; }
+        
+        // Handling ties prioritizing Claude: check if any is strictly greater than Claude
         if (scores.chatgpt > scores.claude && scores.chatgpt >= scores.gemini) finalWinner = "tb";
         else if (scores.gemini > scores.claude && scores.gemini > scores.chatgpt) finalWinner = "tc";
         

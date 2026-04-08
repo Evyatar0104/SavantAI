@@ -48,7 +48,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="he" dir="rtl" translate="no" className={`notranslate ${assistant.variable}`}>
+    <html lang="he" dir="rtl" translate="no" className={`dark notranslate ${assistant.variable}`}>
       <body className="antialiased text-foreground selection:bg-blue-500/30 selection:text-blue-500 min-h-[100dvh]">
         <div className="w-full min-h-[100dvh] relative flex font-sans transition-colors duration-500 overflow-x-hidden">
           <Providers>

@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { m, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import { LESSON_INDEX, loadLessonById, COURSES, type Lesson } from "@/content";
+import { LESSON_INDEX, loadLessonById, type Lesson } from "@/content";
 import { useSavantStore } from "@/store/useSavantStore";
 import { X, ArrowRight } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { LessonProvider, useLesson } from "@/context/LessonContext";
 import LessonGraphic from "@/components/LessonGraphic";
 import { QuizEngine } from "@/components/QuizEngine";
@@ -49,9 +48,7 @@ function LessonContent({ lesson, from }: { lesson: Lesson; from?: string }) {
         step,
         setStep,
         readProgress,
-        practicalCallDone,
         setPracticalCallDone,
-        nextPulse,
         prevPulse,
         handleSwipe,
         handleReadScroll,
@@ -73,7 +70,6 @@ function LessonContent({ lesson, from }: { lesson: Lesson; from?: string }) {
     const checkStreak = useSavantStore(s => s.checkStreak);
 
     const [earnedXp, setEarnedXp] = useState(0);
-    const [correctCount, setCorrectCount] = useState(0);
     const [showConfetti, setShowConfetti] = useState(false);
     const completedRef = useRef(false);
     const readContainerRef = useRef<HTMLDivElement>(null);
@@ -90,11 +86,10 @@ function LessonContent({ lesson, from }: { lesson: Lesson; from?: string }) {
     const nextLesson = currentIndex !== -1 && currentIndex < courseLessons.length - 1 ? courseLessons[currentIndex + 1] : null;
 
     // Quiz complete
-    const handleQuizComplete = (finalXp: number, correct: number) => {
+    const handleQuizComplete = (finalXp: number) => {
         const readingXp = 10;
         const total = finalXp + readingXp;
         setEarnedXp(total);
-        setCorrectCount(correct);
 
         if (!completedRef.current) {
             completedRef.current = true;

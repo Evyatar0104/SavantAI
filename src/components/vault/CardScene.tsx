@@ -6,19 +6,12 @@ import { Badge, RARITY_COLORS } from "@/content/badges";
 import { useRef, useEffect, useState, useMemo, Suspense } from "react";
 import * as THREE from "three";
 import { haptics } from "@/lib/haptics";
+import { getHexFromRgba } from "@/lib/colorUtils";
 
 function CardModel({ badge, userName }: { badge: Badge; userName: string }) {
     const rarity = badge.rarity || "Common";
     const tierColor = RARITY_COLORS[rarity];
     
-    // Extract hex color from rgba string
-    const getHexFromRgba = (rgba: string) => {
-        const match = rgba.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-        if (match) {
-            return `#${((1 << 24) + (parseInt(match[1]) << 16) + (parseInt(match[2]) << 8) + parseInt(match[3])).toString(16).slice(1)}`;
-        }
-        return "#ffffff";
-    };
 
     const cardColor = getHexFromRgba(tierColor.border);
     const glowColor = getHexFromRgba(tierColor.glow);
@@ -29,12 +22,13 @@ function CardModel({ badge, userName }: { badge: Badge; userName: string }) {
     // Move useTexture inside Suspense-friendly structure
     const backTexture = useTexture("/backofcard.png");
 
-    useMemo(() => {
+    useEffect(() => {
         if (backTexture) {
             backTexture.wrapS = backTexture.wrapT = THREE.ClampToEdgeWrapping;
             backTexture.repeat.set(1, 1);
             backTexture.offset.set(0, 0); 
             backTexture.anisotropy = 16;
+            backTexture.needsUpdate = true;
         }
     }, [backTexture]);
 
@@ -188,13 +182,6 @@ export default function CardScene({ badge, userName }: { badge: Badge; userName:
 
     const rarity = badge.rarity || "Common";
     const tierColor = RARITY_COLORS[rarity];
-    const getHexFromRgba = (rgba: string) => {
-        const match = rgba.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-        if (match) {
-            return `#${((1 << 24) + (parseInt(match[1]) << 16) + (parseInt(match[2]) << 8) + parseInt(match[3])).toString(16).slice(1)}`;
-        }
-        return "#ffffff";
-    };
     const spotLightColor = getHexFromRgba(tierColor.glow);
 
     // This haptic will only trigger ONCE upon user interaction

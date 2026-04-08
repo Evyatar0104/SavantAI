@@ -4,15 +4,16 @@ import { useSavantStore } from "@/store/useSavantStore";
 import Image from "next/image";
 import { m, Variants, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { useState, useRef, useEffect, memo, useMemo } from "react";
-import { BADGES, isBadgeEarned, type RarityTier, RARITY_COLORS } from "@/content/badges";
+import { useState, useRef, useEffect, useMemo } from "react";
+import { BADGES, isBadgeEarned, type RarityTier, RARITY_COLORS, type Badge } from "@/content/badges";
 import { haptics } from "@/lib/haptics";
 import { cn } from "@/lib/utils";
-import { Sparkles, Flame, ChevronLeft, Edit2, Check, X, Info, BookOpen, Palette, Medal, Trophy } from "lucide-react";
-import { learningPaths } from "@/data/learningPaths";
-import { MODEL_THEMES, getLevelInfo } from "@/lib/userTheme";
+import { Sparkles, Flame, Edit2, Check, X, Info, BookOpen, Palette, Trophy, Zap, Rocket } from "lucide-react";
+import { learningPaths, type LearningPath } from "@/data/learningPaths";
+import { MODEL_THEMES, getLevelInfo, QUIZ_MODEL_NAMES, QUIZ_MODEL_THEME, TOOL_LOGOS, TOOL_EMOJIS } from "@/lib/userTheme";
 import { AchievementCard } from "@/components/AchievementCard";
 import { BadgeCard } from "@/components/BadgeCard";
+import { generateModelCards } from "@/lib/quizScoring";
 
 const RARITY_ORDER: RarityTier[] = ["Legendary", "Epic", "Super Rare", "Rare", "Common"];
 
@@ -51,18 +52,19 @@ export default function Profile() {
     const xp                 = useSavantStore(s => s.xp);
     const streak             = useSavantStore(s => s.streak);
     const completedLessons   = useSavantStore(s => s.completedLessons);
+    const completedCourses   = useSavantStore(s => s.completedCourses);
     const primaryModel       = useSavantStore(s => s.primaryModel);
-    const primaryModelReason = useSavantStore(s => s.primaryModelReason);
-    const profileTitle       = useSavantStore(s => s.profileTitle);
-    const resetPreferences   = useSavantStore(s => s.resetPreferences);
     const userName           = useSavantStore(s => s.userName);
     const userColor          = useSavantStore(s => s.userColor);
     const setUserName        = useSavantStore(s => s.setUserName);
     const setUserColor       = useSavantStore(s => s.setUserColor);
-    const experienceLevel    = useSavantStore(s => s.experienceLevel);
     const quizCompleted      = useSavantStore(s => s.quizCompleted);
-    
-    const state = useSavantStore();
+    const secondaryModel     = useSavantStore(s => s.secondaryModel);
+    const specialistTools    = useSavantStore(s => s.specialistTools);
+    const profileTitle       = useSavantStore(s => s.profileTitle);
+    const achievements       = useSavantStore(s => s.achievements);
+    const badges             = useSavantStore(s => s.badges);
+    const resetPreferences   = useSavantStore(s => s.resetPreferences);
 
     const [isEditingName, setIsEditingName]         = useState(false);
     const [nameInput, setNameInput]                 = useState("");
@@ -80,7 +82,7 @@ export default function Profile() {
 
     // Combine and group all cards by rarity
     const groupedCards = useMemo(() => {
-        const allItems: { type: 'achievement' | 'badge', data: any, rarity: RarityTier }[] = [
+        const allItems: { type: 'achievement' | 'badge', data: Badge | LearningPath, rarity: RarityTier }[] = [
             ...learningPaths.map(p => ({ type: 'achievement' as const, data: p, rarity: p.rarity as RarityTier })),
             ...BADGES.map(b => ({ type: 'badge' as const, data: b, rarity: b.rarity as RarityTier }))
         ];
@@ -232,11 +234,34 @@ export default function Profile() {
                                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-white/10 text-white/90 border border-white/10 backdrop-blur-md">
                                             {titlePill}
                                         </span>
-                                        {experienceLevel && (
-                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/20 backdrop-blur-md">
-                                                {experienceLevel === "beginner" ? "מתחיל" : "מתקדם"}
-                                            </span>
-                                        )}
+                                        {(() => {
+                                            const getLevelTitle = (lvl: number) => {
+                                                if (lvl < 5) return "מתחיל";
+                                                if (lvl < 10) return "מלומד";
+                                                if (lvl < 20) return "מומחה";
+                                                if (lvl < 30) return "מקצוען";
+                                                return "סוואנט";
+                                            };
+                                            const lTitle = getLevelTitle(level);
+                                            const isSavant = level >= 30;
+
+                                            return (
+                                                <span className={cn(
+                                                    "inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter backdrop-blur-md transition-all duration-500 border",
+                                                    isSavant 
+                                                        ? "bg-gradient-to-r from-[#6366F1] via-[#A855F7] to-[#EC4899] text-white border-white/40 shadow-[0_0_20px_rgba(168,85,247,0.4)] ring-1 ring-white/20" 
+                                                        : "bg-indigo-500/20 text-indigo-300 border-indigo-500/20"
+                                                )}>
+                                                    {isSavant && (
+                                                        <div className="w-4 h-4 ml-1.5 relative flex items-center justify-center">
+                                                            <div className="absolute inset-0 bg-white rounded-full blur-[4px] opacity-50 animate-pulse" />
+                                                            <Image src="/assets/savant-logo.png" alt="Savant" width={14} height={14} className="relative z-10" />
+                                                        </div>
+                                                    )}
+                                                    {lTitle}
+                                                </span>
+                                            );
+                                        })()}
                                         <div className="flex items-center gap-1.5 text-[11px] text-emerald-400 font-medium mr-auto">
                                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                                             פעיל/ה עכשיו
@@ -305,7 +330,7 @@ export default function Profile() {
                         { label: "שיעורים", value: completedLessons.length, icon: BookOpen, color: "#818CF8", glow: "rgba(129, 140, 248, 0.6)" },
                         { label: "נקודות XP", value: xp, icon: Sparkles, color: "#F59E0B", glow: "rgba(245, 158, 11, 0.6)" },
                         { label: "רצף ימים", value: streak, icon: Flame, color: "#EF4444", glow: "rgba(239, 68, 68, 0.6)" }
-                    ].map((stat, idx) => (
+                    ].map((stat) => (
                         <m.div 
                             key={stat.label}
                             variants={itemVariants}
@@ -338,6 +363,140 @@ export default function Profile() {
                         </m.div>
                     ))}
                 </div>
+                
+                {/* ── MY AI STACK ─────────────────────────────── */}
+                {quizCompleted && primaryModel && (
+                    <m.div variants={itemVariants} className="space-y-6">
+                        <div className="flex items-center justify-between px-1">
+                            <h2 className="text-lg font-bold text-white flex items-center gap-3">
+                                <Zap size={18} className="text-amber-400" />
+                                הסטאק הטכנולוגי שלי
+                            </h2>
+                            <button 
+                                onClick={() => setShowResetModal(true)}
+                                className="text-[10px] font-black text-zinc-500 hover:text-white uppercase tracking-widest transition-colors"
+                            >
+                                אפיון מחדש
+                            </button>
+                        </div>
+
+                        {(() => {
+                            const modelCards = generateModelCards({
+                                primaryModel: primaryModel,
+                                secondaryModel: secondaryModel!,
+                                profileTitle: profileTitle || "משתמש כללי",
+                            });
+                            
+                            const primary = modelCards[0];
+                            const secondary = modelCards[1];
+                            const theme = QUIZ_MODEL_THEME[primary.model];
+                            const secTheme = QUIZ_MODEL_THEME[secondary.model];
+
+                            return (
+                                <div className="space-y-4">
+                                    {/* Primary Model Card */}
+                                    <div className={`w-full rounded-[32px] bg-gradient-to-br ${theme.gradient} p-6 md:p-8 relative overflow-hidden shadow-2xl border border-white/10`} dir="rtl">
+                                        <m.div
+                                            animate={{ x: [0, 20, -10, 0], y: [0, -15, 10, 0], scale: [1, 1.2, 0.9, 1] }}
+                                            transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+                                            className="absolute top-[-30px] right-[-30px] w-[140px] h-[140px] rounded-full pointer-events-none opacity-50"
+                                            style={{ background: `radial-gradient(circle, ${theme.orbColors[0]} 0%, transparent 70%)`, filter: "blur(30px)" }}
+                                        />
+
+                                        <div className="flex items-center relative z-10 mb-6">
+                                            <div className="w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 p-3 ml-4 shadow-xl">
+                                                <Image 
+                                                    src={`/assets/logos/${primary.model}.png`} 
+                                                    alt={primary.model} 
+                                                    width={56} 
+                                                    height={56} 
+                                                    className="w-full h-full object-contain"
+                                                />
+                                            </div>
+                                            <div>
+                                                <h3 className="text-xl md:text-2xl font-bold text-white">{QUIZ_MODEL_NAMES[primary.model]}</h3>
+                                                <div className="text-[10px] md:text-xs font-black tracking-wide" style={{ color: theme.accentColor }}>{theme.tagline}</div>
+                                            </div>
+                                        </div>
+
+                                        <p className="mb-6 text-sm leading-relaxed text-zinc-300 relative z-10">
+                                            {primary.profileExplanation}
+                                        </p>
+
+                                        <div className="flex flex-wrap gap-2 relative z-10">
+                                            {primary.pros.map((pro, i) => (
+                                                <div key={i} className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[11px] font-medium text-white/90">
+                                                    <div className="w-1 h-1 rounded-full bg-emerald-500" />
+                                                    {pro}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {/* Secondary Model */}
+                                        <div className="rounded-[24px] p-5 relative overflow-hidden bg-white/[0.03] backdrop-blur-xl border border-white/10 shadow-xl" dir="rtl">
+                                            <div className="flex items-center mb-4">
+                                                <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 p-2 ml-3">
+                                                    <Image 
+                                                        src={`/assets/logos/${secondary.model}.png`} 
+                                                        alt={secondary.model} 
+                                                        width={32} 
+                                                        height={32} 
+                                                        className="w-full h-full object-contain"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <h4 className="text-sm font-bold text-white">{QUIZ_MODEL_NAMES[secondary.model]}</h4>
+                                                    <div className="text-[9px] font-bold" style={{ color: secTheme.accentColor }}>כלי משלים</div>
+                                                </div>
+                                            </div>
+                                            <p className="text-[11px] leading-relaxed text-zinc-400">
+                                                {secondary.profileExplanation.split('.')[0] + '.'}
+                                            </p>
+                                        </div>
+
+                                        {/* Specialist Tools */}
+                                        {specialistTools && specialistTools.length > 0 && (
+                                            <div className="rounded-[24px] p-5 relative overflow-hidden bg-white/[0.03] backdrop-blur-xl border border-white/10 shadow-xl" dir="rtl">
+                                                <div className="flex items-center mb-4">
+                                                    <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center ml-3">
+                                                        <Rocket size={20} className="text-purple-400" />
+                                                    </div>
+                                                    <div>
+                                                        <h4 className="text-sm font-bold text-white">ארגז כלים</h4>
+                                                        <div className="text-[9px] font-bold text-purple-400">כלים מומלצים</div>
+                                                    </div>
+                                                </div>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {specialistTools.slice(0, 4).map(tool => {
+                                                        const logo = TOOL_LOGOS[tool];
+                                                        const emoji = TOOL_EMOJIS[tool];
+                                                        return (
+                                                            <div key={tool} className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-white/5 border border-white/5 text-[10px] font-bold text-zinc-300">
+                                                                {logo ? (
+                                                                    <Image src={logo} alt={tool} width={14} height={14} className="w-3.5 h-3.5 object-contain" />
+                                                                ) : emoji ? (
+                                                                    <span>{emoji}</span>
+                                                                ) : null}
+                                                                {tool}
+                                                            </div>
+                                                        );
+                                                    })}
+                                                    {specialistTools.length > 4 && (
+                                                        <div className="text-[10px] font-bold text-zinc-600 self-center">
+                                                            +{specialistTools.length - 4} נוספים
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            );
+                        })()}
+                    </m.div>
+                )}
 
                 {/* ── CARD COLLECTION ───────────────────── */}
                 <m.div variants={itemVariants} className="space-y-12">
@@ -347,7 +506,7 @@ export default function Profile() {
                             אוסף הקלפים וההישגים
                         </h2>
                         <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
-                            {state.achievements.length + state.badges.length} / {learningPaths.length + BADGES.length} קלפים
+                            {achievements.length + badges.length} / {learningPaths.length + BADGES.length} קלפים
                         </div>
                     </div>
                     
@@ -380,7 +539,7 @@ export default function Profile() {
                                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4">
                                     {items.map(item => {
                                         if (item.type === 'achievement') {
-                                            const earned = state.achievements.includes(item.data.id);
+                                            const earned = achievements.includes(item.data.id);
                                             return (
                                                 <AchievementCard 
                                                     key={item.data.id}
@@ -392,11 +551,17 @@ export default function Profile() {
                                                 />
                                             );
                                         } else {
-                                            const earned = isBadgeEarned(item.data.id, state);
+                                            const earned = isBadgeEarned(item.data.id, { 
+                                                badges, 
+                                                completedLessons, 
+                                                completedCourses, 
+                                                streak, 
+                                                quizCompleted 
+                                            });
                                             return (
                                                 <BadgeCard
                                                     key={item.data.id}
-                                                    badge={item.data}
+                                                    badge={item.data as Badge}
                                                     earned={earned}
                                                     onClick={() => {
                                                         if (earned) {

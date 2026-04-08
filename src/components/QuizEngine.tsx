@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { m, AnimatePresence } from "framer-motion";
 import { CheckCircle, XCircle, Zap, Shield, Flame, Timer } from "lucide-react";
 import { cn } from "@/lib/utils";

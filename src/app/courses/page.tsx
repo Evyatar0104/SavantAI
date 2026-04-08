@@ -1,17 +1,18 @@
 "use client";
 
-import { useMemo, useState, useEffect, useRef } from "react";
+import { useMemo, useState, useRef } from "react";
 import { useSavantStore } from "@/store/useSavantStore";
 import { learningPaths, type LearningPath } from "@/data/learningPaths";
 import { CATEGORIES, COURSES, LESSON_INDEX, type Course } from "@/content";
 import { m, AnimatePresence, Variants, useMotionValue, useSpring, useTransform, useMotionTemplate } from "framer-motion";
-import { Sparkles, GraduationCap, LayoutGrid, Search, List, Lock, ChevronLeft, ArrowRight } from "lucide-react";
+import { LayoutGrid, Search, List, Lock, ChevronLeft, ArrowRight } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import Image from "next/image";
 import { isCourseUnlocked } from "@/lib/courseUnlock";
 import { Suspense } from "react";
+import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 
 function LearningPathCard({ 
     path, 
@@ -237,6 +238,11 @@ function CoursesPageContent() {
     const activePathId = useSavantStore(state => state.activePathId);
     const isCompact = useSavantStore(state => state.isCompactView);
     const setIsCompact = useSavantStore(state => state.setCompactView);
+    const scrollPosition = useSavantStore(state => state.tracksScrollPosition);
+    const setScrollPosition = useSavantStore(state => state.setTracksScrollPosition);
+    const hasHydrated = useSavantStore(state => state._hasHydrated);
+
+    useScrollRestoration(scrollPosition, setScrollPosition, hasHydrated);
 
     const searchParams = useSearchParams();
     const router = useRouter();

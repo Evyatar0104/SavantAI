@@ -72,7 +72,7 @@ export default function Leaderboard() {
                     setLeaderboardData(users.length > 0 ? users : getFallbackData(xp));
                     setLoading(false);
                 });
-            } catch (e) {
+            } catch {
                 setLeaderboardData(getFallbackData(xp));
                 setLoading(false);
             }
@@ -131,7 +131,6 @@ export default function Leaderboard() {
                             {podiumOrder.map((user, i) => {
                                 const isFirst = user.id === topThree[0]?.id;
                                 const isSecond = user.id === topThree[1]?.id;
-                                const isThird = user.id === topThree[2]?.id;
 
                                 return (
                                     <m.div

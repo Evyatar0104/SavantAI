@@ -1,7 +1,7 @@
 "use client";
 
 import { m, useMotionValue, useSpring, useTransform } from "framer-motion";
-import { useEffect, useCallback } from "react";
+import { useEffect } from "react";
 
 interface Props {
     color?: string;

@@ -112,15 +112,22 @@ export const BADGES: Badge[] = [
     }
 ];
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const isBadgeEarned = (badgeId: string, state: any) => {
+export interface BadgeState {
+    completedLessons: string[];
+    completedCourses: string[];
+    streak: number;
+    quizCompleted: boolean;
+    badges: string[];
+}
+
+export const isBadgeEarned = (badgeId: string, state: Partial<BadgeState>) => {
     switch (badgeId) {
-        case "first-lesson": return state.completedLessons.length >= 1;
-        case "three-lessons": return state.completedLessons.length >= 3;
-        case "six-lessons": return state.completedLessons.length >= 6;
-        case "first-course": return state.completedCourses.length >= 1;
-        case "streak-3": return state.streak >= 3;
+        case "first-lesson": return (state.completedLessons?.length || 0) >= 1;
+        case "three-lessons": return (state.completedLessons?.length || 0) >= 3;
+        case "six-lessons": return (state.completedLessons?.length || 0) >= 6;
+        case "first-course": return (state.completedCourses?.length || 0) >= 1;
+        case "streak-3": return (state.streak || 0) >= 3;
         case "quiz-done": return state.quizCompleted === true;
-        default: return state.badges.includes(badgeId);
+        default: return state.badges?.includes(badgeId) || false;
     }
 };

@@ -34,7 +34,7 @@ function CourseNode({ course, index, isCompleted, isLocked, achievements }: Cour
         >
             {/* Achievement Badge (if any) */}
             <AnimatePresence>
-                {achievements.length > 0 && (
+                {achievements.length > 0 && achievements[0] && (
                     <m.div 
                         initial={{ scale: 0, opacity: 0, rotate: -20 }}
                         whileInView={{ scale: 1, opacity: 1, rotate: 5 }}

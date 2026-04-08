@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { m } from "framer-motion";
 import { haptics } from "@/lib/haptics";
 
@@ -1073,7 +1073,6 @@ function FreeVsPaid() {
 const LAI_TEAL   = "#2DD4BF"; // Use app's TEAL
 const LAI_AMBER  = "#F59E0B"; // Use app's AMBER
 const LAI_CORAL  = "#F87171"; // Use app's CORAL
-const LAI_WHITE  = "rgba(255, 255, 255, 0.95)";
 const LAI_GRAY   = "rgba(255, 255, 255, 0.4)";
 const LAI_DARK   = "rgba(255, 255, 255, 0.03)";
 const LAI_FONT   = "var(--font-assistant), sans-serif";

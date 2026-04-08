@@ -3,7 +3,7 @@
 import { useSavantStore } from "@/store/useSavantStore";
 import { learningPaths } from "@/data/learningPaths";
 import { m, AnimatePresence } from "framer-motion";
-import { Sparkles, Medal, X, ArrowLeft } from "lucide-react";
+import { Sparkles, ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import confetti from "canvas-confetti";
 import { AchievementCard } from "./AchievementCard";
@@ -26,7 +26,7 @@ export function PathCompletionModal() {
 
             const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
 
-            const interval: any = setInterval(function() {
+            const interval = setInterval(function() {
                 const timeLeft = animationEnd - Date.now();
 
                 if (timeLeft <= 0) {

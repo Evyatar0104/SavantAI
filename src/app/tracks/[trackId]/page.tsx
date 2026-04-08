@@ -1,15 +1,15 @@
 "use client";
 
 import { useParams, notFound } from "next/navigation";
-import { useEffect, useState } from "react";
 import { TRACKS, COURSES, LESSON_INDEX } from "@/content";
 import { useSavantStore } from "@/store/useSavantStore";
 import Link from "next/link";
 import { ArrowLeft, Clock, Target, Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { RoadmapBackground } from "@/components/RoadmapBackground";
-import { m, AnimatePresence } from "framer-motion";
+import { m } from "framer-motion";
 import { AILearningPath } from "./AILearningPath";
+import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 
 // Map trackId to a hex color for the roadmap background
 const TRACK_COLORS: Record<string, string> = {
@@ -22,47 +22,17 @@ const TRACK_COLORS: Record<string, string> = {
 
 export default function TrackSyllabusPage() {
     const params = useParams();
-    const unlockedAITracks = useSavantStore(state => state.unlockedAITracks);
-    const completedLessons = useSavantStore(state => state.completedLessons);
     const trackScrollPositions = useSavantStore(state => state.trackScrollPositions);
     const setTrackScrollPosition = useSavantStore(state => state.setTrackScrollPosition);
 
     const trackId = params.trackId as string;
     const track = TRACKS.find((t) => t.id === trackId);
+    const hasHydrated = useSavantStore(state => state._hasHydrated);
 
-    // Scroll Restoration
-    useEffect(() => {
-        const mainElement = document.querySelector('main');
-        if (mainElement) {
-            const pos = trackScrollPositions[trackId] || 0;
-            if (pos > 0) {
-                const timer = setTimeout(() => {
-                    mainElement.scrollTo({ top: pos });
-                }, 10);
-                return () => clearTimeout(timer);
-            }
-        }
-    }, [trackId, trackScrollPositions]);
+    const scrollPosition = trackScrollPositions[trackId] || 0;
+    const setScrollPosition = (pos: number) => setTrackScrollPosition(trackId, pos);
 
-    // Scroll Capture
-    useEffect(() => {
-        const mainElement = document.querySelector('main');
-        if (!mainElement) return;
-
-        let frameId: number;
-        const handleScroll = () => {
-            cancelAnimationFrame(frameId);
-            frameId = requestAnimationFrame(() => {
-                setTrackScrollPosition(trackId, mainElement.scrollTop);
-            });
-        };
-
-        mainElement.addEventListener('scroll', handleScroll, { passive: true });
-        return () => {
-            mainElement.removeEventListener('scroll', handleScroll);
-            cancelAnimationFrame(frameId);
-        };
-    }, [trackId, setTrackScrollPosition]);
+    useScrollRestoration(scrollPosition, setScrollPosition, hasHydrated);
 
     if (!track) {
         return notFound();
@@ -136,8 +106,6 @@ export default function TrackSyllabusPage() {
                     <AILearningPath
                         track={track}
                         trackLessons={trackLessons}
-                        completedLessons={completedLessons}
-                        unlockedAITracks={unlockedAITracks}
                     />
                 </div>
             </div>

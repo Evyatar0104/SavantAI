@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { m, AnimatePresence } from "framer-motion";
@@ -10,6 +10,7 @@ import { calculateQuizResult, generateModelCards } from "@/lib/quizScoring";
 import { Check, ArrowLeft, Sparkles, Zap, Brain, Rocket, Target, MousePointer2 } from "lucide-react";
 import { haptics } from "@/lib/haptics";
 import { PathSelectionModal } from "@/components/PathSelectionModal";
+import { QUIZ_MODEL_NAMES as MODEL_NAMES, QUIZ_MODEL_THEME as MODEL_THEME, TOOL_LOGOS, TOOL_EMOJIS } from "@/lib/userTheme";
 
 // ── Data ──────────────────────────────────────────────
 
@@ -74,66 +75,7 @@ const CREATIVE_TOOLS: ToolOption[] = [
     { id: "Other", label: "אחר", emoji: "🤖" },
 ];
 
-const TOOL_LOGOS: Record<string, string> = {
-    "ChatGPT": "/assets/logos/chatgpt.png",
-    "Claude": "/assets/logos/claude.png",
-    "Gemini": "/assets/logos/gemini.png",
-    "Grok": "/assets/logos/grok.png",
-    "Perplexity": "/assets/logos/perplexity.png",
-    "NotebookLM": "/assets/logos/notebooklm.png",
-};
-
-const TOOL_EMOJIS: Record<string, string> = {
-    "Suno": "🎵",
-    "Midjourney": "🎨",
-    "Notion AI": "📝",
-    "Runway": "🎬",
-    "Gamma": "✏️",
-    "DALL-E": "🎨",
-    "ElevenLabs": "🎙️",
-    "Udio": "🎶",
-    "Cursor": "💻",
-    "v0": "💅",
-    "GitHub Copilot": "🤖",
-    "Julius AI": "📊",
-    "ChatGPT Data Analysis": "📈",
-};
-
-const MODEL_NAMES: Record<string, string> = {
-    claude: "Claude",
-    chatgpt: "ChatGPT",
-    gemini: "Gemini",
-};
-
-const MODEL_THEME: Record<string, {
-    gradient: string;
-    glowColor: string;
-    accentColor: string;
-    orbColors: [string, string];
-    tagline: string;
-}> = {
-    claude: {
-        gradient: "from-[#D97706]/20 via-[#EA580C]/15 to-[#C2410C]/10",
-        glowColor: "rgba(217,119,6,0.15)",
-        accentColor: "#D97706",
-        orbColors: ["rgba(234,88,12,0.25)", "rgba(217,119,6,0.2)"],
-        tagline: "עומק, דיוק, ומחשבה",
-    },
-    chatgpt: {
-        gradient: "from-[#10A37F]/20 via-[#0D9668]/15 to-[#059669]/10",
-        glowColor: "rgba(16,163,127,0.15)",
-        accentColor: "#10A37F",
-        orbColors: ["rgba(16,163,127,0.25)", "rgba(5,150,105,0.2)"],
-        tagline: "גמישות, יצירתיות, ומהירות",
-    },
-    gemini: {
-        gradient: "from-[#4285F4]/20 via-[#A855F7]/15 to-[#EC4899]/10",
-        glowColor: "rgba(66,133,244,0.15)",
-        accentColor: "#4285F4",
-        orbColors: ["rgba(66,133,244,0.25)", "rgba(168,85,247,0.2)"],
-        tagline: "מחקר, אינטגרציה, וחינם",
-    },
-};
+// Models and Tools constants are now imported from @/lib/userTheme
 
 // ── Components ────────────────────────────────────────
 
@@ -309,12 +251,12 @@ export default function QuizPage() {
     const [result, setResult] = useState<ReturnType<typeof calculateQuizResult> | null>(null);
     const [isPathModalOpen, setIsPathModalOpen] = useState(false);
 
-    // If quiz already done, redirect
+    // If quiz already done, redirect (only if at the start to avoid interrupting the finish flow)
     useEffect(() => {
-        if (quizCompleted) {
+        if (quizCompleted && step === 1) {
             router.replace("/courses/how-llms-work");
         }
-    }, [quizCompleted, router]);
+    }, [quizCompleted, router, step]);
 
     // Auto-advance from loading screen (step 7)
     useEffect(() => {
@@ -710,7 +652,7 @@ export default function QuizPage() {
                                 <h2 className="text-3xl md:text-5xl font-serif font-bold text-white mb-3 tracking-tighter">
                                     במה כבר השתמשת?
                                 </h2>
-                                <p className="text-zinc-500 text-sm md:text-base font-medium">ניתן לבחור כמה שרוצים, או להמשיך ללא בחירה</p>
+                                <p className="text-zinc-500 text-sm md:text-base font-medium">כל כלי שסימנת מקנה לך 50 נקודות XP כבונוס ידע!</p>
                             </div>
 
                             <div className="space-y-10 mb-10">
@@ -980,6 +922,17 @@ export default function QuizPage() {
                         {step === 6 ? "קבל את הסטאק שלי" : "המשך"}
                         <ArrowLeft className="w-5 h-5 rotate-180" />
                     </button>
+                    
+                    {step === 6 && selectedTools.length > 0 && (
+                        <m.div 
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="flex items-center justify-center gap-2 mt-4 text-emerald-400 font-black text-xs uppercase tracking-widest"
+                        >
+                            <Sparkles size={14} />
+                            בונוס ידע: +{Math.min(selectedTools.length * 50, 250)} XP
+                        </m.div>
+                    )}
                     {step === 1 && (
                         <p className="text-center text-[10px] text-zinc-600 mt-4 font-bold uppercase tracking-widest">
                             התשובות שלך יעזרו לנו להתאים לך את הכלים הנכונים

@@ -1,7 +1,7 @@
 "use client";
 
 import { m, AnimatePresence } from "framer-motion";
-import { X, Zap, Target, ChevronLeft, Loader2 } from "lucide-react";
+import { X, Target, ChevronLeft, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -28,11 +28,12 @@ export function CoursePracticeSheet({ courseId, courseName, isOpen, onClose }: P
     const router = useRouter();
     const completedLessons = useSavantStore(s => s.completedLessons);
     const [lessons, setLessons] = useState<Lesson[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         if (isOpen) {
-            if (!isLoading) setIsLoading(true);
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            setIsLoading(true);
             loadCourseLessons(courseId).then(data => {
                 if (Array.isArray(data)) {
                     setLessons(data);

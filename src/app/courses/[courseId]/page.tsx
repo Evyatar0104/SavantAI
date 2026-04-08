@@ -9,7 +9,7 @@ import { ArrowLeft, Clock, Target, Sparkles, ChevronRight } from "lucide-react";
 import { haptics } from "@/lib/haptics";
 import { cn } from "@/lib/utils";
 import { useSavantStore } from "@/store/useSavantStore";
-import { m, AnimatePresence } from "framer-motion";
+import { m } from "framer-motion";
 import { CoursePracticeSheet } from "@/components/CoursePracticeSheet";
 import { CourseLessonCard } from "@/components/course/CourseLessonCard";
 import { QuizPromptDialog } from "@/components/QuizPromptDialog";
@@ -76,7 +76,7 @@ function CoursePageContent() {
                 return () => timers.forEach(clearTimeout);
             } else {
                 // If pos is 0, we're technically already "restored" to 0
-                setIsRestored(true);
+                setTimeout(() => setIsRestored(true), 0);
             }
         }
     }, [courseId, hasHydrated, isRestored, courseScrollPositions]);
@@ -397,7 +397,7 @@ function CoursePageContent() {
                                 
                                 {/* Lesson Cards Grid */}
                                 <div className="grid grid-cols-1 gap-3">
-                                    {group.lessons.map((lesson, lessonIdx) => {
+                                    {group.lessons.map((lesson) => {
                                         const isCompleted = completedLessons.includes(lesson.id);
                                         const isActive = lesson.id === nextLesson.id;
                                         const isLocked = lesson.title.includes("(בקרוב)");

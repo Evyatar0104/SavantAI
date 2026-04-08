@@ -393,7 +393,7 @@ export default function PracticePage() {
                 ];
                 return () => timers.forEach(clearTimeout);
             } else {
-                setIsRestored(true);
+                setTimeout(() => setIsRestored(true), 0);
             }
         }
     }, [hasHydrated, practiceScrollPosition, isRestored]);

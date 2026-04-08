@@ -3,9 +3,10 @@
 import Link from "next/link";
 import Image from "next/image";
 import { m, useScroll, useSpring, AnimatePresence } from "framer-motion";
-import { CheckCircle2, Lock, Trophy, ChevronLeft } from "lucide-react";
+import { CheckCircle2, Lock, ChevronLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { type LessonMeta, COURSES, CATEGORIES, type Track } from "@/content";
+import { type LessonMeta, COURSES, CATEGORIES, type Track, type Course } from "@/content";
+import { type Badge, BADGES } from "@/content/badges";
 import { useRef, useMemo } from "react";
 import { useSavantStore } from "@/store/useSavantStore";
 import { BadgeCard } from "@/components/BadgeCard";
@@ -19,14 +20,14 @@ const EXPERT_TITLES: Record<string, string> = {
 };
 
 interface CourseNodeProps {
-    course: any;
+    course: Course;
     index: number;
     isCompleted: boolean;
     isLocked: boolean;
-    achievements: any[];
+    achievements: Badge[];
 }
 
-function CourseCard({ course, index, isCompleted, isLocked }: any) {
+function CourseCard({ course, index, isCompleted, isLocked }: { course: Course, index: number, isCompleted: boolean, isLocked: boolean }) {
     return (
         <Link 
             href={!isLocked ? `/courses/${course.id}` : "#"}
@@ -193,14 +194,10 @@ function CourseNode({ course, index, isCompleted, isLocked, achievements }: Cour
 
 export function AILearningPath({ 
     track,
-    trackLessons, 
-    unlockedAITracks, 
-    completedLessons 
+    trackLessons
 }: { 
     track: Track,
-    trackLessons: LessonMeta[], 
-    unlockedAITracks: string[], 
-    completedLessons: string[] 
+    trackLessons: LessonMeta[]
 }) {
     const containerRef = useRef<HTMLDivElement>(null);
     const { scrollYProgress } = useScroll({
@@ -213,7 +210,7 @@ export function AILearningPath({
     const trackCourseIds = useMemo(() => Array.from(new Set(trackLessons.map(l => l.courseId))), [trackLessons]);
     
     const trackCourses = useMemo(() => {
-        const courses = trackCourseIds.map(id => COURSES.find(c => c.id === id)).filter(Boolean);
+        const courses = trackCourseIds.map(id => COURSES.find(c => c.id === id)).filter((c): c is Course => !!c);
         // Sort by category order, then by course order
         return courses.sort((a, b) => {
             const catA = CATEGORIES.find(c => c.id === a!.categoryId);
@@ -249,10 +246,11 @@ export function AILearningPath({
                     const isLocked = idx > 0 && !completedCourses.includes(trackCourses[idx - 1]!.id);
                     
                     // Find achievements for this course from LESSON_INDEX rewards
-                    const courseLessons = trackLessons.filter(l => l.courseId === course!.id);
+                    const courseLessons = trackLessons.filter(l => l.courseId === course.id);
                     const achievements = courseLessons
                         .filter(l => l.reward?.type === "badge")
-                        .map(l => l.reward);
+                        .map(l => BADGES.find(b => b.id === l.reward?.value))
+                        .filter((b): b is Badge => !!b);
 
                     return (
                         <CourseNode 

@@ -20,6 +20,7 @@ interface QuizResult {
     secondaryModel: ModelName;
     primaryModelReason: string;
     recommendedCourseId: string;
+    startingXp: number;
 }
 
 interface SavantState {
@@ -332,6 +333,7 @@ export const useSavantStore = create<SavantState>()(
                 
                 set({
                     quizCompleted: true,
+                    xp: state.xp + (result.startingXp || 0),
                     primaryUseCase: result.primaryUseCase,
                     profileTitle: result.profileTitle,
                     outputTypes: result.outputTypes,

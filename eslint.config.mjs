@@ -18,6 +18,7 @@ const eslintConfig = defineConfig([
     "update-lessons.js",
     "update-lessons2.js",
     "update-lessons3.js",
+    "public/*.js",
   ]),
 ]);
 

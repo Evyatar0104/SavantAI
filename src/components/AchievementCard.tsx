@@ -7,12 +7,12 @@ import { type LearningPath } from "@/data/learningPaths";
 
 export const AchievementCard = memo(({ path, earned, onClick, size = "md" }: { path: Badge | LearningPath, earned: boolean, onClick?: () => void, size?: "sm" | "md" | "lg" }) => {
     const rarity = (path.rarity || "Legendary") as RarityTier;
-    const tierColor = RARITY_COLORS[rarity];
+    const tierColor = RARITY_COLORS[rarity] || RARITY_COLORS.Legendary;
     const isLarge = size === "lg";
     
     // Support both Badge and LearningPath shapes
-    const name = 'nameHe' in path ? path.nameHe : path.name;
-    const description = 'descriptionHe' in path ? path.descriptionHe : path.description;
+    const name = 'nameHe' in path ? (path as LearningPath).nameHe : (path as Badge).name;
+    const description = 'descriptionHe' in path ? (path as LearningPath).descriptionHe : (path as Badge).description;
     
     return (
         <div

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { m, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import { Clock, Zap, X } from "lucide-react";
+import { Clock, Zap } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useSavantStore } from "@/store/useSavantStore";
 import { haptics } from "@/lib/haptics";

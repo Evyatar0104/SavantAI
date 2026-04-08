@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Compass, Trophy, User, Crosshair, GraduationCap } from "lucide-react";
+import { Home, Trophy, User, Crosshair, GraduationCap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { m } from "framer-motion";
 

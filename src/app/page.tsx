@@ -9,9 +9,10 @@ import { isCourseUnlocked } from "@/lib/courseUnlock";
 import { HeroSection, getFloatingIcons } from "@/components/home/HeroSection";
 import { TrackCarousel } from "@/components/home/TrackCarousel";
 import { LessonGrid } from "@/components/home/LessonGrid";
-import { Trophy, ChevronLeft, ArrowRight } from "lucide-react";
+import { ChevronLeft, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 
 const MOCK_LEADERBOARD = [
   { name: "אלכסנדר הגדול", xp: 12500, avatar: "👑" },
@@ -314,61 +315,8 @@ export default function Home() {
   const homeScrollPosition = useSavantStore(state => state.homeScrollPosition);
   const setHomeScrollPosition = useSavantStore(state => state.setHomeScrollPosition);
   const hasHydrated = useSavantStore(state => state._hasHydrated);
-  const [isRestored, setIsRestored] = useState(() => {
-    if (typeof window !== 'undefined') {
-        const pos = useSavantStore.getState().homeScrollPosition || 0;
-        return pos === 0;
-    }
-    return false;
-  });
 
-  // Scroll Restoration
-  useEffect(() => {
-    if (!hasHydrated || isRestored) return;
-
-    const mainElement = document.querySelector('main');
-    if (mainElement && homeScrollPosition > 0) {
-        const restore = () => {
-            mainElement.scrollTo({ top: homeScrollPosition });
-            setIsRestored(true);
-        };
-
-        restore();
-        const timers = [
-            setTimeout(restore, 20),
-            setTimeout(restore, 100),
-            setTimeout(restore, 300),
-        ];
-        return () => timers.forEach(clearTimeout);
-    } else {
-        setIsRestored(true);
-    }
-  }, [hasHydrated, homeScrollPosition, isRestored]);
-
-  // Scroll Capture
-  useEffect(() => {
-    const mainElement = document.querySelector('main');
-    if (!mainElement) return;
-
-    let frameId: number;
-    const handleScroll = () => {
-        if (!isRestored) return;
-        
-        cancelAnimationFrame(frameId);
-        frameId = requestAnimationFrame(() => {
-            const currentPos = mainElement.scrollTop;
-            if (currentPos > 0 || (currentPos === 0 && homeScrollPosition < 100)) {
-                setHomeScrollPosition(currentPos);
-            }
-        });
-    };
-
-    mainElement.addEventListener('scroll', handleScroll, { passive: true });
-    return () => {
-        mainElement.removeEventListener('scroll', handleScroll);
-        cancelAnimationFrame(frameId);
-    };
-  }, [setHomeScrollPosition, isRestored, homeScrollPosition]);
+  useScrollRestoration(homeScrollPosition, setHomeScrollPosition, hasHydrated);
 
   return (
     <div className="flex-1 w-full bg-transparent text-foreground flex flex-col min-h-screen">
