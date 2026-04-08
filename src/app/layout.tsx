@@ -8,6 +8,7 @@ import { ResumeToast } from "../components/ResumeToast";
 import { VaultToast } from "../components/VaultToast";
 import { PathCompletionModal } from "../components/PathCompletionModal";
 import { Assistant as AssistantFont } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 
 const assistant = AssistantFont({
   subsets: ["hebrew", "latin"],
@@ -52,6 +53,7 @@ export default function RootLayout({
       <body className="antialiased text-foreground selection:bg-blue-500/30 selection:text-blue-500 min-h-[100dvh]">
         <div className="w-full min-h-[100dvh] relative flex font-sans transition-colors duration-500 overflow-x-hidden">
           <Providers>
+            <Analytics />
             <AnimatedBackground />
 
             {/* Persistent Sidebar for Desktop */}

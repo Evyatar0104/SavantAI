@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --webpack",
-    "build": "next build --webpack",
+    "dev": "next dev",
+    "build": "next build",
     "start": "next start",
     "lint": "eslint"
   },
@@ -15,6 +15,7 @@
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.5.0",
     "@rmyndharis/antigravity-skills": "github:rmyndharis/antigravity-skills",
+    "@vercel/analytics": "^2.0.1",
     "canvas-confetti": "^1.9.4",
     "clone": "^2.1.2",
     "clsx": "^2.1.1",
