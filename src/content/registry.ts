@@ -26,6 +26,7 @@ export const LESSON_INDEX: LessonMeta[] = [
     { id: "prompting-system-prompt-mindset", trackIds: ["writer"], courseId: "prompting-mastery", categoryId: "foundation", order: 8, title: "ההוראות שהוא תמיד זוכר", icon: "⚙️", description: "השתמש ב-System Prompt כדי להגדיר חוקי ברזל קבועים לכל השיחות שלך." },
     { id: "prompting-chaining-tasks", trackIds: ["writer"], courseId: "prompting-mastery", categoryId: "foundation", order: 9, title: "שרשר משימות — תן לו לבנות על עצמו", icon: "🔗", description: "פרק משימות מורכבות לסדרה של צעדים קטנים וממוקדים כדי להבטיח איכות מקסימלית." },
     { id: "prompting-meta-prompt", trackIds: ["writer"], courseId: "prompting-mastery", categoryId: "foundation", order: 10, title: "תבקש ממנו לשפר את הפרומפט שלך", icon: "🪄", description: "אל תתאמץ לכתוב את הפרומפט המושלם. תן ל-AI לעזור לך לנסח אותו טוב יותר." },
+    { id: "prompting-tokenizer-temperature", trackIds: ["writer", "analyst", "visual", "builder", "student"], courseId: "prompting-mastery", categoryId: "foundation", order: 11, title: "איך ה-AI רואה מילים ובוחר אותן", icon: "🔮", description: "מסע אינטראקטיבי לתוך עולם הטוקניזציה ומדד ההסתברות (Temperature)." },
 
     // ── choosing-models (8 lessons) ──
     { id: "choosing-what-are-llms-really", trackIds: ["analyst"], courseId: "choosing-models", categoryId: "foundation", order: 1, title: "כולם LLMs — אז מה ההבדל בעצם?", icon: "🧬", description: "למה שלושה כלים שמבוססים על אותה טכנולוגיה מתנהגים אחרת לגמרי?" },

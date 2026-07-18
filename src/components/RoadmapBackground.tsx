@@ -10,10 +10,10 @@ interface RoadmapBackgroundProps {
 
 export function RoadmapBackground({ color = "#3b82f6", className }: RoadmapBackgroundProps) {
     return (
-        <div className={cn("fixed inset-0 z-0 overflow-hidden pointer-events-none", className)} style={{ background: "#06060f" }}>
+        <div className={cn("fixed inset-0 z-0 overflow-hidden pointer-events-none", className)} style={{ background: "#0d0f1a" }}>
             {/* Deep space base */}
             <div className="absolute inset-0" style={{
-                background: `radial-gradient(ellipse 120% 80% at 60% 0%, ${color}15 0%, #06060f 55%, #030308 100%)`
+                background: `radial-gradient(ellipse 120% 80% at 60% 0%, ${color}15 0%, #0d0f1a 55%, #030308 100%)`
             }} />
 
             {/* Grid Pattern */}

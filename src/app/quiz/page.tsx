@@ -332,7 +332,7 @@ export default function QuizPage() {
     if (quizCompleted) return null;
 
     return (
-        <div className="min-h-[100dvh] flex flex-col relative bg-[#050508] text-white overflow-hidden" dir="rtl">
+        <div className="min-h-[100dvh] flex flex-col relative bg-[#0d0f1a] text-white overflow-hidden" dir="rtl">
             {/* Background Effects */}
             <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
                 <div className="absolute top-0 right-0 w-[80%] h-[60%] rounded-full blur-[120px] bg-purple-500/10 opacity-30" />
@@ -430,9 +430,9 @@ export default function QuizPage() {
                                 >
                                     <Target className="w-8 h-8 text-purple-400" />
                                 </m.div>
-                                <h2 className="text-3xl md:text-5xl font-serif font-bold text-white mb-3 tracking-tighter">
+                                <h1 className="text-3xl md:text-5xl font-serif font-bold text-white mb-3 tracking-tighter">
                                     מה היעד העיקרי שלך?
-                                </h2>
+                                </h1>
                                 <p className="text-zinc-500 text-sm md:text-base font-medium">בחר עד 2 תחומים שמעניינים אותך ב-AI</p>
                             </div>
                             
@@ -479,9 +479,9 @@ export default function QuizPage() {
                                 >
                                     <Brain className="w-8 h-8 text-blue-400" />
                                 </m.div>
-                                <h2 className="text-3xl md:text-5xl font-serif font-bold text-white mb-3 tracking-tighter">
+                                <h1 className="text-3xl md:text-5xl font-serif font-bold text-white mb-3 tracking-tighter">
                                     מה אתה צריך לייצר?
-                                </h2>
+                                </h1>
                                 <p className="text-zinc-500 text-sm md:text-base font-medium">בחר עד 3 סוגי פלט שרלוונטיים עבורך</p>
                             </div>
 
@@ -529,9 +529,9 @@ export default function QuizPage() {
                                 >
                                     <Sparkles className="w-8 h-8 text-emerald-400" />
                                 </m.div>
-                                <h2 className="text-3xl md:text-5xl font-serif font-bold text-white mb-3 tracking-tighter">
+                                <h1 className="text-3xl md:text-5xl font-serif font-bold text-white mb-3 tracking-tighter">
                                     כמה עמוק הפלט הדרוש?
-                                </h2>
+                                </h1>
                                 <p className="text-zinc-500 text-sm md:text-base font-medium">בחר את רמת המורכבות הממוצעת של העבודה שלך</p>
                             </div>
 
@@ -569,9 +569,9 @@ export default function QuizPage() {
                                 >
                                     <MousePointer2 className="w-8 h-8 text-orange-400" />
                                 </m.div>
-                                <h2 className="text-3xl md:text-5xl font-serif font-bold text-white mb-3 tracking-tighter">
+                                <h1 className="text-3xl md:text-5xl font-serif font-bold text-white mb-3 tracking-tighter">
                                     איך אתה מעדיף לעבוד?
-                                </h2>
+                                </h1>
                                 <p className="text-zinc-500 text-sm md:text-base font-medium">בחר את סגנון העבודה המועדף עליך עם AI</p>
                             </div>
 
@@ -609,9 +609,9 @@ export default function QuizPage() {
                                 >
                                     <Zap className="w-8 h-8 text-rose-400" />
                                 </m.div>
-                                <h2 className="text-3xl md:text-5xl font-serif font-bold text-white mb-3 tracking-tighter">
+                                <h1 className="text-3xl md:text-5xl font-serif font-bold text-white mb-3 tracking-tighter">
                                     מה התקציב החודשי שלך?
-                                </h2>
+                                </h1>
                                 <p className="text-zinc-500 text-sm md:text-base font-medium">כמה תהיה מוכן להשקיע בכלים מתקדמים?</p>
                             </div>
 
@@ -649,9 +649,9 @@ export default function QuizPage() {
                                 >
                                     <Rocket className="w-8 h-8 text-indigo-400" />
                                 </m.div>
-                                <h2 className="text-3xl md:text-5xl font-serif font-bold text-white mb-3 tracking-tighter">
+                                <h1 className="text-3xl md:text-5xl font-serif font-bold text-white mb-3 tracking-tighter">
                                     במה כבר השתמשת?
-                                </h2>
+                                </h1>
                                 <p className="text-zinc-500 text-sm md:text-base font-medium">כל כלי שסימנת מקנה לך 50 נקודות XP כבונוס ידע!</p>
                             </div>
 
@@ -725,7 +725,7 @@ export default function QuizPage() {
                                     <Brain className="w-8 h-8 text-white animate-pulse" />
                                 </div>
                             </div>
-                            <h2 className="text-2xl md:text-3xl font-serif font-bold text-white mb-2">מנתח את הפרופיל שלך</h2>
+                            <h1 className="text-2xl md:text-3xl font-serif font-bold text-white mb-2">מנתח את הפרופיל שלך</h1>
                             <p className="text-zinc-500 font-medium">בונה עבורך את מסלול הלמידה המדויק...</p>
                         </m.div>
                     )}
@@ -749,9 +749,9 @@ export default function QuizPage() {
                                 <span className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 mb-4">
                                     הפרופיל הטכנולוגי שלך
                                 </span>
-                                <h2 className="text-4xl md:text-6xl font-serif font-bold text-white mb-6 tracking-tighter">
+                                <h1 className="text-4xl md:text-6xl font-serif font-bold text-white mb-6 tracking-tighter">
                                     {result.profileTitle}
-                                </h2>
+                                </h1>
                                 <div className="w-16 h-1 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full" />
                             </m.div>
 

@@ -1,0 +1,147 @@
+:root,
+.dark {
+  --background: #0d0f1a;
+  --foreground: #f7f7fb;
+  --surface-subtle: rgba(255, 255, 255, 0.035);
+  --surface-default: rgba(20, 22, 39, 0.78);
+  --surface-strong: rgba(22, 24, 43, 0.94);
+  --surface-interactive: rgba(255, 255, 255, 0.065);
+  --surface-hover: rgba(255, 255, 255, 0.085);
+  --border-subtle: rgba(255, 255, 255, 0.075);
+  --border-default: rgba(255, 255, 255, 0.11);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --text-muted: #a1a1aa;
+  --text-subtle: #71717a;
+  --savant-primary: #534ab7;
+  --savant-primary-bright: #756be0;
+  --savant-success: #10b981;
+  --savant-warning: #f59e0b;
+  --savant-danger: #ef4444;
+  --radius-card: 16px;
+  --radius-control: 14px;
+  --page-gutter: clamp(1rem, 3vw, 3.5rem);
+  --reading-width: 46rem;
+  --content-width: 72rem;
+  --wide-width: 92.5rem;
+  --shadow-card: 0 18px 60px rgba(0, 0, 0, 0.22);
+}
+
+html {
+  min-width: 320px;
+  background: #0d0f1a;
+  color-scheme: dark;
+}
+
+body {
+  min-width: 320px;
+  background: #0d0f1a;
+}
+
+.app-shell {
+  isolation: isolate;
+}
+
+.app-main {
+  scroll-behavior: smooth;
+  scrollbar-gutter: stable;
+}
+
+.savant-page-shell {
+  container-type: inline-size;
+}
+
+.savant-glass-card,
+.glass-panel {
+  background: var(--surface-default);
+  border-color: var(--border-default);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  backdrop-filter: blur(16px) saturate(140%);
+}
+
+.content-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 420px;
+}
+
+.reading-column {
+  width: min(100%, var(--reading-width));
+  margin-inline: auto;
+}
+
+.touch-target {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.safe-bottom-padding {
+  padding-bottom: calc(6.5rem + env(safe-area-inset-bottom));
+}
+
+@media (min-width: 768px) {
+  .safe-bottom-padding {
+    padding-bottom: 3rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .savant-glass-card,
+  .glass-panel {
+    background: rgba(20, 22, 39, 0.9);
+    -webkit-backdrop-filter: blur(8px) saturate(120%);
+    backdrop-filter: blur(8px) saturate(120%);
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .interactive-surface:hover {
+    border-color: var(--border-strong);
+    background-color: var(--surface-hover);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-main {
+    scroll-behavior: auto;
+  }
+}
+/* PWA viewport containment: keep every app surface on the vertical axis. */
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
+  overscroll-behavior-x: none;
+}
+
+.app-shell,
+.app-main,
+.savant-page-shell {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: clip;
+  overscroll-behavior-x: none;
+}
+
+@supports not (overflow: clip) {
+  html,
+  body,
+  .app-shell,
+  .app-main,
+  .savant-page-shell {
+    overflow-x: hidden;
+  }
+}
+
+@media (max-width: 767px) {
+  .app-main {
+    width: 100%;
+    touch-action: pan-y;
+  }
+
+  .savant-page-shell,
+  .savant-page-shell > *,
+  .app-main > * {
+    min-width: 0;
+    max-width: 100%;
+  }
+}

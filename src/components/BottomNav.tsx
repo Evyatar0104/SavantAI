@@ -28,7 +28,9 @@ export function BottomNav() {
                 initial={{ y: 50, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ type: "spring", damping: 28, stiffness: 260, delay: 0.1 }}
-                className="pointer-events-auto w-full max-w-sm rounded-[24px] px-2 py-2 flex justify-between items-center bg-zinc-950 border border-white/10 stacked-shadow relative overflow-hidden"
+                style={{ willChange: "transform, opacity" }}
+                aria-label="ניווט ראשי"
+                className="pointer-events-auto w-full max-w-sm rounded-[24px] px-2 py-2 flex justify-between items-center glass-panel stacked-shadow relative overflow-hidden"
             >
                 {/* Subtle shine effect */}
                 <div className="absolute inset-0 bg-gradient-to-tr from-white/5 to-transparent pointer-events-none" />
@@ -41,17 +43,19 @@ export function BottomNav() {
                             key={link.href}
                             href={link.href}
                             prefetch={true}
-                            className="relative flex flex-col items-center justify-center w-16 h-14 rounded-full group outline-none"
+                            aria-current={isActive ? "page" : undefined}
+                            className="relative flex flex-col items-center justify-center w-16 h-14 rounded-full group outline-none focus-visible:outline-2"
                         >
                             {isActive && (
                                 <m.div
-                                    layoutId="activeTab"
                                     className="absolute inset-0 bg-black/5 dark:bg-white/10 rounded-full"
                                     transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                                    style={{ willChange: "transform" }}
                                 />
                             )}
                             <m.div
                                 whileTap={{ scale: 0.85 }}
+                                style={{ willChange: "transform" }}
                                 className={cn(
                                     "relative z-10 flex flex-col items-center justify-center space-y-1 transition-colors duration-300",
                                     isActive

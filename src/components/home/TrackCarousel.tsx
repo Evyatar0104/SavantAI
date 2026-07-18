@@ -1,11 +1,10 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import Link from "next/link";
 import { m } from "framer-motion";
-import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CourseCard } from "./Cards";
+import { SectionHeader } from "./SectionHeader";
 import type { Course, Category } from "@/content";
 
 interface TrackCarouselProps {
@@ -66,15 +65,13 @@ export function TrackCarousel({ coursesList, completedLessons, completedCourses 
 
     return (
         <section className="space-y-6">
-          <div className="flex justify-between items-end px-2">
-            <div>
-              <h3 className="text-xl md:text-3xl font-bold font-serif">מסלולי למידה</h3>
-              <p className="text-xs md:text-lg text-zinc-500 font-medium tracking-tight">העמק בתחומי ידע ספציפיים</p>
-            </div>
-            <Link href="/courses" className="text-blue-500 text-xs md:text-base font-bold flex items-center hover:underline">
-              צפה בהכל <ChevronRight className="w-4 h-4 mr-1 rotate-180" />
-            </Link>
-          </div>
+          <SectionHeader
+            title="מסלולי למידה"
+            subtitle="העמק בתחומי ידע ספציפיים"
+            accent="#60A5FA"
+            href="/courses"
+            linkLabel="צפה בהכל"
+          />
 
           <div
             ref={scrollRef}

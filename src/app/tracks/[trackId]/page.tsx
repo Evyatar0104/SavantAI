@@ -32,7 +32,7 @@ export default function TrackSyllabusPage() {
     const scrollPosition = trackScrollPositions[trackId] || 0;
     const setScrollPosition = (pos: number) => setTrackScrollPosition(trackId, pos);
 
-    useScrollRestoration(scrollPosition, setScrollPosition, hasHydrated);
+    useScrollRestoration(scrollPosition, setScrollPosition, hasHydrated, 'main', trackId);
 
     if (!track) {
         return notFound();
@@ -47,11 +47,11 @@ export default function TrackSyllabusPage() {
     const themeColor = TRACK_COLORS[trackId] || "#3b82f6";
 
     return (
-        <main className="relative min-h-[100dvh] w-full overflow-x-hidden bg-[#06060f]">
+        <main className="relative min-h-[100dvh] w-full overflow-x-hidden bg-[#0d0f1a]">
             <RoadmapBackground color={themeColor} />
             
             <div className="relative z-10 p-6 md:p-10 flex flex-col pt-12 md:pt-16 max-w-7xl mx-auto w-full rtl" dir="rtl">
-                <Link href="/courses" className="flex items-center text-zinc-400 hover:text-white mb-8 transition-colors group w-fit">
+                <Link href="/courses" className="flex min-h-11 items-center text-zinc-400 hover:text-white mb-8 transition-colors group w-fit">
                     <ArrowLeft className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" /> חזרה למסלולים
                 </Link>
 

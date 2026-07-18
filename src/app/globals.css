@@ -30,7 +30,7 @@
   --savant-spring: cubic-bezier(0.16, 1, 0.3, 1);
 
   /* Theming defaults - ALWAYS DARK */
-  --background: #050508;
+  --background: #0d0f1a;
   --foreground: #F5F5F7;
   --surface-elevated: rgba(22, 22, 23, 0.8);
   --border-subtle: rgba(255, 255, 255, 0.08);
@@ -40,7 +40,7 @@
 /* Fallback for system settings, but forcing it in :root above */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #050508;
+    --background: #0d0f1a;
     --foreground: #F5F5F7;
     --surface-elevated: rgba(22, 22, 23, 0.8);
     --border-subtle: rgba(255, 255, 255, 0.08);
@@ -151,4 +151,101 @@ body {
     0% { transform: translateX(-100%); }
     100% { transform: translateX(100%); }
   }
+
+  .grain-overlay {
+    position: absolute;
+    inset: 0;
+    mix-blend-mode: overlay;
+    opacity: 0.018;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 128px 128px;
+    pointer-events: none;
+    z-index: 1;
+  }
 }
+
+/* ──────────────────────────────────────────────────────────────────────────
+   iOS Safar & PWA Visual Tailoring & Performance Optimizations
+   ────────────────────────────────────────────────────────────────────────── */
+
+html, body {
+  /* Prevent scrolling the page when we drag past the ends (rubber banding on viewport) */
+  overscroll-behavior-y: none;
+}
+
+/* Force hardware-accelerated momentum kinetic scrolling on all overflow views on Webkit */
+.overflow-y-auto, .overflow-x-auto {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Disable tap highlight color on iOS touch tapping */
+a, button, [role="button"], select, input, textarea {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation; /* Mitigate tap delay */
+}
+
+/* Disable accidental text selection on interactive tapping triggers */
+button, a, select, nav, [role="button"], img, svg {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Explicitly keep reading areas selection-enabled */
+p, h1, h2, h3, h4, h5, h6, li, span, code, pre, .selectable-text {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* Prevent auto-zooming viewport in iOS Safari when text inputs or textareas are focused */
+input, textarea {
+  font-size: 16px !important;
+}
+
+/* Visible keyboard focus for desktop users — mouse/touch focus stays clean */
+:focus-visible {
+  outline: 2px solid rgba(120, 130, 255, 0.65);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+/* Respect OS-level reduced motion for CSS-driven animations */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Prevent stuck hover styles on touchscreen pointer environments */
+@media (hover: none) {
+  .group:hover .group-hover\:-translate-y-3,
+  .group:hover .group-hover\:translate-y-0 {
+    transform: none !important;
+  }
+  .hover\:bg-white\/10:hover, 
+  .hover\:bg-white\/5:hover,
+  .hover\:bg-zinc-800\/90:hover {
+    background-color: transparent !important;
+  }
+  .hover\:border-white\/20:hover {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+  }
+  .group:hover .group-hover\:scale-110,
+  .group:hover .group-hover\:scale-105 {
+    scale: 1 !important;
+  }
+  .hover\:underline:hover {
+    text-decoration: none !important;
+  }
+  .group-hover\:-translate-y-3 {
+    transform: none !important;
+  }
+  .hover\:shadow-2xl:hover {
+    box-shadow: none !important;
+  }
+}

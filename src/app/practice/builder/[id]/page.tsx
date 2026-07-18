@@ -493,7 +493,8 @@ function StepInputArea({
                     {customText.trim() && (
                         <button
                             type="submit"
-                            className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-xl flex items-center justify-center transition-all active:scale-90"
+                            aria-label="שליחת הערך"
+                            className="absolute left-2 top-1/2 flex size-11 -translate-y-1/2 items-center justify-center rounded-xl transition-all active:scale-90"
                             style={{ background: themeColor }}
                         >
                             <Send className="w-3.5 h-3.5 text-white" />
@@ -779,7 +780,8 @@ function PromptBuilderContent() {
             >
                 <button
                     onClick={handleExit}
-                    className="p-2 rounded-full transition-all active:scale-90"
+                    aria-label="יציאה מהתרגול"
+                    className="flex size-11 items-center justify-center rounded-full transition-all active:scale-90"
                     style={{ background: "rgba(255,255,255,0.08)" }}
                 >
                     <X className="w-4 h-4 text-white" />
@@ -793,7 +795,8 @@ function PromptBuilderContent() {
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: 8 }}
                             onClick={handlePrevStep}
-                            className="p-2 rounded-full transition-all active:scale-90 mr-2"
+                            aria-label="חזרה לשלב הקודם"
+                            className="mr-2 flex size-11 items-center justify-center rounded-full transition-all active:scale-90"
                             style={{ background: "rgba(255,255,255,0.08)", willChange: "transform" }}
                         >
                             <ArrowRight className="w-4 h-4 text-white" />
@@ -824,6 +827,7 @@ function PromptBuilderContent() {
 
             {/* Scrollable body */}
             <main className="flex-1 overflow-y-auto">
+                <h1 className="sr-only">{item.title}</h1>
                 <div className="max-w-175 mx-auto px-5 md:px-8 pt-6 pb-16">
                     {/* Always-visible prompt canvas */}
                     <PromptCanvas

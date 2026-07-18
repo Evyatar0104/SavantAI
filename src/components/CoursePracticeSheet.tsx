@@ -71,7 +71,7 @@ export function CoursePracticeSheet({ courseId, courseName, isOpen, onClose }: P
                         className="fixed bottom-0 left-0 right-0 z-[501] flex flex-col h-[85dvh] md:h-[80dvh] max-w-4xl mx-auto"
                         style={{
                             borderRadius: "32px 32px 0 0",
-                            background: "linear-gradient(to bottom, #0F0F19, #050508)",
+                            background: "linear-gradient(to bottom, #0F0F19, #0d0f1a)",
                             border: "1px solid rgba(255,255,255,0.1)",
                             borderBottom: "none",
                             boxShadow: "0 -20px 50px -10px rgba(0,0,0,0.5)",

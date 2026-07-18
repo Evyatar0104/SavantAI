@@ -1,153 +1,54 @@
 "use client";
 
-import { m } from "framer-motion";
 import { memo } from "react";
-import { type Badge, RARITY_COLORS, RarityTier } from "@/content";
+import { m } from "framer-motion";
+import { LockKeyhole } from "lucide-react";
+import { type Badge, RARITY_COLORS, type RarityTier } from "@/content";
 import { type LearningPath } from "@/data/learningPaths";
+import { cn } from "@/lib/utils";
 
-export const AchievementCard = memo(({ path, earned, onClick, size = "md" }: { path: Badge | LearningPath, earned: boolean, onClick?: () => void, size?: "sm" | "md" | "lg" }) => {
-    const rarity = (path.rarity || "Legendary") as RarityTier;
-    const tierColor = RARITY_COLORS[rarity] || RARITY_COLORS.Legendary;
-    const isLarge = size === "lg";
-    
-    // Support both Badge and LearningPath shapes
-    const name = 'nameHe' in path ? (path as LearningPath).nameHe : (path as Badge).name;
-    const description = 'descriptionHe' in path ? (path as LearningPath).descriptionHe : (path as Badge).description;
-    
-    return (
-        <div
-            onClick={onClick}
-            style={{
-                aspectRatio: "3/4",
-                borderRadius: isLarge ? 32 : 20,
-                overflow: "hidden",
-                perspective: 1000,
-                cursor: earned && onClick ? "pointer" : "default",
-                willChange: "transform",
-                transform: "translateZ(0)",
-                border: earned
-                    ? `1px solid ${tierColor.border}`
-                    : `1px solid ${tierColor.border.replace('0.4', '0.1').replace('0.5', '0.1').replace('0.6', '0.1')}`,
-                boxShadow: earned ? `0 12px 32px -8px ${tierColor.glow}` : "none",
-                width: isLarge ? "280px" : "100%",
-                maxWidth: isLarge ? "100%" : "none",
-            }}
-        >
-            <m.div
-                whileHover={earned && onClick ? { scale: 1.03, rotateY: 8, rotateX: 6 } : undefined}
-                whileTap={earned && onClick ? { scale: 0.95 } : undefined}
-                style={{
-                    width: "100%",
-                    height: "100%",
-                    padding: isLarge ? "32px 24px" : "16px 12px",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    textAlign: "center",
-                    position: "relative",
-                    background: earned
-                        ? `linear-gradient(145deg, ${tierColor.main} 0%, rgba(10,10,15,0.4) 100%)`
-                        : "rgba(15,15,25,0.4)",
-                    backdropFilter: "blur(12px)",
-                    WebkitBackdropFilter: "blur(12px)",
-                }}
-            >
-                {/* Atmospheric Glow */}
-                {earned && (
-                    <div
-                        style={{
-                            position: "absolute",
-                            inset: 0,
-                            background: `radial-gradient(ellipse 120% 80% at 50% -10%, ${tierColor.glow}, transparent 70%)`,
-                            opacity: 0.6,
-                            pointerEvents: "none",
-                        }}
-                    />
-                )}
+const rarityLabels: Record<RarityTier, string> = {
+  Common: "רגיל",
+  Rare: "נדיר",
+  "Super Rare": "נדיר מאוד",
+  Epic: "אפי",
+  Legendary: "אגדי",
+};
 
-                {/* Colored shimmer blob */}
-                {earned && (
-                    <div
-                        className="card-shimmer-blob"
-                        style={{
-                            position: "absolute",
-                            width: "180%",
-                            height: "180%",
-                            top: "-40%",
-                            left: "-40%",
-                            background: `radial-gradient(ellipse 35% 25% at 50% 50%, rgba(${tierColor.shimmer},0.22), transparent 60%),
-                                         radial-gradient(ellipse 70% 55% at 50% 50%, rgba(${tierColor.shimmer},0.07), transparent 80%)`,
-                            pointerEvents: "none",
-                            zIndex: 1,
-                        }}
-                    />
-                )}
+export const AchievementCard = memo(function AchievementCard({ path, earned, onClick, size = "md" }: { path: Badge | LearningPath; earned: boolean; onClick?: () => void; size?: "sm" | "md" | "lg" }) {
+  const rarity = (path.rarity || "Legendary") as RarityTier;
+  const colors = RARITY_COLORS[rarity] || RARITY_COLORS.Legendary;
+  const name = "nameHe" in path ? path.nameHe : path.name;
+  const description = "descriptionHe" in path ? path.descriptionHe : path.description;
+  const large = size === "lg";
+  const small = size === "sm";
+  const interactive = earned && Boolean(onClick);
 
-                <div
-                    className={`${isLarge ? "text-7xl md:text-8xl mb-8" : "text-4xl sm:text-5xl mb-3"} drop-shadow-xl relative z-10`}
-                    style={{
-                        filter: earned ? "none" : "grayscale(1) brightness(0.2) blur(1px)",
-                        opacity: earned ? 1 : 0.4
-                    }}
-                >
-                    {earned ? path.icon : "🔒"}
-                </div>
-
-                <div className="relative z-10">
-                    <h3
-                        className={`${isLarge ? "text-2xl mb-2" : "text-[13px] sm:text-sm mb-1"} font-black leading-tight`}
-                        style={{ color: earned ? "white" : "rgba(255,255,255,0.3)" }}
-                    >
-                        {name}
-                    </h3>
-                    
-                    {/* Rarity Label */}
-                    <div 
-                        className={`${isLarge ? "text-xs px-4 py-1 mb-4" : "text-[8px] px-2 py-0.5 mb-2"} font-black uppercase tracking-widest rounded-full inline-block`}
-                        style={{ 
-                            backgroundColor: earned 
-                                ? tierColor.border.replace('0.4', '0.2').replace('0.5', '0.2').replace('0.6', '0.2')
-                                : "rgba(255,255,255,0.05)",
-                            color: earned 
-                                ? tierColor.border.replace('0.4', '1').replace('0.5', '1').replace('0.6', '1')
-                                : "rgba(255,255,255,0.2)",
-                            border: `1px solid ${earned ? tierColor.border : "rgba(255,255,255,0.1)"}`
-                        }}
-                    >
-                        {rarity === "Super Rare" ? "SUPER RARE" : rarity.toUpperCase()}
-                    </div>
-                </div>
-
-                {!isLarge && (
-                    <p
-                        className="text-[10px] leading-tight relative z-10 px-1 line-clamp-2"
-                        style={{ color: earned ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.15)" }}
-                    >
-                        {description}
-                    </p>
-                )}
-                
-                {isLarge && (
-                    <p className="text-sm md:text-base text-white/60 font-medium max-w-[200px] mx-auto relative z-10">
-                        {description}
-                    </p>
-                )}
-            </m.div>
-
-            <style jsx global>{`
-                @keyframes cardShimmerDrift {
-                    0%   { transform: translate(-18%, -22%) rotate(0deg);   opacity: 0.7; }
-                    25%  { transform: translate(18%, -14%) rotate(90deg);   opacity: 1;   }
-                    50%  { transform: translate(14%, 18%)  rotate(180deg);  opacity: 0.75; }
-                    75%  { transform: translate(-14%, 14%) rotate(270deg);  opacity: 1;   }
-                    100% { transform: translate(-18%, -22%) rotate(360deg); opacity: 0.7; }
-                }
-                .card-shimmer-blob {
-                    animation: cardShimmerDrift 7s infinite ease-in-out;
-                }
-            `}</style>
-        </div>
-    );
+  return (
+    <m.button
+      type="button"
+      dir="rtl"
+      disabled={!interactive}
+      onClick={onClick}
+      aria-label={earned ? name : "הישג נעול"}
+      whileHover={interactive ? { y: -3, scale: 1.015 } : undefined}
+      whileTap={interactive ? { scale: 0.97 } : undefined}
+      className={cn("relative flex aspect-[3/4] w-full max-w-full flex-col items-center justify-center overflow-hidden border text-center disabled:cursor-default", large ? "rounded-3xl p-8" : small ? "rounded-xl p-3" : "rounded-2xl p-4")}
+      style={{
+        width: large ? 280 : "100%",
+        background: earned ? `linear-gradient(145deg, ${colors.main}, rgba(14,16,29,0.94))` : "rgba(255,255,255,0.025)",
+        borderColor: earned ? colors.border : "rgba(255,255,255,0.07)",
+        boxShadow: earned ? `0 16px 38px -24px ${colors.glow}` : "none",
+        willChange: "transform",
+      }}
+    >
+      {earned && <span className="pointer-events-none absolute inset-0 opacity-55" style={{ background: `radial-gradient(circle at 50% 0%, ${colors.glow}, transparent 60%)` }} />}
+      <span className={cn("relative flex items-center justify-center rounded-2xl border border-white/10 bg-black/20", large ? "size-28 text-7xl" : small ? "size-11 text-2xl" : "size-16 text-4xl")}>
+        {earned ? path.icon : <LockKeyhole className={cn(small ? "size-4" : "size-7", "text-zinc-600")} />}
+      </span>
+      <h3 className={cn("relative font-black leading-tight", large ? "mt-7 text-2xl" : small ? "mt-2 text-xs" : "mt-4 text-sm", earned ? "text-white" : "text-zinc-600")}>{earned ? name : "הישג נעול"}</h3>
+      {!small && <span className={cn("relative mt-3 rounded-full border px-3 py-1 text-[10px] font-black", earned ? "text-white/75" : "border-white/[0.06] text-zinc-700")} style={earned ? { borderColor: colors.border, background: colors.main } : undefined}>{rarityLabels[rarity]}</span>}
+      {!small && <p className={cn("relative mt-3 line-clamp-3 leading-6", large ? "text-base" : "text-xs", earned ? "text-zinc-400" : "text-zinc-700")}>{earned ? description : "המשיכו במסלול כדי לפתוח"}</p>}
+    </m.button>
+  );
 });
-AchievementCard.displayName = "AchievementCard";

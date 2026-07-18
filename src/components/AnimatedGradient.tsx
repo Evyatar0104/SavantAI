@@ -8,7 +8,7 @@ interface Props {
     backgroundColor?: string;
 }
 
-export function AnimatedGradient({ color = "#00C48C", backgroundColor = "#050510" }: Props) {
+export function AnimatedGradient({ color = "#00C48C", backgroundColor = "#0d0f1a" }: Props) {
     const mouseX = useMotionValue(0);
     const mouseY = useMotionValue(0);
 

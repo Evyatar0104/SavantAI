@@ -45,10 +45,9 @@ export function ResumeToast() {
 
     return (
         <div className="fixed top-6 left-4 right-4 md:left-auto md:right-8 z-100 pointer-events-none" dir="rtl">
-            <AnimatePresence mode="popLayout" initial={false}>
+            <AnimatePresence mode="wait" initial={false}>
                 {isVisible && (
                     <m.div
-                        layout
                         initial={{ opacity: 0, scale: 0.9, y: 16 }}
                         animate={{ 
                             opacity: 1, 
@@ -61,7 +60,6 @@ export function ResumeToast() {
                         }}
                         exit={{ opacity: 0, scale: 0.9, y: 16 }}
                         transition={{
-                            layout: { type: "spring", stiffness: 450, damping: 35, mass: 1 },
                             opacity: { duration: 0.2 }
                         }}
                         style={{

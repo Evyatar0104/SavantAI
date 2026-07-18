@@ -49,10 +49,9 @@ export function VaultToast() {
 
     return (
         <div className="fixed top-24 left-4 right-4 md:left-auto md:right-8 z-[110] pointer-events-none" dir="rtl">
-            <AnimatePresence mode="popLayout">
+            <AnimatePresence mode="wait">
                 {isVisible && (
                     <m.div
-                        layout
                         initial={{ opacity: 0, scale: 0.8, y: -20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.8, y: -20, transition: { duration: 0.2 } }}

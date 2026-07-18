@@ -1,308 +1,154 @@
 "use client";
 
-import { useSavantStore } from "@/store/useSavantStore";
-import { type Badge, BADGES, isBadgeEarned, RARITY_COLORS } from "@/content";
-import { m, Variants, AnimatePresence } from "framer-motion";
+import { memo, useMemo, useState } from "react";
+import { m, type Variants } from "framer-motion";
+import { Award, Grid2X2, LockKeyhole, Rows3, X } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { BADGES, isBadgeEarned, RARITY_COLORS, type Badge, type RarityTier } from "@/content";
 import { haptics } from "@/lib/haptics";
-import { memo } from "react";
-import { LayoutGrid, List } from "lucide-react";
-
-// ── View Toggle ──────────────────────────────────────
-function ViewToggle({ compact, setCompact }: { compact: boolean; setCompact: (v: boolean) => void }) {
-    return (
-        <div style={{
-            display: "flex",
-            background: "rgba(255,255,255,0.04)",
-            padding: 4,
-            borderRadius: 10,
-            border: "1px solid rgba(255,255,255,0.08)",
-        }}>
-            <button
-                onClick={() => setCompact(false)}
-                style={{
-                    padding: "6px 10px",
-                    borderRadius: 7,
-                    background: !compact ? "rgba(83,74,183,0.3)" : "transparent",
-                    color: !compact ? "white" : "rgba(255,255,255,0.4)",
-                    transition: "all 0.2s",
-                }}
-            >
-                <LayoutGrid className="w-4 h-4" />
-            </button>
-            <button
-                onClick={() => setCompact(true)}
-                style={{
-                    padding: "6px 10px",
-                    borderRadius: 7,
-                    background: compact ? "rgba(83,74,183,0.3)" : "transparent",
-                    color: compact ? "white" : "rgba(255,255,255,0.4)",
-                    transition: "all 0.2s",
-                }}
-            >
-                <List className="w-4 h-4" />
-            </button>
-        </div>
-    );
-}
-
-// ── Compact Badge Card ──────────────────────────────
-const CompactBadgeCard = memo(({ badge, earned, onClick }: { badge: Badge, earned: boolean, onClick: () => void }) => {
-    const tierColor = RARITY_COLORS[badge.rarity || "Common"];
-    
-    return (
-        <m.div
-            layout
-            variants={itemVariants}
-            whileTap={earned ? { scale: 0.98 } : undefined}
-            onClick={onClick}
-            style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-                padding: "10px 14px",
-                borderRadius: 12,
-                background: earned ? `${tierColor.main}` : "rgba(0,0,0,0.2)",
-                border: earned ? `1px solid ${tierColor.border}` : "1px solid rgba(255,255,255,0.03)",
-                boxShadow: earned ? `0 4px 12px ${tierColor.glow}` : "none",
-                cursor: earned ? "pointer" : "default",
-                opacity: earned ? 1 : 0.5,
-            }}
-        >
-            <div style={{ 
-                fontSize: 24, 
-                filter: earned ? "none" : "grayscale(1) brightness(0.5)",
-                flexShrink: 0
-            }}>
-                {badge.icon}
-            </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-                <h3 style={{ 
-                    fontSize: 14, fontWeight: 600, color: "white",
-                    whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis"
-                }}>
-                    {earned ? badge.name : "????"}
-                </h3>
-                {earned && (
-                    <p style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                        {badge.description}
-                    </p>
-                )}
-            </div>
-            {earned && <div style={{ color: "#FCD34D", fontSize: 10 }}>★</div>}
-        </m.div>
-    );
-});
-CompactBadgeCard.displayName = "CompactBadgeCard";
-
-// Map each rarity to a vivid shimmer highlight (matches profile page)
-const SHIMMER_COLOR: Record<string, string> = {
-    Common:    "161, 161, 170",   // silver-zinc
-    Rare:      "99, 179, 255",    // electric blue
-    Epic:      "196, 132, 255",   // violet-purple
-    Legendary: "251, 191, 36",    // amber-gold
-};
+import { useSavantStore } from "@/store/useSavantStore";
+import { EmptyState, GlassCard, IconButton, PageHeader, PageShell, StatusChip } from "@/components/ui/Primitives";
+import { cn } from "@/lib/utils";
 
 const containerVariants: Variants = {
-    hidden: { opacity: 0 },
-    show: {
-        opacity: 1,
-        transition: { staggerChildren: 0.08, delayChildren: 0.1 }
-    }
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { staggerChildren: 0.045 } },
 };
 
 const itemVariants: Variants = {
-    hidden: { opacity: 0, scale: 0.95, y: 10 },
-    show: {
-        opacity: 1,
-        scale: 1,
-        y: 0,
-        transition: { type: "spring", stiffness: 300, damping: 24 }
-    }
+  hidden: { opacity: 0, y: 12, scale: 0.98 },
+  show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.28 } },
 };
 
-const VaultBadgeCard = memo(({ badge, earned, onClick }: { badge: Badge, earned: boolean, onClick: () => void }) => {
-    const tierColor = RARITY_COLORS[badge.rarity || "Common"];
-    const shimmerRgb = SHIMMER_COLOR[badge.rarity || "Common"];
+type CollectionFilter = "all" | "earned" | "locked";
+type RarityFilter = "all" | RarityTier;
 
-    // FIX: Same clip/3D separation as BadgeCard in profile.
-    // overflow:hidden on a preserve-3d parent forces the browser into a 2D
-    // compositing mode, causing jagged corners and rendering tile-split artifacts.
-    return (
-        <div
-            onClick={onClick}
-            style={{
-                aspectRatio: "3/4",
-                borderRadius: 16,
-                overflow: "hidden",
-                perspective: 1000,
-                cursor: earned ? "pointer" : "default",
-                willChange: "transform",
-                transform: "translateZ(0)",
-                border: earned
-                    ? `1px solid ${tierColor.border}`
-                    : "1px solid rgba(255,255,255,0.05)",
-                boxShadow: earned ? `0 8px 32px ${tierColor.glow}` : "none",
-            }}
-        >
-            <m.div
-                variants={itemVariants}
-                whileHover={earned ? { scale: 1.03, rotateY: 5, rotateX: 4 } : undefined}
-                whileTap={earned ? { scale: 0.95 } : undefined}
-                style={{
-                    width: "100%",
-                    height: "100%",
-                    padding: "20px 16px",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    textAlign: "center",
-                    position: "relative",
-                    background: earned
-                        ? `linear-gradient(145deg, ${tierColor.main} 0%, rgba(255,255,255,0.02) 100%)`
-                        : "rgba(0,0,0,0.4)",
-                    backdropFilter: earned ? "blur(12px)" : "none",
-                }}
-            >
-                {/* Top atmospheric bloom — soft radial, no hard stops */}
-                {earned && (
-                    <div
-                        style={{
-                            position: "absolute",
-                            inset: 0,
-                            background: `radial-gradient(ellipse 120% 80% at 50% -10%, ${tierColor.glow}, transparent 70%)`,
-                            opacity: 0.4,
-                            pointerEvents: "none",
-                        }}
-                    />
-                )}
+const rarityLabels: Record<RarityTier, string> = {
+  Common: "רגיל",
+  Rare: "נדיר",
+  "Super Rare": "נדיר מאוד",
+  Epic: "אפי",
+  Legendary: "אגדי",
+};
 
-                {/* Colored shimmer blob — two-layer radial in the card's rarity color.
-                    Moved by CSS transform for zero hard edges or chopped corners. */}
-                {earned && (
-                    <div
-                        className="vault-shimmer-blob"
-                        style={{
-                            position: "absolute",
-                            width: "180%",
-                            height: "180%",
-                            top: "-40%",
-                            left: "-40%",
-                            background: `radial-gradient(ellipse 35% 25% at 50% 50%, rgba(${shimmerRgb},0.2), transparent 60%),
-                                         radial-gradient(ellipse 70% 55% at 50% 50%, rgba(${shimmerRgb},0.07), transparent 80%)`,
-                            pointerEvents: "none",
-                        }}
-                    />
-                )}
+const VaultBadgeCard = memo(function VaultBadgeCard({ badge, earned, compact, onOpen }: { badge: Badge; earned: boolean; compact: boolean; onOpen: () => void }) {
+  const rarity = badge.rarity || "Common";
+  const colors = RARITY_COLORS[rarity];
 
-                <div
-                    className="text-5xl sm:text-6xl mb-4 drop-shadow-xl relative z-10"
-                    style={{
-                        filter: earned ? "none" : "grayscale(1) brightness(0.2) blur(1px)",
-                        opacity: earned ? 1 : 0.4
-                    }}
-                >
-                    {badge.icon}
-                </div>
-                <h3
-                    className="text-[15px] sm:text-base font-semibold mb-1 relative z-10"
-                    style={{ color: earned ? "white" : "rgba(255,255,255,0.3)" }}
-                >
-                    {earned ? badge.name : "????"}
-                </h3>
-                {earned && (
-                    <p className="text-[11px] sm:text-xs text-white/50 leading-tight relative z-10">
-                        {badge.description}
-                    </p>
-                )}
-            </m.div>
-        </div>
-    );
+  return (
+    <m.button
+      type="button"
+      variants={itemVariants}
+      whileHover={earned ? { y: -3, scale: 1.01 } : undefined}
+      whileTap={earned ? { scale: 0.98 } : undefined}
+      disabled={!earned}
+      onClick={onOpen}
+      aria-label={earned ? `פתיחת ההישג ${badge.name}` : "הישג נעול"}
+      className={cn(
+        "group relative w-full overflow-hidden rounded-2xl border text-right disabled:cursor-default",
+        compact ? "flex min-h-24 items-center gap-4 p-4" : "flex aspect-[4/5] flex-col items-center justify-center p-5 text-center",
+      )}
+      style={{
+        background: earned ? `linear-gradient(145deg, ${colors.main}, rgba(18,20,35,0.94))` : "rgba(255,255,255,0.025)",
+        borderColor: earned ? colors.border : "rgba(255,255,255,0.07)",
+        boxShadow: earned ? `0 16px 40px -24px ${colors.glow}` : "none",
+        willChange: "transform",
+      }}
+      dir="rtl"
+    >
+      {earned && <span className="pointer-events-none absolute inset-0 opacity-50" style={{ background: `radial-gradient(circle at 50% 0%, ${colors.glow}, transparent 58%)` }} />}
+      <div className={cn("relative flex shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-black/20", compact ? "size-14 text-3xl" : "size-20 text-5xl")}>{earned ? badge.icon : <LockKeyhole className="size-7 text-zinc-600" />}</div>
+      <div className={cn("relative min-w-0", !compact && "mt-5")}>
+        <StatusChip className="mb-2" tone={earned ? "accent" : "neutral"}>{rarityLabels[rarity]}</StatusChip>
+        <h2 className={cn("font-black", compact ? "truncate text-base" : "text-lg", earned ? "text-white" : "text-zinc-600")}>{earned ? badge.name : "הישג נעול"}</h2>
+        <p className={cn("mt-1 leading-5", compact ? "line-clamp-1 text-xs" : "line-clamp-2 text-sm", earned ? "text-zinc-400" : "text-zinc-700")}>{earned ? badge.description : "המשיכו ללמוד ולתרגל כדי לחשוף אותו."}</p>
+      </div>
+    </m.button>
+  );
 });
-VaultBadgeCard.displayName = "VaultBadgeCard";
 
 export default function VaultPage() {
-    const router = useRouter();
-    // Using select pieces of state via a selector to avoid over-renders
-    const state = useSavantStore();
-    const isCompact = state.isCompactView;
-    const setIsCompact = state.setCompactView;
+  const router = useRouter();
+  const state = useSavantStore();
+  const compact = state.isCompactView;
+  const setCompact = state.setCompactView;
+  const [collectionFilter, setCollectionFilter] = useState<CollectionFilter>("all");
+  const [rarityFilter, setRarityFilter] = useState<RarityFilter>("all");
 
-    return (
-        <div className="min-h-screen bg-[#0f0f1a] text-white px-4 sm:px-6 pt-8 sm:pt-12 pb-24" style={{ direction: "rtl" }}>
-            <div className="max-w-2xl mx-auto">
-                <div className="flex items-center justify-between mb-8">
-                    <div>
-                        <h1 className="text-3xl font-semibold mb-2">הכספת</h1>
-                        <p className="text-white/60 text-sm">אוסף ההישגים הייחודיים שלך.</p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <ViewToggle compact={isCompact} setCompact={setIsCompact} />
-                        <button
-                            onClick={() => router.push("/profile")}
-                            className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/70 hover:bg-white/10 hover:text-white transition-colors"
-                        >
-                            ✕
-                        </button>
-                    </div>
-                </div>
+  const badges = useMemo(() => BADGES.map((badge) => ({ badge, earned: isBadgeEarned(badge.id, state) })), [state]);
+  const earnedCount = badges.filter((item) => item.earned).length;
+  const filteredBadges = badges.filter(({ badge, earned }) => {
+    if (collectionFilter === "earned" && !earned) return false;
+    if (collectionFilter === "locked" && earned) return false;
+    return rarityFilter === "all" || (badge.rarity || "Common") === rarityFilter;
+  });
 
-                <m.div 
-                    layout
-                    variants={containerVariants} 
-                    initial="hidden" 
-                    animate="show"
-                    className={isCompact ? "flex flex-col gap-2" : "grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-6"}
-                >
-                    <AnimatePresence mode="popLayout" initial={false}>
-                        {BADGES.map((badge) => {
-                            const earned = isBadgeEarned(badge.id, state);
-                            
-                            return isCompact ? (
-                                <CompactBadgeCard
-                                    key={badge.id}
-                                    badge={badge}
-                                    earned={earned}
-                                    onClick={() => {
-                                        if (earned) {
-                                            haptics.tap();
-                                            router.push(`/vault/${badge.id}?from=vault`);
-                                        }
-                                    }}
-                                />
-                            ) : (
-                                <VaultBadgeCard
-                                    key={badge.id}
-                                    badge={badge}
-                                    earned={earned}
-                                    onClick={() => {
-                                        if (earned) {
-                                            haptics.tap();
-                                            router.push(`/vault/${badge.id}?from=vault`);
-                                        }
-                                    }}
-                                />
-                            );
-                        })}
-                    </AnimatePresence>
-                </m.div>
-            </div>
-            
-            <style dangerouslySetInnerHTML={{__html: `
-                /* Shimmer blob orbits + pulses, driven by transform only —
-                   immune to tile-split, chopped edges, and corner artifacts. */
-                @keyframes vaultShimmerDrift {
-                    0%   { transform: translate(-18%, -22%) rotate(0deg);   opacity: 0.7; }
-                    25%  { transform: translate(18%, -14%) rotate(90deg);   opacity: 1;   }
-                    50%  { transform: translate(14%, 18%)  rotate(180deg);  opacity: 0.75; }
-                    75%  { transform: translate(-14%, 14%) rotate(270deg);  opacity: 1;   }
-                    100% { transform: translate(-18%, -22%) rotate(360deg); opacity: 0.7; }
-                }
-                .vault-shimmer-blob {
-                    animation: vaultShimmerDrift 6s infinite ease-in-out;
-                }
-            `}} />
+  function changeView(nextCompact: boolean) {
+    haptics.tap();
+    setCompact(nextCompact);
+  }
+
+  return (
+    <PageShell width="wide" className="pb-28">
+      <PageHeader
+        eyebrow="האוסף האישי"
+        title="כספת ההישגים"
+        description="כל ציון דרך נשמר כאן. הישגים נעולים נחשפים כשמסיימים שיעורים, קורסים ותרגולים."
+        actions={
+          <div className="flex items-center gap-2">
+            <StatusChip tone="accent"><Award className="ml-1.5 size-3.5" />{earnedCount} מתוך {BADGES.length}</StatusChip>
+            <IconButton label="חזרה לפרופיל" onClick={() => router.push("/profile")}><X className="size-5" /></IconButton>
+          </div>
+        }
+      />
+
+      <GlassCard density="compact" className="mt-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-wrap gap-2" role="group" aria-label="סינון לפי מצב הישג">
+          {([
+            ["all", "הכול"],
+            ["earned", "נפתחו"],
+            ["locked", "נעולים"],
+          ] as const).map(([value, label]) => (
+            <button key={value} type="button" onClick={() => { haptics.tap(); setCollectionFilter(value); }} className={cn("min-h-11 rounded-xl border px-4 text-sm font-bold transition-colors", collectionFilter === value ? "border-violet-400/30 bg-violet-400/12 text-violet-200" : "border-white/[0.08] bg-white/[0.035] text-zinc-400 hover:text-white")}>{label}</button>
+          ))}
         </div>
-    );
+
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <label className="sr-only" htmlFor="rarity-filter">סינון לפי נדירות</label>
+          <select id="rarity-filter" value={rarityFilter} onChange={(event) => setRarityFilter(event.target.value as RarityFilter)} className="min-h-11 rounded-xl border border-white/[0.08] bg-[#151727] px-4 text-sm font-bold text-zinc-300 outline-none focus:border-violet-400/50">
+            <option value="all">כל דרגות הנדירות</option>
+            {(Object.keys(rarityLabels) as RarityTier[]).map((rarity) => <option key={rarity} value={rarity}>{rarityLabels[rarity]}</option>)}
+          </select>
+          <div className="flex rounded-xl border border-white/[0.08] bg-white/[0.035] p-1" role="group" aria-label="בחירת תצוגה">
+            <button type="button" onClick={() => changeView(false)} aria-label="תצוגת כרטיסים" aria-pressed={!compact} className={cn("flex size-11 items-center justify-center rounded-lg", !compact ? "bg-violet-400/15 text-violet-200" : "text-zinc-500")}><Grid2X2 className="size-4" /></button>
+            <button type="button" onClick={() => changeView(true)} aria-label="תצוגה קומפקטית" aria-pressed={compact} className={cn("flex size-11 items-center justify-center rounded-lg", compact ? "bg-violet-400/15 text-violet-200" : "text-zinc-500")}><Rows3 className="size-4" /></button>
+          </div>
+        </div>
+      </GlassCard>
+
+      {filteredBadges.length === 0 ? (
+        <EmptyState icon={<Award className="size-6" />} title="לא נמצאו הישגים" description="שנו את המסננים כדי לראות הישגים נוספים." />
+      ) : (
+        <m.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="show"
+          className={cn("mt-6", compact ? "grid gap-3 md:grid-cols-2 xl:grid-cols-3" : "grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4 2xl:grid-cols-5")}
+        >
+          {filteredBadges.map(({ badge, earned }) => (
+            <VaultBadgeCard
+              key={badge.id}
+              badge={badge}
+              earned={earned}
+              compact={compact}
+              onOpen={() => {
+                haptics.tap();
+                router.push(`/vault/${badge.id}?from=vault`);
+              }}
+            />
+          ))}
+        </m.div>
+      )}
+    </PageShell>
+  );
 }

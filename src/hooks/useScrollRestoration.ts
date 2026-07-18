@@ -1,14 +1,23 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 /**
  * Custom hook to handle scroll capture and restoration for a specific element.
  * Useful for maintaining scroll state in the global store across page navigations.
+ *
+ * Capture is flush-based: the position is tracked locally and only written to the
+ * store when the page is left (unmount / pagehide / resetKey change). Writing on
+ * every scroll frame would re-render the subscribing page and re-serialize the
+ * persisted store to localStorage continuously while scrolling.
+ *
+ * Pass `resetKey` (e.g. courseId) when the same mounted page can switch to a
+ * different scroll-position record without unmounting.
  */
 export function useScrollRestoration(
     scrollPosition: number,
     setScrollPosition: (pos: number) => void,
     hasHydrated: boolean,
-    selector: string = 'main'
+    selector: string = 'main',
+    resetKey: string | number = ''
 ) {
     const [isRestored, setIsRestored] = useState(() => {
         // Initial state: if we have no position stored or it's top, mark as restored immediately
@@ -19,14 +28,30 @@ export function useScrollRestoration(
         return false;
     });
 
+    // Keep latest values in refs so effects don't need to re-subscribe per render.
+    const scrollPositionRef = useRef(scrollPosition);
+    scrollPositionRef.current = scrollPosition;
+    const setScrollPositionRef = useRef(setScrollPosition);
+    setScrollPositionRef.current = setScrollPosition;
+    const isRestoredRef = useRef(isRestored);
+    isRestoredRef.current = isRestored;
+
+    // Re-arm restoration when the record we track changes in place (render-phase reset).
+    const prevKeyRef = useRef(resetKey);
+    if (prevKeyRef.current !== resetKey) {
+        prevKeyRef.current = resetKey;
+        setIsRestored(scrollPosition === 0);
+    }
+
     // Scroll Restoration Logic
     useEffect(() => {
         if (!hasHydrated || isRestored) return;
 
         const element = document.querySelector(selector);
-        if (element && scrollPosition > 0) {
+        const target = scrollPositionRef.current;
+        if (element && target > 0) {
             const restore = () => {
-                element.scrollTo({ top: scrollPosition });
+                element.scrollTo({ top: target });
                 setIsRestored(true);
             };
 
@@ -42,34 +67,42 @@ export function useScrollRestoration(
         } else {
             setIsRestored(true);
         }
-    }, [hasHydrated, scrollPosition, isRestored, selector]);
+    }, [hasHydrated, isRestored, selector, resetKey]);
 
-    // Scroll Capture Logic
+    // Scroll Capture Logic — track locally, flush to the store only on exit
     useEffect(() => {
         const element = document.querySelector(selector);
         if (!element) return;
 
-        let frameId: number;
+        // Capture the setter for THIS resetKey at subscribe time, so the exit
+        // flush writes to the record we were tracking, not the next one.
+        const setPos = setScrollPositionRef.current;
+        const initialPos = scrollPositionRef.current;
+
+        let lastPos = 0;
+        let dirty = false;
         const handleScroll = () => {
             // Only capture scroll positions AFTER the initial restoration is complete
-            if (!isRestored) return;
-            
-            cancelAnimationFrame(frameId);
-            frameId = requestAnimationFrame(() => {
-                const currentPos = element.scrollTop;
-                // Only save if it's a meaningful change or we are at the top
-                if (currentPos > 0 || (currentPos === 0 && scrollPosition < 100)) {
-                    setScrollPosition(currentPos);
-                }
-            });
+            if (!isRestoredRef.current) return;
+            lastPos = element.scrollTop;
+            dirty = true;
+        };
+
+        const flush = () => {
+            if (!dirty) return;
+            if (lastPos !== initialPos) {
+                setPos(lastPos);
+            }
         };
 
         element.addEventListener('scroll', handleScroll, { passive: true });
+        window.addEventListener('pagehide', flush);
         return () => {
             element.removeEventListener('scroll', handleScroll);
-            cancelAnimationFrame(frameId);
+            window.removeEventListener('pagehide', flush);
+            flush();
         };
-    }, [setScrollPosition, isRestored, scrollPosition, selector]);
+    }, [selector, resetKey]);
 
     return { isRestored };
 }

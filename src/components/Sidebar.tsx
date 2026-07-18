@@ -136,7 +136,7 @@ export function Sidebar() {
                     const isActive = pathname === link.href || (link.href === "/tracks" && pathname?.startsWith("/tracks"));
                     const Icon = link.icon;
                     return (
-                        <Link key={link.href} href={link.href} prefetch={true} className="outline-none m-[2px_8px]">
+                        <Link key={link.href} href={link.href} prefetch={true} aria-current={isActive ? "page" : undefined} className="outline-none m-[2px_8px]">
                             <div className={cn(
                                 "flex items-center gap-2.5 cursor-pointer transition-all duration-150 p-[10px_16px] rounded-xl",
                                 isActive
@@ -157,7 +157,7 @@ export function Sidebar() {
                     const isActive = pathname === link.href;
                     const Icon = link.icon;
                     return (
-                        <Link key={link.href} href={link.href} prefetch={true} className="outline-none m-[2px_8px]">
+                        <Link key={link.href} href={link.href} prefetch={true} aria-current={isActive ? "page" : undefined} className="outline-none m-[2px_8px]">
                             <div className={cn(
                                 "flex items-center gap-2.5 cursor-pointer transition-all duration-150 p-[10px_16px] rounded-xl",
                                 isActive

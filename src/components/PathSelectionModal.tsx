@@ -153,7 +153,6 @@ export function PathSelectionModal({ isOpen, onClose }: PathSelectionModalProps)
 
                                     {isSelected && (
                                         <m.div 
-                                            layoutId="path-glow"
                                             className="absolute inset-0 rounded-[32px] border-2 pointer-events-none"
                                             style={{ borderColor: path.color, opacity: 0.4 }}
                                             initial={{ opacity: 0 }}

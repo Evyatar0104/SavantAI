@@ -1,14 +1,14 @@
 import type { Metadata, Viewport } from "next";
-import "./globals.css";
-import { BottomNav } from "../components/BottomNav";
-import { Sidebar } from "../components/Sidebar";
-import { Providers } from "../components/Providers";
-import { AnimatedBackground } from "../components/AnimatedBackground";
-import { ResumeToast } from "../components/ResumeToast";
-import { VaultToast } from "../components/VaultToast";
-import { PathCompletionModal } from "../components/PathCompletionModal";
 import { Assistant as AssistantFont } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+import "./globals.css";
+import "./design-system.css";
+import { DesktopNavigation, MobileNavigation } from "@/components/AppNavigation";
+import { AnimatedBackground } from "@/components/AnimatedBackground";
+import { PathCompletionModal } from "@/components/PathCompletionModal";
+import { Providers } from "@/components/Providers";
+import { ResumeToast } from "@/components/ResumeToast";
+import { VaultToast } from "@/components/VaultToast";
 
 const assistant = AssistantFont({
   subsets: ["hebrew", "latin"],
@@ -17,8 +17,8 @@ const assistant = AssistantFont({
 });
 
 export const metadata: Metadata = {
-  title: "Savant - Micro-Learning",
-  description: "Social micro-learning app designed for 5-minute deep learning sessions.",
+  title: "Savant — לומדים AI, צעד אחר צעד",
+  description: "שיעורי AI קצרים, מסלולי למידה ותרגול מעשי בעברית.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -50,32 +50,28 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="he" dir="rtl" translate="no" className={`dark notranslate ${assistant.variable}`}>
-      <body className="antialiased text-foreground selection:bg-blue-500/30 selection:text-blue-500 min-h-[100dvh]">
-        <div className="w-full min-h-[100dvh] relative flex font-sans transition-colors duration-500 overflow-x-hidden">
-          <Providers>
-            <Analytics />
+      <body className="min-h-[100dvh] bg-background font-sans text-foreground antialiased selection:bg-violet-500/30 selection:text-white">
+        <Providers>
+          <div dir="rtl" className="app-shell relative flex min-h-[100dvh] w-full overflow-x-hidden">
             <AnimatedBackground />
-
-            {/* Persistent Sidebar for Desktop */}
-            <Sidebar />
+            <DesktopNavigation />
             <ResumeToast />
             <VaultToast />
             <PathCompletionModal />
 
-            {/* Main content area */}
-            <div className="flex-1 min-w-0 flex flex-col relative h-[100dvh]">
-              <main className="flex-1 overflow-y-auto safe-bottom-padding pt-[env(safe-area-inset-top)] md:pb-12 no-scrollbar relative z-10 w-full h-full">
+            <div className="relative flex h-[100dvh] min-w-0 flex-1 flex-col">
+              <main
+                id="main-content"
+                className="app-main safe-bottom-padding relative z-10 h-full w-full flex-1 overflow-y-auto overflow-x-hidden pt-[env(safe-area-inset-top)]"
+              >
                 {children}
               </main>
-              {/* Bottom Nav for Mobile Only */}
-              <div className="md:hidden">
-                <BottomNav />
-              </div>
+              <MobileNavigation />
             </div>
-          </Providers>
-        </div>
+          </div>
+          <Analytics />
+        </Providers>
       </body>
     </html>
   );
 }
-

@@ -11,11 +11,12 @@ import { AchievementCard } from "./AchievementCard";
 export function PathCompletionModal() {
     const newlyCompletedPathId = useSavantStore(state => state.newlyCompletedPathId);
     const clearNewlyCompletedPath = useSavantStore(state => state.clearNewlyCompletedPath);
+    const achievements = useSavantStore(state => state.achievements);
     
     const [path, setPath] = useState(learningPaths.find(p => p.id === newlyCompletedPathId));
 
     useEffect(() => {
-        if (newlyCompletedPathId) {
+        if (newlyCompletedPathId && achievements.includes(newlyCompletedPathId)) {
             const p = learningPaths.find(p => p.id === newlyCompletedPathId);
             setPath(p);
             
@@ -38,9 +39,9 @@ export function PathCompletionModal() {
                 confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
             }, 250);
         }
-    }, [newlyCompletedPathId]);
+    }, [achievements, newlyCompletedPathId]);
 
-    if (!newlyCompletedPathId || !path) return null;
+    if (!newlyCompletedPathId || !path || !achievements.includes(newlyCompletedPathId)) return null;
 
     return (
         <AnimatePresence>
@@ -50,6 +51,7 @@ export function PathCompletionModal() {
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.8, y: 40 }}
                     className="w-full max-w-2xl relative"
+                    style={{ willChange: "transform" }}
                 >
                     {/* Background Glow */}
                     <div 

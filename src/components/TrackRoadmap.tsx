@@ -6,7 +6,7 @@ import { m, useScroll, useSpring, AnimatePresence } from "framer-motion";
 import { CheckCircle2, Lock, Trophy, ChevronLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { type LessonMeta, COURSES, CATEGORIES, type Course, type LessonReward, type Badge, BADGES } from "@/content";
-import { useRef, useMemo } from "react";
+import { useLayoutEffect, useRef, useMemo } from "react";
 import { useSavantStore } from "@/store/useSavantStore";
 import { BadgeCard } from "./BadgeCard";
 
@@ -161,7 +161,12 @@ export function TrackRoadmap({
     completedLessons: string[] 
 }) {
     const containerRef = useRef<HTMLDivElement>(null);
+    const scrollContainerRef = useRef<HTMLElement>(null);
+    useLayoutEffect(() => {
+        scrollContainerRef.current = document.getElementById("main-content");
+    }, []);
     const { scrollYProgress } = useScroll({
+        container: scrollContainerRef,
         target: containerRef,
         offset: ["start center", "end center"]
     });

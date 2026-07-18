@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { calculateLessonRewards, calculateStreakRewards, calculateCourseRewards } from '@/lib/rewardUtils';
 import { learningPaths } from '@/data/learningPaths';
+import { LESSON_INDEX } from '@/content';
 
 type ModelName = "claude" | "chatgpt" | "gemini";
 
@@ -207,12 +208,25 @@ export const useSavantStore = create<SavantState>()(
                     state.completedLessons.length + 1
                 );
 
+                const updatedLessons = [...state.completedLessons, lessonId];
+
                 set({
-                    completedLessons: [...state.completedLessons, lessonId],
+                    completedLessons: updatedLessons,
                     xp: newXp,
                     badges: newBadges,
                     ...(newCard ? { unlockedVaultCard: newCard } : {})
                 });
+
+                // Check if all lessons in the course are now completed
+                const lessonMeta = LESSON_INDEX.find(l => l.id === lessonId);
+                if (lessonMeta) {
+                    const { courseId } = lessonMeta;
+                    const courseLessons = LESSON_INDEX.filter(l => l.courseId === courseId);
+                    const allCompleted = courseLessons.every(l => updatedLessons.includes(l.id));
+                    if (allCompleted) {
+                        get().completeCourse(courseId);
+                    }
+                }
             },
             completePracticeItem: (itemId: string, xp: number) =>
                 set((state: SavantState) => {

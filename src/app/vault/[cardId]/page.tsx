@@ -8,7 +8,7 @@ import dynamic from "next/dynamic";
 
 const CardScene = dynamic(() => import("@/components/vault/CardScene"), { 
     ssr: false,
-    loading: () => <div className="w-full h-full bg-[#050508] animate-pulse" />
+    loading: () => <div className="w-full h-full bg-[#0d0f1a] animate-pulse" />
 });
 
 function CardView() {
@@ -29,11 +29,11 @@ function CardView() {
         setMounted(true);
     }, []);
 
-    if (!mounted) return <div className="min-h-screen bg-[#050508]" />;
+    if (!mounted) return <div className="min-h-screen bg-[#0d0f1a]" />;
 
     if (!badge || !earned) {
         return (
-            <div className="min-h-screen bg-[#050508] flex items-center justify-center text-white flex-col gap-4">
+            <div className="min-h-screen bg-[#0d0f1a] flex items-center justify-center text-white flex-col gap-4">
                 <h1 className="text-2xl">הקלף לא נמצא או שטרם הושג.</h1>
                 <button 
                     onClick={() => router.push(`/${from === "profile" ? "profile" : "vault"}`)}
@@ -88,7 +88,7 @@ function CardView() {
 
 export default function CardViewPage() {
     return (
-        <Suspense fallback={<div className="min-h-screen bg-[#050508]" />}>
+        <Suspense fallback={<div className="min-h-screen bg-[#0d0f1a]" />}>
             <CardView />
         </Suspense>
     );

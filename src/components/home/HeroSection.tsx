@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { m } from "framer-motion";
+import { m, useReducedMotion } from "framer-motion";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FLOATING_ICONS_MAP, type LessonTheme } from "@/lib/lessonTheme";
@@ -48,6 +48,7 @@ interface HeroSectionProps {
 }
 
 export function HeroSection({ heroLesson, theme, floatingIcons }: HeroSectionProps) {
+    const reduceMotion = useReducedMotion();
     return (
         <section className="relative w-full pt-4 min-h-[350px] md:min-h-[420px]">
           <Link href={`/lesson/${heroLesson.id}?from=home`} className="group block focus:outline-none perspective-1000" dir="rtl">
@@ -79,7 +80,7 @@ export function HeroSection({ heroLesson, theme, floatingIcons }: HeroSectionPro
                         lineHeight: 1,
                         willChange: 'transform, opacity',
                       }}
-                      animate={{
+                      animate={reduceMotion ? undefined : {
                         y: [fi.dy * 0.9, fi.dy * 0.9 - 15, fi.dy * 0.9],
                         x: [fi.dx * 0.9, fi.dx * 0.9 + 8, fi.dx * 0.9],
                         rotate: [0, fi.rotateRange, 0],
@@ -92,7 +93,7 @@ export function HeroSection({ heroLesson, theme, floatingIcons }: HeroSectionPro
                   ))}
 
                   <m.div
-                    animate={{ y: [0, -12, 0], rotate: [-3, 3, -3] }}
+                    animate={reduceMotion ? undefined : { y: [0, -12, 0], rotate: [-3, 3, -3] }}
                     transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
                     className="relative z-10 text-[180px] lg:text-[230px] leading-none select-none opacity-50 group-hover:opacity-100 transition-opacity duration-700 flex items-center justify-center"
                     style={{ willChange: 'transform' }}
@@ -137,9 +138,9 @@ export function HeroSection({ heroLesson, theme, floatingIcons }: HeroSectionPro
                           fontSize: `${fi.size}px`, opacity: fi.opacity,
                           willChange: 'transform, opacity',
                         }}
-                        animate={{ 
-                          y: [fi.dy, fi.dy - 10, fi.dy], 
-                          rotate: [0, 10, 0] 
+                        animate={reduceMotion ? undefined : {
+                          y: [fi.dy, fi.dy - 10, fi.dy],
+                          rotate: [0, 10, 0]
                         }}
                         transition={{ duration: fi.duration, repeat: Infinity, ease: "easeInOut" }}
                       >
@@ -148,7 +149,8 @@ export function HeroSection({ heroLesson, theme, floatingIcons }: HeroSectionPro
                     ))}
                     <m.div 
                       className="relative z-10 text-[160px] leading-none select-none opacity-90 flex items-center justify-center"
-                      animate={{ y: [0, -8, 0] }}
+                      style={{ willChange: 'transform' }}
+                      animate={reduceMotion ? undefined : { y: [0, -8, 0] }}
                       transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
                     >
                       {heroLesson.icon?.startsWith("@") ? (

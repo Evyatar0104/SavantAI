@@ -198,7 +198,7 @@ export default function CardScene({ badge, userName }: { badge: Badge; userName:
             style={{ 
                 width: "100%", 
                 height: "100%", 
-                background: "#050508", 
+                background: "#0d0f1a", 
                 touchAction: "none",
                 userSelect: "none"
             }}
@@ -214,10 +214,10 @@ export default function CardScene({ badge, userName }: { badge: Badge; userName:
                     preserveDrawingBuffer: false
                 }}
                 onCreated={({ gl }) => {
-                    gl.setClearColor("#050508");
+                    gl.setClearColor("#0d0f1a");
                 }}
             >
-                <color attach="background" args={["#050508"]} />
+                <color attach="background" args={["#0d0f1a"]} />
                 
                 <ambientLight intensity={0.5} />
                 <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={2} castShadow />
